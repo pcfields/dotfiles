@@ -190,6 +190,7 @@ vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 map({ "n" }, "<C-p>", "<cmd>:Lazy<cr>", { desc = "Open Lazy Plugin Manager" })
 map({ "n" }, "<leader>gv", "<cmd>::DiffviewOpen<cr>", { desc = "Open Git diff view" })
 map({ "n" }, "<leader>gx", "<cmd>::DiffviewClose<cr>", { desc = "Close Git diff view" })
+map({ "n" }, "<leader>oc", "<cmd>CopilotChatToggle<cr>", { desc = "Toggle CopilotChat window" })
 
 --------------------------------------------------------------------------------------------
 -- Diagnostics (Errors)  --------------------------------------------------------------------------------
