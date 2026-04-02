@@ -1,20 +1,2 @@
--- [[ Highlight on yank ]]
--- See `:help vim.highlight.on_yank()`
-local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
-
-vim.api.nvim_create_autocmd("TextYankPost", {
-	callback = function()
-		vim.highlight.on_yank({ timeout = 300 })
-	end,
-	group = highlight_group,
-	pattern = "*",
-})
-
--- Astro commands
-vim.cmd("autocmd BufRead,BufEnter *.astro set filetype=astro")
-
-vim.filetype.add({
-	extension = {
-		astro = "astro",
-	},
-})
+-- NOTE: Yank highlight is now a Neovim default (0.11+)
+-- NOTE: Astro filetype detection is handled by ftdetect/astro.lua

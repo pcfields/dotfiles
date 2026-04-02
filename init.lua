@@ -55,7 +55,6 @@ plugin_manager.setup({
 
 	plugin("testing.neo-test"),
 
-	plugin("ui.dressing"),
 	plugin("ui.lualine"),
 	plugin("ui.noice"),
 	plugin("ui.snacks"),

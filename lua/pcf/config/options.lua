@@ -65,7 +65,7 @@ opt.shiftwidth = 2 -- Size of an indent
 opt.sidescrolloff = 8 -- Columns of context
 opt.signcolumn = "yes" -- -- Always show the sign column to prevent text shifting
 opt.shortmess:append({ W = true, I = true, c = true, C = true }) -- Shorten various Vim messages
-opt.showmode = true -- Display the current mode in the status line
+opt.showmode = false -- Disable, lualine already shows mode in lualine_a
 opt.showtabline = 0 -- neovim only display tabline when there are at least two tab pages. If you want always display tabline
 opt.smartindent = true -- Insert indents automatically
 opt.smartcase = true -- Make searches case-sensitive when using uppercase letters.Don't ignore case with capitals
@@ -78,7 +78,7 @@ opt.swapfile = false -- Disable swap files to avoid cluttering directories
 opt.softtabstop = 2 -- Number of spaces that a <Tab> counts for while performing editing operations
 
 opt.tabstop = 2 -- Number of spaces tabs count for-- Set the width of a tab character
-opt.termguicolors = true -- Enable true color support for better color rendering
+-- NOTE: termguicolors is now a Neovim default (0.10+)
 opt.timeout = true -- Enable timeout for key mappings
 opt.timeoutlen = 300
 
@@ -87,8 +87,6 @@ opt.undofile = true -- Save undo history -- Enable persistent undo across sessio
 opt.updatetime = 200 -- Reduce updatetime for faster response and better user experience
 
 opt.virtualedit = "block" -- Allow cursor to move where there is no text in visual block mode
-opt.wildmode = "longest:full,full" -- Command-line completion mode
-opt.winminwidth = 5 -- Minimum window width
 opt.wildmode = "longest:full,full" -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
 opt.wrap = false -- Disable line wrap
