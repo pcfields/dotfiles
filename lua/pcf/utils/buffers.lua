@@ -11,19 +11,9 @@ local Colors = {
 	gray_light = "#4d5c7b",
 }
 
--- Function to get the number of open buffers using the :ls command
+-- Function to get the number of open buffers
 function M.get_buffer_count()
-	local open_buffers = vim.fn.execute("ls") -- ls is equal to buffers
-	local count = 0
-
-	-- Match only lines that represent buffers, typically starting with a number followed by a space
-	for line in string.gmatch(open_buffers, "[^\r\n]+") do
-		if string.match(line, "^%s*%d+") then
-			count = count + 1
-		end
-	end
-
-	return count
+	return #vim.fn.getbufinfo({ buflisted = 1 })
 end
 
 function M.get_winbar_filename()
