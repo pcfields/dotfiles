@@ -1,31 +1,32 @@
--- https://github.com/numToStr/Comment.nvim
+-- Use native Neovim 0.10+ commenting (gc/gcc) with JSX/TSX context awareness
+-- via ts_context_commentstring, replacing Comment.nvim
 
 return {
-	"numToStr/Comment.nvim",
+	"JoosepAlviste/nvim-ts-context-commentstring",
 	lazy = false,
-	dependencies = { "JoosepAlviste/nvim-ts-context-commentstring" },
 	config = function()
-		local ts_context_commentstring = require("ts_context_commentstring.integrations.comment_nvim")
+		---@diagnostic disable-next-line: inject-field
+		vim.g.skip_ts_context_commentstring_module = true
 
-		require("Comment").setup({
-			-- for commenting tsx, jsx, svelte, html files
-			pre_hook = ts_context_commentstring.create_pre_hook(),
-			padding = true, ---Add a space b/w comment and the line
-			sticky = true, ---Whether the cursor should stay at its position
-			---LHS of toggle mappings in NORMAL mode
-			toggler = {
-				line = "<leader>lk", ---Line-comment toggle keymap
-				block = "<leader>bk", ---Block-comment toggle keymap
-			},
-			---LHS of operator-pending mappings in NORMAL and VISUAL mode
-			opleader = {
-				line = "<leader>lk", ---Line-comment keymap
-				block = "<leader>bk", ---Block-comment keymap
-			},
-			mappings = {
-				basic = true, ---Operator-pending mapping; `gcc` `gbc` `gc[count]{motion}` `gb[count]{motion}`
-				extra = true, ---Extra mapping; `gco`, `gcO`, `gcA`
-			},
+		require("ts_context_commentstring").setup({
+			enable_autocmd = false,
 		})
+
+		-- Override native commentstring resolution with treesitter-aware version
+		local get_option = vim.filetype.get_option
+		---@diagnostic disable-next-line: duplicate-set-field
+		vim.filetype.get_option = function(filetype, option)
+			return option == "commentstring"
+				and require("ts_context_commentstring.internal").calculate_commentstring()
+				or get_option(filetype, option)
+		end
+
+		-- Custom keymaps to match previous <leader>lk / <leader>bk mappings
+		local map = require("pcf.utils").map
+
+		map({ "n" }, "<leader>lk", "gcc", { desc = "Toggle line comment", remap = true })
+		map({ "v" }, "<leader>lk", "gc", { desc = "Toggle line comment", remap = true })
+		map({ "n" }, "<leader>bk", "gbc", { desc = "Toggle block comment", remap = true })
+		map({ "v" }, "<leader>bk", "gb", { desc = "Toggle block comment", remap = true })
 	end,
 }
