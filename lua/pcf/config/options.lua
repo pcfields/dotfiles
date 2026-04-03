@@ -15,7 +15,7 @@ opt.autoindent = true -- Automatically indent new lines based on the previous li
 opt.backup = false -- Disable backup files to avoid cluttering directories
 opt.breakindent = true -- Maintain indent when wrapping lines for better readability
 
-opt.completeopt = "menu,menuone,noselect" -- Configure completion menu for better usability
+opt.completeopt = "menu,menuone,noselect,popup" -- Configure completion menu; popup enables completionItem/resolve preview
 opt.conceallevel = 2 -- Hide certain syntax characters in markdown and other files
 opt.confirm = true -- Prompt to save changes when closing unsaved buffers
 opt.cursorline = true -- Highlight the current line for easier visual tracking
