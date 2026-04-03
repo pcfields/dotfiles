@@ -16,6 +16,7 @@ return { -- Debugger
 	config = function()
 		local dap = require("dap")
 		local dapui = require("dapui")
+		local map = require("pcf.utils").map
 
 		require("dapui").setup()
 		require("nvim-dap-virtual-text").setup({})
@@ -29,38 +30,11 @@ return { -- Debugger
 			handlers = {}, -- Use default handlers
 		})
 
-	-- Setup Javascript adapters
-	-- https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#javascript
-
-	dap.adapters["pwa-node"] = {
-		type = "server",
-		host = "localhost",
-		port = "${port}",
-		executable = {
-			command = "node",
-			args = { vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js", "${port}" },
-		},
-	}
-
-	dap.adapters["pwa-chrome"] = {
-		type = "server",
-		host = "localhost",
-		port = "${port}",
-		executable = {
-			command = "node",
-			args = { vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js", "${port}" },
-		},
-	}
-
-	dap.adapters["pwa-msedge"] = {
-		type = "server",
-		host = "localhost",
-		port = "${port}",
-		executable = {
-			command = "node",
-			args = { vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js", "${port}" },
-		},
-	}
+		-- Setup nvim-dap-vscode-js to configure JS/TS debug adapters
+		require("dap-vscode-js").setup({
+			debugger_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter",
+			adapters = { "pwa-node", "pwa-chrome", "pwa-msedge" },
+		})
 
 	dap.configurations.javascript = {
 		{
@@ -228,16 +202,16 @@ return { -- Debugger
 		})
 	end
 		-- toggle to see last session result. Without this ,you can't see session output in case of unhandled exception.
-		vim.keymap.set("n", "<F7>", dapui.toggle, { desc = "[Debugger] Toggle last session result" })
+		map("n", "<F7>", dapui.toggle, { desc = "[Debugger] Toggle last session result" })
 
 		-- Basic debugging keymaps, feel free to change to your liking!
-		vim.keymap.set("n", "<F5>", dap.continue, { desc = "[Debugger] Continue" })
-		vim.keymap.set("n", "<F1>", dap.step_into, { desc = "[Debugger] Step into" })
-		vim.keymap.set("n", "<F2>", dap.step_over, { desc = "[Debugger] Step over" })
-		vim.keymap.set("n", "<F3>", dap.step_out, { desc = "[Debugger] Step out" })
+		map("n", "<F5>", dap.continue, { desc = "[Debugger] Continue" })
+		map("n", "<F1>", dap.step_into, { desc = "[Debugger] Step into" })
+		map("n", "<F2>", dap.step_over, { desc = "[Debugger] Step over" })
+		map("n", "<F3>", dap.step_out, { desc = "[Debugger] Step out" })
 
-		vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "[Debugger] Toggle breakpoint" })
-		vim.keymap.set("n", "<leader>dB", function()
+		map("n", "<leader>db", dap.toggle_breakpoint, { desc = "[Debugger] Toggle breakpoint" })
+		map("n", "<leader>dB", function()
 			dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 		end, { desc = "[Debugger] Set breakpoint condition" })
 
