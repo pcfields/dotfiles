@@ -11,16 +11,24 @@ local Colors = {
 	gray_light = "#4d5c7b",
 }
 
+-- Set winbar highlight groups once, and re-apply on colorscheme change
+local function setup_winbar_highlights()
+	vim.api.nvim_set_hl(0, "FilenameColor", { fg = Colors.pale_blue })
+	vim.api.nvim_set_hl(0, "BrightGreenColor", { fg = Colors.bright_green, bold = true })
+	vim.api.nvim_set_hl(0, "FilePathDimColor", { fg = Colors.gray_light, bold = true })
+end
+
+setup_winbar_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", {
+	callback = setup_winbar_highlights,
+})
+
 -- Function to get the number of open buffers
 function M.get_buffer_count()
 	return #vim.fn.getbufinfo({ buflisted = 1 })
 end
 
 function M.get_winbar_filename()
-	vim.api.nvim_set_hl(0, "FilenameColor", { fg = Colors.pale_blue })
-	vim.api.nvim_set_hl(0, "BrightGreenColor", { fg = Colors.bright_green, bold = true })
-	vim.api.nvim_set_hl(0, "FilePathDimColor", { fg = Colors.gray_light, bold = true })
-
 	local file_path = vim.api.nvim_eval_statusline("%f", {}).str
 	local open_buffers_count = M.get_buffer_count()
 	local is_buffer_modified = vim.api.nvim_eval_statusline("%m", {}).str == "[+]"
