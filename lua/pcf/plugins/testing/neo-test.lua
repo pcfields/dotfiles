@@ -4,10 +4,8 @@ return { -- Run tests
 	dependencies = {
 		"nvim-neotest/nvim-nio",
 		"nvim-lua/plenary.nvim",
-		"antoinemadec/FixCursorHold.nvim",
 		"nvim-treesitter/nvim-treesitter",
 		"marilari88/neotest-vitest",
-		"nvim-neotest/neotest-jest",
 	},
 	config = function()
 		local map = require("pcf.utils").map
