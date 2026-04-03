@@ -2,12 +2,15 @@ return {
   "neovim/nvim-lspconfig",
   dependencies = {
     { "williamboman/mason.nvim", config = true },
-    { "saghen/blink.cmp" },
   },
   config = function()
-    local capabilities = require("blink.cmp").get_lsp_capabilities(
-      vim.lsp.protocol.make_client_capabilities()
-    )
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+
+    -- Merge blink.cmp capabilities if available
+    local blink_ok, blink = pcall(require, "blink.cmp")
+    if blink_ok then
+      capabilities = blink.get_lsp_capabilities(capabilities)
+    end
 
     -- Server configurations using native Neovim 0.12 API
     local language_servers = {
