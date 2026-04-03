@@ -1,32 +1,5 @@
 -- https://github.com/Saghen/blink.cmp
 
--- Set to false to try native LSP completion (Neovim 0.12+)
--- Set to true to use blink.cmp
-local USE_BLINK = false
-
-if not USE_BLINK then
-	-- Native LSP completion setup
-	vim.api.nvim_create_autocmd("LspAttach", {
-		callback = function(args)
-			local client = vim.lsp.get_client_by_id(args.data.client_id)
-			if client and client:supports_method("textDocument/completion") then
-				vim.lsp.completion.enable(true, client.id, args.buf, {
-					autotrigger = true,
-				})
-			end
-		end,
-	})
-
-	-- Load LuaSnip and custom snippets (independent of blink)
-	local ok, luasnip = pcall(require, "luasnip")
-	if ok then
-		luasnip.setup({ enable_autosnippets = true })
-		require("pcf.snippets.all")
-	end
-
-	return { "saghen/blink.cmp", enabled = false }
-end
-
 return {
 	"saghen/blink.cmp",
 	dependencies = {
