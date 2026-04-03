@@ -2,7 +2,6 @@
 -- [[ Setting options ]]
 local opt = vim.opt
 
-vim.wo.number = true -- Make line numbers default
 -- Disable Netrw, Vim's built-in file explorer, to use a custom file tree plugin instead
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
