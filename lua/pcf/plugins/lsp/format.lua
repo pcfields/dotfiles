@@ -7,7 +7,7 @@ return { -- Code formatting
 		local conform = require("conform")
 
 		local save_settings = {
-			lsp_fallback = true,
+			lsp_format = "fallback",
 			async = false,
 			timeout_ms = 10000,
 		}
