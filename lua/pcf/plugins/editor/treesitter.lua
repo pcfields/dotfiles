@@ -31,20 +31,13 @@ return { -- Highlight, edit, and navigate code
 			highlight = {
 				enable = true,
 			},
-			indent = {
-				enable = true,
-				disable = { "python" },
-			},
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<leader>;",
-					node_incremental = "<leader>;",
-					scope_incremental = "<c-s>",
-					node_decremental = "<leader>'",
-				},
-			},
-			-- Enable syntax aware text objects
+		indent = {
+			enable = true,
+			disable = { "python" },
+		},
+		-- NOTE: incremental_selection replaced by native v_an/v_in in Neovim 0.12+
+		-- Use `an` to expand selection outward and `in` to shrink inward in visual mode
+		-- Enable syntax aware text objects
 			textobjects = {
 				select = {
 					enable = true,
