@@ -1,16 +1,11 @@
 local M = {}
 
-local icons = require("pcf.utils.icons")
-
-local Icons = {
-	MODIFIED = " " .. icons.ui.LineModified .. " ",
-	UNMODIFIED = " " .. icons.ui.Circle .. " ",
-}
-
 local Colors = {
 	bright_green = "#00ff00",
 	pale_blue = "#78a9ff",
 	gray_light = "#4d5c7b",
+	orange = "#ff9e64",
+	dark_gray = "#3b4261",
 }
 
 -- Set winbar highlight groups once, and re-apply on colorscheme change
@@ -18,6 +13,8 @@ local function setup_winbar_highlights()
 	vim.api.nvim_set_hl(0, "FilenameColor", { fg = Colors.pale_blue })
 	vim.api.nvim_set_hl(0, "BrightGreenColor", { fg = Colors.bright_green, bold = true })
 	vim.api.nvim_set_hl(0, "FilePathDimColor", { fg = Colors.gray_light, bold = true })
+	vim.api.nvim_set_hl(0, "WinbarModified", { fg = Colors.orange })
+	vim.api.nvim_set_hl(0, "WinbarUnmodified", { fg = Colors.dark_gray })
 end
 
 setup_winbar_highlights()
@@ -34,7 +31,7 @@ function M.get_winbar_filename()
 	local file_path = vim.api.nvim_eval_statusline("%f", {}).str
 	local open_buffers_count = M.get_buffer_count()
 	local is_buffer_modified = vim.api.nvim_eval_statusline("%m", {}).str == "[+]"
-	local modified_buffer_icon = is_buffer_modified and Icons.MODIFIED or Icons.UNMODIFIED
+	local modified_buffer_icon = is_buffer_modified and "%#WinbarModified# ● " or "%#WinbarUnmodified# ● "
 
 	local directory_path = vim.fn.fnamemodify(file_path, ":h") -- Directory (head, no filename)
 	directory_path = directory_path:gsub("\\", "/")           -- Replace backslashes with forward slashes for consistency
@@ -44,8 +41,8 @@ function M.get_winbar_filename()
 	local dimmed_directory_path = "%#FilePathColor#" .. directory_path .. "/"
 	local bright_filename = "%#BrightGreenColor#" .. filename
 
-	return "%#BrightGreenColor#" ..
-			modified_buffer_icon .. open_buffers_count_formatted .. dimmed_directory_path .. bright_filename
+	return modified_buffer_icon ..
+			"%#BrightGreenColor#" .. open_buffers_count_formatted .. dimmed_directory_path .. bright_filename
 end
 
 return M
