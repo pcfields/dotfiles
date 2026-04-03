@@ -1,8 +1,10 @@
 local M = {}
 
+local icons = require("pcf.utils.icons")
+
 local Icons = {
-	MODIFIED = " 🟠 ",
-	UNMODIFIED = " ⚫️ ",
+	MODIFIED = " " .. icons.ui.LineModified .. " ",
+	UNMODIFIED = " " .. icons.ui.Circle .. " ",
 }
 
 local Colors = {
