@@ -54,6 +54,7 @@ opt.mouse = "a" -- Enable mouse support in all modes for easier navigation
 opt.number = true -- Show absolute line numbers
 
 opt.pumblend = 0 -- Sets popup menu transparency
+opt.pumborder = "rounded" -- Add border to completion popup menu (Neovim 0.12+)
 opt.pumheight = 10 -- Maximum number of items to show in the popup menu
 
 opt.relativenumber = true -- Relative line numbers
