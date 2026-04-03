@@ -11,12 +11,10 @@ return { -- Pretty notification messages
 	},
 	config = function()
 		require("noice").setup({
-			lsp = {
-				routes = {
-					{
-						view = "notify",
-						filter = { event = "msg_showmode" },
-					},
+			routes = {
+				{
+					view = "notify",
+					filter = { event = "msg_showmode" },
 				},
 			},
 			views = {
