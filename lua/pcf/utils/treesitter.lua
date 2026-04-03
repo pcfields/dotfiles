@@ -61,7 +61,7 @@ local function get_command_suffix(treesitter_node)
 end
 
 local function get_treesitter_node_at_cursor()
-	return require("nvim-treesitter.ts_utils").get_node_at_cursor()
+	return vim.treesitter.get_node()
 end
 
 function M.execute_command_on_enclosing_node(command)
