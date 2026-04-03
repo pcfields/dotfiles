@@ -51,7 +51,6 @@ plugin_manager.setup({
 
 	plugin("navigation.mini-files"),
 	plugin("navigation.neo-tree"),
-	plugin("navigation.oil"),
 
 	plugin("testing.neo-test"),
 
