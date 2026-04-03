@@ -22,7 +22,7 @@ return { -- Neovim statusline plugin
 				ignore_focus = {},
 				always_divide_middle = true,
 				always_show_tabline = true,
-				globalstatus = false,
+				globalstatus = true,
 				refresh = {
 					statusline = 100,
 					tabline = 100,
