@@ -168,21 +168,21 @@ map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move up" })
 --------------------------------------------------------------------------------------------
 -- Terminal
 --------------------------------------------------------------------------------------------
-function _G.set_terminal_keymaps()
-	local terminal_opts = { buffer = 0 }
+vim.api.nvim_create_autocmd("TermOpen", {
+	pattern = "term://*",
+	callback = function()
+		local buf = 0
 
-	map({ "t" }, "<A-i>", [[<C-\><C-n>]], { desc = "Exit terminal mode", buffer = terminal_opts.buffer })
-	map({ "t" }, "<A-w>", [[<C-\><C-n><C-w>]],
-		{ desc = "Exit terminal mode and enter window command mode", buffer = terminal_opts.buffer })
+		map("t", "<A-i>", [[<C-\><C-n>]], { desc = "Exit terminal mode", buffer = buf })
+		map("t", "<A-w>", [[<C-\><C-n><C-w>]],
+			{ desc = "Exit terminal mode and enter window command mode", buffer = buf })
 
-	map({ "t" }, "<A-h>", [[<Cmd>wincmd h<CR>]], { desc = "Move to left window", buffer = terminal_opts.buffer })
-	map({ "t" }, "<A-j>", [[<Cmd>wincmd j<CR>]], { desc = "Move to lower window", buffer = terminal_opts.buffer })
-	map({ "t" }, "<A-k>", [[<Cmd>wincmd k<CR>]], { desc = "Move to upper window", buffer = terminal_opts.buffer })
-	map({ "t" }, "<A-l>", [[<Cmd>wincmd l<CR>]], { desc = "Move to right window", buffer = terminal_opts.buffer })
-end
-
--- if you only want these mappings for toggle term use term://*toggleterm#* instead
-vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+		map("t", "<A-h>", [[<Cmd>wincmd h<CR>]], { desc = "Move to left window", buffer = buf })
+		map("t", "<A-j>", [[<Cmd>wincmd j<CR>]], { desc = "Move to lower window", buffer = buf })
+		map("t", "<A-k>", [[<Cmd>wincmd k<CR>]], { desc = "Move to upper window", buffer = buf })
+		map("t", "<A-l>", [[<Cmd>wincmd l<CR>]], { desc = "Move to right window", buffer = buf })
+	end,
+})
 
 --------------------------------------------------------------------------------------------
 -- Open things -----------------------------------------------------------------------------
