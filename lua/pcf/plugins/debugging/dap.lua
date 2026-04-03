@@ -10,7 +10,6 @@ return { -- Debugger
 		"jay-babu/mason-nvim-dap.nvim", -- Add your own debuggers here
 		"theHamsta/nvim-dap-virtual-text",
 		"nvim-neotest/nvim-nio",
-		"williamboman/mason.nvim",
 		"mxsdev/nvim-dap-vscode-js",
 	},
 	config = function()
