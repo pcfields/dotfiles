@@ -3,7 +3,6 @@
 -----------------------------------------------------
 require("pcf.config.options")
 require("pcf.config.keymaps")
-require("pcf.config.auto-commands")
 require("pcf.config.diagnostics")
 
 -----------------------------------------------------

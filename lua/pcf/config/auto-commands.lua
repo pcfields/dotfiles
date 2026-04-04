@@ -1,2 +1,0 @@
--- NOTE: Yank highlight is now a Neovim default (0.11+)
--- NOTE: Astro filetype detection is handled by ftdetect/astro.lua
