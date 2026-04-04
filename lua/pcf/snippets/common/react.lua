@@ -26,20 +26,6 @@ export function {}() {{
         insert_node(2, "")
     })),
 
-    snippet("rsc", fmt([[
-
-export function {}() {{
-    return (
-        <div>
-            {}
-        </div>
-    );
-}}
-]], {
-        insert_node(1, "ComponentName"),
-        insert_node(2, "")
-    })),
-
     snippet("useState", fmt("const [{}, set{}] = useState({});", {
         insert_node(1, "state"),
         insert_node(2, "State"),

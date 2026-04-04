@@ -1,5 +1,5 @@
 -- TypeScript React Snippets - Using shared modules
-local luasnip_ok, luasnip = pcall(require, "luasnip")
+local luasnip_ok, _ = pcall(require, "luasnip")
 if not luasnip_ok then
     return
 end
