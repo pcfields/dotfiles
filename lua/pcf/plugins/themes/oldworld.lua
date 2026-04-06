@@ -1,20 +1,22 @@
 --------------------------------------------------------------
--- THEME: NightFox
--- URL: https://github.com/EdenEast/nightfox.nvim
--- options >>  nightfox | carbonfox | duskfox | terafox || Light>> dawnfox | dayfox |
+-- THEME: OldWorld
+-- URL: https://github.com/dgox16/oldworld.nvim
+-- options >>  oldworld
 --------------------------------------------------------------
 
 local M = {}
 
-M.colorscheme = "carbonfox"
+M.colorscheme = "oldworld"
 
 function M.spec(active)
 	return {
-		"EdenEast/nightfox.nvim",
+		"dgox16/oldworld.nvim",
 		lazy = not active,
 		priority = active and 1000 or nil,
 		config = function()
-			require("nightfox").setup({})
+			require("oldworld").setup({
+				variant = "default", -- (variants: default | oled | cooler)
+			})
 
 			if active then
 				local status_ok, _ = pcall(vim.cmd, "colorscheme " .. M.colorscheme)

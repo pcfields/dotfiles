@@ -20,7 +20,7 @@ local function plugin(path)
 end
 
 plugin_manager.setup({
-	plugin("themes.nightfox"), -- MAIN THEME
+	plugin("themes").setup("oldworld"), -- options: nightfox | rosepine | oldworld
 
 	plugin("ai.copilot"),
 	plugin("ai.copilot-chat"),
