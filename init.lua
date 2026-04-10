@@ -20,7 +20,7 @@ local function plugin(path)
 end
 
 plugin_manager.setup({
-	plugin("themes").setup("oldworld"), -- options: nightfox | rosepine | oldworld
+	plugin("themes"), -- see lua/pcf/plugins/themes/init.lua
 
 	plugin("ai.copilot"),
 	plugin("ai.copilot-chat"),

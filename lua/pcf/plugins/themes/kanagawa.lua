@@ -1,22 +1,21 @@
 --------------------------------------------------------------
--- THEME: OldWorld
--- URL: https://github.com/dgox16/oldworld.nvim
--- options >>  oldworld
+-- THEME: Kanagawa
+-- URL: https://github.com/rebelot/kanagawa.nvim
+-- options >>  kanagawa | kanagawa-wave | kanagawa-dragon | kanagawa-lotus |
 --------------------------------------------------------------
 
 local M = {}
 
-M.colorscheme = "oldworld"
+M.colorscheme = "kanagawa"
 
 function M.spec(active)
 	return {
-		"dgox16/oldworld.nvim",
+		"rebelot/kanagawa.nvim",
+		name = "kanagawa",
 		lazy = not active,
 		priority = active and 1000 or nil,
 		config = function()
-			require("oldworld").setup({
-				variant = "cooler", -- (variants: default | oled | cooler)
-			})
+			require("kanagawa").setup({})
 
 			if active then
 				local status_ok, _ = pcall(vim.cmd, "colorscheme " .. M.colorscheme)
