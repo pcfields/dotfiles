@@ -20,7 +20,7 @@ function M.spec(active)
 			require("oldworld").setup({
 				variant = "default", -- (variants: default | oled | cooler)
 				highlight_overrides = {
-					Constant = { fg = colors.peach },
+					Constant = { fg = colors.storm },
 					Function = { fg = colors.sky },
 					String = { fg = colors.sage },
 					Type = { fg = colors.orange },
