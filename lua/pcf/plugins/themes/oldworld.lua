@@ -15,22 +15,43 @@ function M.spec(active)
 		priority = active and 1000 or nil,
 		config = function()
 			local colors = require("pcf.utils.colors")
+			local variable_color = colors.storm
 
 			require("oldworld").setup({
 				variant = "default", -- (variants: default | oled | cooler)
 				highlight_overrides = {
-					["@keyword"] = { fg = colors.ice_blue },
-					Constant = { fg = colors.steel_blue },
-					Function = { fg = colors.fern },
-					["@lsp.typemod.function.readonly"] = { fg = colors.fern },
-					String = { fg = colors.peach },
-					["@markup.link.label"] = { fg = colors.default_fg },
-					["@lsp.type.parameter"] = { italic = true },
+					Constant = { fg = colors.storm },
+					Function = { fg = colors.sky },
+					String = { fg = colors.sage },
+					Type = { fg = colors.slate },
+					["@keyword"] = { fg = colors.amber },
+
+					["@variable"] = { fg = variable_color },
+					["@variable.builtin"] = { fg = variable_color },
+					["@variable.parameter"] = { fg = variable_color },
+					["@variable.parameter.builtin"] = { fg = variable_color },
+					["@variable.member"] = { fg = variable_color },
+
+					["@property"] = { fg = colors.frost },
+
+					["@type"] = { fg = colors.orange },
+					["@lsp.type.type"] = { fg = colors.orange },
+					["@lsp.type.variable"] = { fg = variable_color },
+					["@lsp.type.keyword"] = { fg = colors.amber },
+					["@lsp.type.parameter"] = { fg = colors.storm, italic = true },
+
+					["@lsp.typemod.function.readonly"] = { fg = colors.sky },
+					["@lsp.typemod.variable.declaration"] = { fg = colors.storm },
+					["@lsp.typemod.property"] = { fg = colors.silver },
+
+					["@markup.link.label"] = { fg = colors.silver },
+
+					["@tag"] = { fg = colors.terracotta },
+					["@tag.builtin"] = { fg = colors.dusty_sage },
+					["@tag.attribute"] = { fg = colors.soft_clay },
+					["@tag.delimiter"] = { fg = colors.muted_stone },
 				},
 			})
-
-			-- Override harsh palette colors before colorscheme loads
-			local palette = require("oldworld.palette")
 
 			if active then
 				local status_ok, _ = pcall(vim.cmd, "colorscheme " .. M.colorscheme)
