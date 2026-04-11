@@ -1,12 +1,6 @@
 local M = {}
 
-local Colors = {
-	bright_green = "#00ff00",
-	pale_blue = "#78a9ff",
-	gray_light = "#4d5c7b",
-	orange = "#ff9e64",
-	dark_gray = "#3b4261",
-}
+local Colors = require("pcf.utils.colors")
 
 -- Set winbar highlight groups once, and re-apply on colorscheme change
 local function setup_winbar_highlights()
