@@ -3,6 +3,7 @@ local neutrals = {
 	warm_bg = "#1c1e1c",
 	dark_gray = "#3b4261",
 	gray_light = "#4d5c7b",
+	warm_gray = "#6b6462",
 	muted_stone = "#7a7570",
 	ash = "#767676",
 	silver = "#c9c7cd",

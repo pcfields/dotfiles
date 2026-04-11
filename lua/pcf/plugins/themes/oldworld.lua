@@ -20,19 +20,28 @@ function M.spec(active)
 			require("oldworld").setup({
 				variant = "default", -- (variants: default | oled | cooler)
 				highlight_overrides = {
-					Constant = { fg = colors.storm },
+					Constant = { fg = colors.peach },
 					Function = { fg = colors.sky },
 					String = { fg = colors.sage },
-					Type = { fg = colors.slate },
+					Type = { fg = colors.orange },
 					["@keyword"] = { fg = colors.amber },
 
+					["@comment"] = { fg = colors.warm_gray },
+
 					["@variable"] = { fg = variable_color },
-					["@variable.builtin"] = { fg = variable_color },
+					["@variable.builtin"] = { fg = variable_color, italic = true },
 					["@variable.parameter"] = { fg = variable_color },
 					["@variable.parameter.builtin"] = { fg = variable_color },
 					["@variable.member"] = { fg = variable_color },
 
 					["@property"] = { fg = colors.frost },
+
+					["@operator"] = { fg = colors.sandy },
+					["@punctuation"] = { fg = colors.ash },
+					["@punctuation.bracket"] = { fg = colors.ash },
+					["@punctuation.delimiter"] = { fg = colors.ash },
+
+					["@string.escape"] = { fg = colors.rose },
 
 					["@type"] = { fg = colors.orange },
 					["@lsp.type.type"] = { fg = colors.orange },
