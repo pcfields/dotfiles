@@ -31,18 +31,17 @@ function M.get_winbar_filename()
 	local file_path = vim.api.nvim_eval_statusline("%f", {}).str
 	local open_buffers_count = M.get_buffer_count()
 	local is_buffer_modified = vim.api.nvim_eval_statusline("%m", {}).str == "[+]"
-	local modified_buffer_icon = is_buffer_modified and "%#WinbarModified# ● " or "%#WinbarUnmodified# ● "
+	local modified_buffer_icon = is_buffer_modified and "%#WinbarModified# 🟠 " or "%#WinbarUnmodified# ⚫ "
 
 	local directory_path = vim.fn.fnamemodify(file_path, ":h") -- Directory (head, no filename)
-	directory_path = directory_path:gsub("\\", "/")           -- Replace backslashes with forward slashes for consistency
-	local filename = vim.fn.fnamemodify(file_path, ":t")      -- Tail (filename only)
+	directory_path = directory_path:gsub("\\", "/") -- Replace backslashes with forward slashes for consistency
+	local filename = vim.fn.fnamemodify(file_path, ":t") -- Tail (filename only)
 
 	local open_buffers_count_formatted = "(" .. open_buffers_count .. ") "
 	local dimmed_directory_path = "%#FilePathColor#" .. directory_path .. "/"
 	local bright_filename = "%#BrightGreenColor#" .. filename
 
-	return modified_buffer_icon ..
-			"%#BrightGreenColor#" .. open_buffers_count_formatted .. dimmed_directory_path .. bright_filename
+	return modified_buffer_icon .. "%#BrightGreenColor#" .. open_buffers_count_formatted .. dimmed_directory_path .. bright_filename
 end
 
 return M
