@@ -4,17 +4,13 @@
 require("pcf.config.options")
 require("pcf.config.keymaps")
 require("pcf.config.diagnostics")
+require("pcf.config.autocmds")
 
 -----------------------------------------------------
 -- Install plugin manager
 -----------------------------------------------------
 local plugin_manager = require("pcf.config.plugin-manager")
 
------------------------------------------------------
--- Load plugins
------------------------------------------------------
-
--- Helper function to reduce duplication
 local function plugin(path)
 	return require("pcf.plugins." .. path)
 end
