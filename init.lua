@@ -16,10 +16,9 @@ local function plugin(path)
 end
 
 plugin_manager.setup({
-	plugin("themes"), -- see lua/pcf/plugins/themes/init.lua
+	plugin("themes"),
 
 	plugin("ai.copilot"),
-	plugin("ai.copilot-chat"),
 
 	plugin("completion.blink"),
 
