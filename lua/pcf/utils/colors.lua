@@ -36,13 +36,24 @@ local greens = {
 	sea = "#5a9e9b",
 	fern = "#6b9f6b",
 	sage = "#5faf5f",
-	moss = "#5faf6f",
 	aqua = "#5faba8",
 	bright_green = "#00ff00",
 	teal = "#7da8a0",
 	dusty_sage = "#8a9a7b",
 	olive = "#a8b070",
 	mint = "#87d787",
+}
+
+-- reds / crimsons (dark to light)
+local reds = {
+	maroon = "#6e2c2c",
+	crimson = "#8b1a1a",
+	brick = "#a63228",
+	rust = "#b7410e",
+	tomato = "#c0392b",
+	rose_red = "#c43c3c",
+	coral = "#e07b6a",
+	salmon = "#e8927a",
 }
 
 -- warm / earth tones (dark to light)
@@ -58,7 +69,7 @@ local warms = {
 -- flatten all groups into a single module
 local M = {}
 
-local groups = { neutrals, purples, blues, greens, warms }
+local groups = { neutrals, purples, blues, greens, warms, reds }
 
 for _, group in ipairs(groups) do
 	for name, hex in pairs(group) do

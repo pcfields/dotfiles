@@ -21,7 +21,7 @@ function M.spec(active)
 				variant = "default", -- (variants: default | oled | cooler)
 				highlight_overrides = {
 					Constant = { fg = colors.storm },
-					Function = { fg = colors.sky },
+					Function = { fg = colors.sky }, -- for function declarations. not function calls
 					String = { fg = colors.sage },
 					Type = { fg = colors.orange },
 					["@keyword"] = { fg = colors.amber },
@@ -34,23 +34,24 @@ function M.spec(active)
 					["@variable.parameter.builtin"] = { fg = variable_color },
 					["@variable.member"] = { fg = variable_color },
 
-					["@property"] = { fg = colors.frost },
+					["@property"] = { fg = colors.silver },
+					["@property.builtin"] = { fg = colors.silver, italic = true },
 
-					["@operator"] = { fg = colors.sandy },
+					["@operator"] = { fg = colors.sandy }, -- for any operator e.g. `+`, `-`, `*`, `/`, `=`, etc.
 					["@punctuation"] = { fg = colors.ash },
 					["@punctuation.bracket"] = { fg = colors.ash },
 					["@punctuation.delimiter"] = { fg = colors.ash },
 
 					["@string.escape"] = { fg = colors.rose },
 
-					["@type"] = { fg = colors.orange },
-					["@lsp.type.type"] = { fg = colors.orange },
-					["@lsp.type.variable"] = { fg = variable_color },
+					["@type"] = { fg = colors.orange },     -- types, enums, interfaces, etc.
+					["@lsp.type.type"] = { fg = colors.orange }, -- for type declarations e.g. type alias name.
+					["@lsp.type.variable"] = { fg = colors.silver },
 					["@lsp.type.keyword"] = { fg = colors.amber },
 					["@lsp.type.parameter"] = { fg = colors.storm, italic = true },
 
-					["@lsp.typemod.function.readonly"] = { fg = colors.sky },
-					["@lsp.typemod.variable.declaration"] = { fg = colors.storm },
+					["@lsp.typemod.function.readonly"] = { fg = colors.sky }, -- functions called and/or declared with const. Not function declaration
+					["@lsp.typemod.variable.declaration"] = { fg = colors.mauve }, -- for variable declarations e.g. const, let, var
 					["@lsp.typemod.property"] = { fg = colors.silver },
 
 					["@markup.link.label"] = { fg = colors.silver },
