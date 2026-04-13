@@ -6,7 +6,6 @@
 -- nightfox  >>  nightfox | carbonfox | duskfox | terafox || Light>> dawnfox | dayfox
 -- rosepine  >>  rose-pine | rose-pine-main | rose-pine-moon | rose-pine-dawn
 -- oldworld    >>  oldworld (variants: default | oled | cooler)
--- kanagawa    >>  kanagawa | kanagawa-wave | kanagawa-dragon | kanagawa-lotus
 --------------------------------------------------------------
 
 local active_theme = "oldworld"
