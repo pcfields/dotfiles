@@ -40,6 +40,8 @@
     tree                # directory tree view
     unzip
     xclip               # clipboard support
+    httpie              # user-friendly HTTP client (http/https commands)
+    shellcheck          # linter for bash/sh scripts
 
     # --- System & networking ---
     htop
