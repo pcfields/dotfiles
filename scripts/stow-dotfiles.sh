@@ -13,6 +13,7 @@ DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 # ── Stow packages to link ───────────────────────────────────────────
 # Add new directories here as you add more configs to dotfiles
 STOW_PACKAGES=(
+  bash
   nvim
   ohmyposh
   wezterm
