@@ -12,6 +12,7 @@
 #   ./install.sh mise      # Run only mise runtime install
 #   ./install.sh opencode  # Run only OpenCode install
 #   ./install.sh fonts     # Run only font install
+#   ./install.sh neovim    # Run only Neovim install
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -91,6 +92,14 @@ run_fonts() {
   bash "$SCRIPTS/fonts-install.sh"
 }
 
+run_neovim() {
+  echo ""
+  echo "════════════════════════════════════════════════════════════════"
+  echo "  STEP 8: Neovim (latest stable from GitHub releases)"
+  echo "════════════════════════════════════════════════════════════════"
+  bash "$SCRIPTS/neovim-install.sh"
+}
+
 # ── Main ─────────────────────────────────────────────────────────────
 TARGET="${1:-all}"
 
@@ -109,7 +118,7 @@ echo "╚═══════════════════════�
 case "$TARGET" in
   all)
     echo ""
-    echo "Running full install: apt → stow → fonts → nix → flatpak → mise → opencode"
+    echo "Running full install: apt → stow → fonts → nix → flatpak → mise → opencode → neovim"
     echo "This will take a while on a fresh system."
     echo ""
     read -rp "Press Enter to continue (Ctrl+C to abort)..."
@@ -120,6 +129,7 @@ case "$TARGET" in
     run_flatpak
     run_mise
     run_opencode
+    run_neovim
     ;;
   apt)      run_apt ;;
   stow)     run_stow ;;
@@ -128,8 +138,9 @@ case "$TARGET" in
   flatpak)  run_flatpak ;;
   mise)     run_mise ;;
   opencode) run_opencode ;;
+  neovim)   run_neovim ;;
   *)
-    echo "Usage: $0 [all|apt|stow|fonts|nix|flatpak|mise|opencode]"
+    echo "Usage: $0 [all|apt|stow|fonts|nix|flatpak|mise|opencode|neovim]"
     exit 1
     ;;
 esac

@@ -126,10 +126,12 @@ just a wrapper around `rustup` anyway, so there's no benefit to adding a layer.
 │   ├── apt-install.sh            # Adds repos + installs apt packages
 │   ├── nix-install.sh            # Installs Nix + runs home-manager
 │   ├── flatpak-install.sh        # Adds Flathub + installs Flatpak apps
+│   ├── fonts-install.sh          # Downloads + installs fonts
 │   └── stow-dotfiles.sh         # Symlinks all config dirs into $HOME
 ├── nix/.config/nix/
 │   ├── flake.nix                 # Nix flake (pinned nixpkgs + home-manager)
 │   ├── home.nix                  # Home Manager config (tools + shell)
+│   ├── nix.conf                  # Nix settings (enables flakes)
 │   └── bootstrap.sh              # Legacy bootstrap (now replaced by nix-install.sh)
 ├── nvim/.config/nvim/            # Neovim config (stowed to ~/.config/nvim)
 ├── ohmyposh/.config/ohmyposh/    # Oh My Posh prompt config
@@ -168,6 +170,7 @@ To add a new config to the dotfiles repo:
 5. flatpak   — Installs sandboxed GUI apps from Flathub.
 6. mise      — Installs language runtimes (needs mise binary from apt step).
 7. opencode  — Installs OpenCode AI coding agent (needs curl from apt step).
+8. neovim    — Downloads latest stable Neovim from GitHub releases to ~/.local/.
 ```
 
 **Why this order**: Each step depends on the previous one. Stow needs `stow`
@@ -253,7 +256,7 @@ Does the app have a well-maintained Flatpak on Flathub?
          Benefits: sandboxed, auto-updates, isolated from OS upgrades.
 
 Is the app only available as a .deb or apt repo?
-  → YES: Use apt. Examples: Zoom, Vivaldi
+  → YES: Use apt. Examples: Vivaldi
          Add the repo setup to scripts/apt-install.sh
 
 Is the app a standalone binary with its own installer?
@@ -347,3 +350,11 @@ Say you want to add **Obsidian** (note-taking app):
 | 2026-04-19 | Broadened distro support to Ubuntu-based | Config is not Pop!_OS-specific; works on any Ubuntu-based distro |
 | 2026-04-19 | Fonts installed via script, not Nix | Nix font packages can have path issues on non-NixOS; direct download to ~/.local/share/fonts is simpler and universal |
 | 2026-04-19 | WezTerm shell path uses $SHELL env var | Was hardcoded to Homebrew fish path; now works regardless of how Fish is installed |
+| 2026-04-19 | Docker setup uses DEB822 format + codename fallback | Matches latest Docker docs (2026-04-19); uses `${UBUNTU_CODENAME:-$VERSION_CODENAME}` for Pop!_OS compatibility |
+| 2026-04-19 | Neovim via GitHub release tarball, not PPA or Nix | PPA lags weeks behind releases (0.12.0 vs 0.12.1); tarball always gives latest stable; installs to ~/.local/ |
+| 2026-04-19 | Removed Zoom from apt install | Not needed by default; can be added back manually later |
+| 2026-04-19 | Removed Proton Mail from apt install | Not needed by default; Proton VPN kept |
+| 2026-04-19 | Added Erlang/Python build deps to apt | mise compiles runtimes from source; without libssl-dev, libncurses-dev, etc., builds fail with cryptic errors |
+| 2026-04-19 | nix.conf managed via stow, not created by script | Avoids conflict between stow-managed ~/.config/nix/ and script writing nix.conf into it |
+| 2026-04-19 | WezTerm keybindings use bash -c explicitly | lazygit/opencode spawns use `read -p` (bash syntax); Fish uses `read -P` — using bash avoids the incompatibility |
+| 2026-04-19 | Added ubuntu-restricted-extras to apt | Media codecs for full audio/video playback support |
