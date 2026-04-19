@@ -18,6 +18,9 @@
     rustup              # manages Rust toolchains (stable/nightly) — kept here because
                         # rustup is the industry standard and mise just wraps it anyway
 
+    # --- Editor ---
+    neovim              # latest from nixpkgs-unstable (0.12.x)
+
     # --- Terminal utilities ---
     ripgrep             # rg  — fast grep replacement
     fd                  # fast find replacement

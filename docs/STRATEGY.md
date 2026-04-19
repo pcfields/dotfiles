@@ -166,11 +166,10 @@ To add a new config to the dotfiles repo:
 1. apt       — Must come first. Installs git, curl, stow, mise, and system deps.
 2. stow      — Symlinks configs into $HOME so Nix can find flake.nix, home.nix, etc.
 3. fonts     — Installs Monaspace Neon, JetBrains Mono, MesloLGS Nerd Font.
-4. nix       — Installs Nix daemon, then runs home-manager to set up CLI tools + Fish.
+4. nix       — Installs Nix daemon, then runs home-manager to set up CLI tools, Neovim, + Fish.
 5. flatpak   — Installs sandboxed GUI apps from Flathub.
 6. mise      — Installs language runtimes (needs mise binary from apt step).
 7. opencode  — Installs OpenCode AI coding agent (needs curl from apt step).
-8. neovim    — Downloads latest stable Neovim from GitHub releases to ~/.local/.
 ```
 
 **Why this order**: Each step depends on the previous one. Stow needs `stow`
@@ -351,7 +350,7 @@ Say you want to add **Obsidian** (note-taking app):
 | 2026-04-19 | Fonts installed via script, not Nix | Nix font packages can have path issues on non-NixOS; direct download to ~/.local/share/fonts is simpler and universal |
 | 2026-04-19 | WezTerm shell path uses $SHELL env var | Was hardcoded to Homebrew fish path; now works regardless of how Fish is installed |
 | 2026-04-19 | Docker setup uses DEB822 format + codename fallback | Matches latest Docker docs (2026-04-19); uses `${UBUNTU_CODENAME:-$VERSION_CODENAME}` for Pop!_OS compatibility |
-| 2026-04-19 | Neovim via GitHub release tarball, not PPA or Nix | PPA lags weeks behind releases (0.12.0 vs 0.12.1); tarball always gives latest stable; installs to ~/.local/ |
+| 2026-04-19 | Neovim via Nix (nixpkgs-unstable) | Flake already uses unstable channel which has 0.12.1; updates alongside all other Nix packages in one command; declarative in home.nix |
 | 2026-04-19 | Removed Zoom from apt install | Not needed by default; can be added back manually later |
 | 2026-04-19 | Removed Proton Mail from apt install | Not needed by default; Proton VPN kept |
 | 2026-04-19 | Added Erlang/Python build deps to apt | mise compiles runtimes from source; without libssl-dev, libncurses-dev, etc., builds fail with cryptic errors |
