@@ -1,0 +1,18 @@
+# ── mise Global Tool Configuration ───────────────────────────────────
+# This sets the DEFAULT versions for programming language runtimes.
+# Individual projects can override these with their own .mise.toml file.
+#
+# To change a version:   mise use --global node@20
+# To install a tool:     mise install node@22
+# To list installed:     mise list
+# To update all:         mise upgrade
+
+[tools]
+node = "22"
+python = "3.12"
+erlang = "27.0"
+elixir = "1.17"
+zig = "latest"
+
+[settings]
+experimental = true

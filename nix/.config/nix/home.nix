@@ -14,10 +14,9 @@
   home.packages = with pkgs; [
 
     # --- Programming languages & runtimes ---
-    nodejs_22
-    rustup              # manages Rust toolchains (stable/nightly)
-    lua
-    zig
+    # Node.js, Python, Elixir, Zig are managed by mise (see ~/.config/mise/config.toml)
+    rustup              # manages Rust toolchains (stable/nightly) — kept here because
+                        # rustup is the industry standard and mise just wraps it anyway
 
     # --- Terminal utilities ---
     ripgrep             # rg  — fast grep replacement
@@ -77,6 +76,9 @@
 
       # any-nix-shell for fish (fixes nix-shell/nix develop)
       any-nix-shell fish --info-right | source
+
+      # mise — manages Node.js, Python, Elixir, Zig runtimes
+      mise activate fish | source
     '';
 
     shellAbbreviations = {
