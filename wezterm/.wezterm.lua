@@ -10,7 +10,8 @@ local platform = {
 	is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc",
 }
 
-platform.shell = platform.is_windows and "pwsh.exe" or "/home/linuxbrew/.linuxbrew/bin/fish"
+platform.shell = platform.is_windows and "pwsh.exe"
+	or (os.getenv("SHELL") or "/usr/bin/fish")
 
 platform.home_dir = wezterm.home_dir
 
