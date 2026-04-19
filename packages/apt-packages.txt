@@ -1,0 +1,41 @@
+# ── APT Packages ─────────────────────────────────────────────────────
+# One package per line. Lines starting with # are ignored.
+# These are NON-DEFAULT packages that need explicit installation.
+# System packages (coreutils, bash, etc.) are omitted — Pop!_OS includes them.
+#
+# For programming language runtimes, use mise instead (see mise config).
+# For CLI dev tools (ripgrep, fzf, bat, etc.), use Nix home-manager.
+# Only use apt for system-level apps, GUI apps, and drivers.
+
+# ── Build tools ──────────────────────────────────────────────────────
+build-essential
+cmake
+ninja-build
+
+# ── Core CLI (needed before Nix is available) ────────────────────────
+curl
+git
+wget
+stow
+
+# ── Dev tools ────────────────────────────────────────────────────────
+mise
+
+# ── GUI applications ────────────────────────────────────────────────
+code
+flameshot
+gimp
+gnome-tweaks
+ksnip
+slack-desktop
+vivaldi-stable
+zoom
+
+# ── Media ────────────────────────────────────────────────────────────
+ffmpeg
+
+# ── Security / VPN ───────────────────────────────────────────────────
+protonvpn-stable-release
+proton-vpn-gnome-desktop
+proton-mail
+wireguard-tools

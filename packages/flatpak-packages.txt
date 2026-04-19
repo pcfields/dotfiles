@@ -1,0 +1,10 @@
+# ── Flatpak Packages ─────────────────────────────────────────────────
+# Application ID per line. Lines starting with # are ignored.
+# Installed from Flathub.
+#
+# Use Flatpak for: GUI apps that benefit from sandboxing and auto-updates,
+# or apps where the Flatpak version is better maintained than the apt version.
+
+com.obsproject.Studio
+org.inkscape.Inkscape
+org.mozilla.firefox
