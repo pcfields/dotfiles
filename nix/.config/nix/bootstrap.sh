@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ── Pop!_OS Nix + Home Manager Bootstrap ──────────────────────────────
+# ── Nix + Home Manager Bootstrap ──────────────────────────────────────
 # Run this script once on a fresh system to set everything up.
 # After that, use: home-manager switch --flake ~/.config/nix
 set -euo pipefail

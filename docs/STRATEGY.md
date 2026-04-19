@@ -6,7 +6,8 @@
 
 ## Overview
 
-This dotfiles repo manages a full Pop!_OS development environment using four
+This dotfiles repo manages a full development environment for Ubuntu-based Linux
+distros (Pop!_OS, Ubuntu, etc.) using four
 package managers, each with a specific role. The golden rule is:
 
 **Each tool has ONE job. Don't use two tools for the same thing.**
@@ -31,7 +32,7 @@ package managers, each with a specific role. The golden rule is:
 deep OS integration, and anything required *before* Nix is installed.
 
 **Why apt and not something else**: APT is the native package manager for
-Pop!_OS (Ubuntu-based). System packages, kernel modules, and hardware drivers
+Ubuntu-based distros (Pop!_OS, Ubuntu, etc.). System packages, kernel modules, and hardware drivers
 must come from apt. Some GUI apps (VS Code, Slack, Vivaldi, Zoom) only provide
 `.deb` packages or apt repos — these go here too.
 
@@ -332,10 +333,13 @@ Say you want to add **Obsidian** (note-taking app):
 | 2026-04-19 | Remove lua from home.nix | Neovim bundles LuaJIT; standalone lua was unused |
 | 2026-04-19 | Firefox via Flatpak, not apt | Mozilla maintains the Flatpak; it gets updates faster and is sandboxed |
 | 2026-04-19 | WezTerm via Nix, not Flatpak | Already declared in home.nix; Nix version integrates better with Nix-managed shell |
-| 2026-04-19 | GIMP via apt | Simple, well-supported on Pop!_OS, no sandboxing issues |
+| 2026-04-19 | GIMP via apt | Simple, well-supported on Ubuntu-based distros, no sandboxing issues |
 | 2026-04-19 | VS Code via apt, not Flatpak | Flatpak VS Code has terminal/extension sandboxing issues |
 | 2026-04-19 | fzf + ripgrep via Nix only | Were duplicated in both apt and Nix; consolidated to Nix for newer versions |
 | 2026-04-19 | Use GNU Stow for symlinks | Simple, well-understood, no dependencies beyond the stow binary |
 | 2026-04-19 | Nix with flakes + home-manager | Declarative, reproducible, pins exact package versions via flake.lock |
 | 2026-04-19 | OpenCode via curl installer, not Homebrew | Dropping Homebrew as a dependency; curl script has no deps and works before Node/mise are set up |
 | 2026-04-19 | Remove Homebrew from setup | Was an untracked dependency; everything it provided is now covered by apt, Nix, or curl installs |
+| 2026-04-19 | Docker via apt (official Docker repo) | Docker needs system-level access (daemon, kernel features); apt with official repo gives latest stable |
+| 2026-04-19 | httpie + shellcheck via Nix | CLI dev tools belong in Nix; httpie for API testing, shellcheck for linting bash scripts |
+| 2026-04-19 | Broadened distro support to Ubuntu-based | Config is not Pop!_OS-specific; works on any Ubuntu-based distro |

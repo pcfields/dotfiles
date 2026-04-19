@@ -1,5 +1,5 @@
 {
-  description = "Pop!_OS Home Manager configuration";
+  description = "Home Manager configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";

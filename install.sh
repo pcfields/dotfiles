@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ── Master Install Script ───────────────────────────────────────────
-# Run this on a fresh Pop!_OS install to set up everything.
+# Run this on a fresh Ubuntu-based install (Pop!_OS, Ubuntu, etc.) to set up everything.
 #
 # Usage:
 #   cd ~/dotfiles
@@ -86,7 +86,7 @@ run_opencode() {
 TARGET="${1:-all}"
 
 echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║          Pop!_OS Dotfiles Installer                        ║"
+echo "║          Dotfiles Installer                                ║"
 echo "║          github.com/pcfields/dotfiles                      ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 

@@ -1,12 +1,13 @@
 # Dotfiles
 
-Personal dotfiles and system configuration for Pop!_OS. Manages a full
+Personal dotfiles and system configuration for Ubuntu-based Linux distros
+(Pop!_OS, Ubuntu, etc.). Manages a full
 development environment using automated install scripts.
 
 > For the full strategy and reasoning behind these decisions, see [docs/STRATEGY.md](docs/STRATEGY.md).
 > For secrets, API keys, and post-install setup, see [docs/SECRETS.md](docs/SECRETS.md).
 
-## Quick Start (Fresh Pop!_OS Install)
+## Quick Start (Fresh Install)
 
 ```bash
 # 1. Install git (only thing you need manually) and clone dotfiles
@@ -29,13 +30,13 @@ take effect. The script will tell you if this is needed.
 ## What Gets Installed
 
 ### Via APT (system packages)
-build-essential, cmake, ninja-build, git, curl, wget, stow, mise, VS Code,
-Slack, Vivaldi, Zoom, Proton VPN, Proton Mail, flameshot, ksnip, gimp,
-gnome-tweaks, ffmpeg, wireguard-tools
+build-essential, cmake, ninja-build, git, curl, wget, stow, mise, Docker,
+VS Code, Slack, Vivaldi, Zoom, Proton VPN, Proton Mail, flameshot, ksnip,
+gimp, gnome-tweaks, ffmpeg, wireguard-tools
 
 ### Via Nix Home Manager (CLI tools + shell)
 ripgrep, fd, fzf, bat, eza, zoxide, jq, yq, delta, lazygit, btop, htop,
-oh-my-posh, rustup, Fish shell + config, git config, fzf config
+oh-my-posh, rustup, httpie, shellcheck, Fish shell + config, git config, fzf config
 
 ### Via Flatpak (sandboxed GUI apps)
 OBS Studio, Inkscape, Firefox
