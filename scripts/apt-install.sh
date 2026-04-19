@@ -42,10 +42,6 @@ if ! apt-cache policy 2>/dev/null | grep -q "slack"; then
     sudo tee /etc/apt/sources.list.d/slack.list > /dev/null
 fi
 
-# ── Zoom ──────────────────────────────────────────────────────────────
-# Zoom doesn't have a proper apt repo — download .deb directly
-# This is handled separately after apt install
-
 # ── mise ──────────────────────────────────────────────────────────────
 if ! apt-cache policy 2>/dev/null | grep -q "mise"; then
   echo "  -> Adding mise repo..."
@@ -60,13 +56,25 @@ fi
 # It needs to be installed first, then apt update, then install the client
 
 # ── Docker ────────────────────────────────────────────────────────────
+# https://docs.docker.com/engine/install/ubuntu/ (checked 2026-04-19)
 if ! apt-cache policy 2>/dev/null | grep -q "download.docker.com"; then
+  echo "  -> Removing conflicting Docker packages (if any)..."
+  sudo apt remove -y docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2>/dev/null || true
+
   echo "  -> Adding Docker repo..."
   sudo install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  sudo chmod a+r /etc/apt/keyrings/docker.gpg
-  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+  # DEB822 format — uses UBUNTU_CODENAME with VERSION_CODENAME fallback (needed for Pop!_OS)
+  sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 fi
 
 echo "==> Updating package lists..."
@@ -93,18 +101,6 @@ if printf '%s\n' "${PACKAGES[@]}" | grep -q "^protonvpn-stable-release$"; then
 fi
 
 sudo apt install -y "${PACKAGES[@]}"
-
-# ── Zoom (manual .deb) ───────────────────────────────────────────────
-if printf '%s\n' "${PACKAGES[@]}" | grep -q "^zoom$"; then
-  if ! command -v zoom &>/dev/null; then
-    echo "==> Installing Zoom (downloading .deb)..."
-    wget -O /tmp/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
-    sudo apt install -y /tmp/zoom.deb
-    rm -f /tmp/zoom.deb
-  else
-    echo "==> Zoom already installed, skipping..."
-  fi
-fi
 
 echo "==> APT installation complete!"
 
