@@ -163,10 +163,11 @@ To add a new config to the dotfiles repo:
 ```
 1. apt       — Must come first. Installs git, curl, stow, mise, and system deps.
 2. stow      — Symlinks configs into $HOME so Nix can find flake.nix, home.nix, etc.
-3. nix       — Installs Nix daemon, then runs home-manager to set up CLI tools + Fish.
-4. flatpak   — Installs sandboxed GUI apps from Flathub.
-5. mise      — Installs language runtimes (needs mise binary from apt step).
-6. opencode  — Installs OpenCode AI coding agent (needs curl from apt step).
+3. fonts     — Installs Monaspace Neon, JetBrains Mono, MesloLGS Nerd Font.
+4. nix       — Installs Nix daemon, then runs home-manager to set up CLI tools + Fish.
+5. flatpak   — Installs sandboxed GUI apps from Flathub.
+6. mise      — Installs language runtimes (needs mise binary from apt step).
+7. opencode  — Installs OpenCode AI coding agent (needs curl from apt step).
 ```
 
 **Why this order**: Each step depends on the previous one. Stow needs `stow`
@@ -198,6 +199,7 @@ chmod +x install.sh
 ./install.sh flatpak   # Only Flatpak apps
 ./install.sh mise      # Only mise runtimes
 ./install.sh opencode  # Only OpenCode
+./install.sh fonts     # Only fonts
 ```
 
 ### Day-to-day changes
@@ -343,3 +345,5 @@ Say you want to add **Obsidian** (note-taking app):
 | 2026-04-19 | Docker via apt (official Docker repo) | Docker needs system-level access (daemon, kernel features); apt with official repo gives latest stable |
 | 2026-04-19 | httpie + shellcheck via Nix | CLI dev tools belong in Nix; httpie for API testing, shellcheck for linting bash scripts |
 | 2026-04-19 | Broadened distro support to Ubuntu-based | Config is not Pop!_OS-specific; works on any Ubuntu-based distro |
+| 2026-04-19 | Fonts installed via script, not Nix | Nix font packages can have path issues on non-NixOS; direct download to ~/.local/share/fonts is simpler and universal |
+| 2026-04-19 | WezTerm shell path uses $SHELL env var | Was hardcoded to Homebrew fish path; now works regardless of how Fish is installed |

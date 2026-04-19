@@ -11,6 +11,7 @@
 #   ./install.sh stow      # Run only stow symlinks
 #   ./install.sh mise      # Run only mise runtime install
 #   ./install.sh opencode  # Run only OpenCode install
+#   ./install.sh fonts     # Run only font install
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -82,6 +83,14 @@ run_opencode() {
   echo "to set up your LLM provider. See docs/SECRETS.md for details."
 }
 
+run_fonts() {
+  echo ""
+  echo "════════════════════════════════════════════════════════════════"
+  echo "  STEP 7: Fonts (Monaspace Neon, JetBrains Mono, MesloLGS NF)"
+  echo "════════════════════════════════════════════════════════════════"
+  bash "$SCRIPTS/fonts-install.sh"
+}
+
 # ── Main ─────────────────────────────────────────────────────────────
 TARGET="${1:-all}"
 
@@ -100,12 +109,13 @@ echo "╚═══════════════════════�
 case "$TARGET" in
   all)
     echo ""
-    echo "Running full install: apt → stow → nix → flatpak → mise → opencode"
+    echo "Running full install: apt → stow → fonts → nix → flatpak → mise → opencode"
     echo "This will take a while on a fresh system."
     echo ""
     read -rp "Press Enter to continue (Ctrl+C to abort)..."
     run_apt
     run_stow
+    run_fonts
     run_nix
     run_flatpak
     run_mise
@@ -113,12 +123,13 @@ case "$TARGET" in
     ;;
   apt)      run_apt ;;
   stow)     run_stow ;;
+  fonts)    run_fonts ;;
   nix)      run_nix ;;
   flatpak)  run_flatpak ;;
   mise)     run_mise ;;
   opencode) run_opencode ;;
   *)
-    echo "Usage: $0 [all|apt|stow|nix|flatpak|mise|opencode]"
+    echo "Usage: $0 [all|apt|stow|fonts|nix|flatpak|mise|opencode]"
     exit 1
     ;;
 esac

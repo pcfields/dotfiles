@@ -20,7 +20,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-This runs six steps in order: **apt** → **stow** → **nix** → **flatpak** → **mise** → **opencode**
+This runs seven steps in order: **apt** → **stow** → **fonts** → **nix** → **flatpak** → **mise** → **opencode**
 
 You'll be prompted for your password (sudo) during the apt and nix steps.
 
@@ -47,11 +47,15 @@ Node.js 22, Python 3.12, Erlang 27, Elixir 1.17, Zig (latest)
 ### Via curl installer
 OpenCode (AI coding agent)
 
+### Fonts (auto-installed)
+Monaspace Neon, JetBrains Mono, MesloLGS Nerd Font
+
 ## Running Individual Steps
 
 ```bash
 ./install.sh apt       # Only apt packages + repos
 ./install.sh stow      # Only symlink configs
+./install.sh fonts     # Only font install
 ./install.sh nix       # Only Nix + home-manager
 ./install.sh flatpak   # Only Flatpak apps
 ./install.sh mise      # Only mise runtimes
@@ -83,6 +87,17 @@ sudo apt update && sudo apt upgrade
 # Update Flatpak apps
 flatpak update
 ```
+
+## After Install — Manual Steps
+
+These can't be automated (secrets, logins, etc.). See [docs/SECRETS.md](docs/SECRETS.md) for details.
+
+- [ ] Set up SSH keys and add to GitHub
+- [ ] Set git identity (`git config --global user.name/email`)
+- [ ] Configure OpenCode LLM provider (`opencode` → `/connect`)
+- [ ] Sign in to VS Code Settings Sync (GitHub account restores extensions + settings)
+- [ ] Log in to Proton VPN / Proton Mail
+- [ ] Log in to Slack, Zoom, browsers
 
 ## Structure
 
