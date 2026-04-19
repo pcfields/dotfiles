@@ -59,6 +59,16 @@ fi
 # protonvpn-stable-release package sets up the repo itself
 # It needs to be installed first, then apt update, then install the client
 
+# ── Docker ────────────────────────────────────────────────────────────
+if ! apt-cache policy 2>/dev/null | grep -q "download.docker.com"; then
+  echo "  -> Adding Docker repo..."
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+fi
+
 echo "==> Updating package lists..."
 sudo apt update
 
@@ -97,3 +107,13 @@ if printf '%s\n' "${PACKAGES[@]}" | grep -q "^zoom$"; then
 fi
 
 echo "==> APT installation complete!"
+
+# ── Docker post-install (add user to docker group) ────────────────────
+if command -v docker &>/dev/null; then
+  if ! groups "$USER" | grep -q docker; then
+    echo "==> Adding $USER to docker group (avoids needing sudo for docker)..."
+    sudo groupadd -f docker
+    sudo usermod -aG docker "$USER"
+    echo "  -> You need to log out and back in for this to take effect."
+  fi
+fi
