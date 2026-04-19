@@ -18,16 +18,15 @@ if ! command -v nix &>/dev/null; then
   exit 0
 fi
 
-# ── Enable flakes ────────────────────────────────────────────────────
-echo "==> Ensuring flakes are enabled..."
-mkdir -p "$NIX_CONFIG_DIR"
-if ! grep -q "experimental-features" "$NIX_CONFIG_DIR/nix.conf" 2>/dev/null; then
-  echo "experimental-features = nix-command flakes" >> "$NIX_CONFIG_DIR/nix.conf"
-fi
-
-# ── Verify flake.nix exists ─────────────────────────────────────────
+# ── Verify flake config exists (stow must have run first) ───────────
 if [[ ! -f "$FLAKE_DIR/flake.nix" ]]; then
   echo "ERROR: $FLAKE_DIR/flake.nix not found."
+  echo "Make sure you ran stow-dotfiles.sh first to symlink nix config."
+  exit 1
+fi
+
+if [[ ! -f "$NIX_CONFIG_DIR/nix.conf" ]]; then
+  echo "ERROR: $NIX_CONFIG_DIR/nix.conf not found."
   echo "Make sure you ran stow-dotfiles.sh first to symlink nix config."
   exit 1
 fi

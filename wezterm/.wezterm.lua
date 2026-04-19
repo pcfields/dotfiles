@@ -52,14 +52,14 @@ local command_spawners = {}
 command_spawners.lazygit = function()
 	return wezterm.action.SpawnCommandInNewTab({
 		label = "LazyGit",
-		args = { platform.shell, "-c", 'lazygit || read -p "Press enter to exit..."' },
+		args = { "bash", "-c", 'lazygit || read -p "Press enter to exit..."' },
 	})
 end
 
 command_spawners.opencode = function()
 	return wezterm.action.SpawnCommandInNewTab({
 		label = "Open Code",
-		args = { platform.shell, "-c", 'opencode || read -p "Press enter to exit..."' },
+		args = { "bash", "-c", 'opencode || read -p "Press enter to exit..."' },
 	})
 end
 
