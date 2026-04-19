@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ── Pop!_OS Nix + Home Manager Bootstrap ──────────────────────────────
 # Run this script once on a fresh system to set everything up.
-# After that, use: home-manager switch --flake ~/.config/nvim/nix
+# After that, use: home-manager switch --flake ~/.config/nix
 set -euo pipefail
 
 echo "==> Checking for Nix..."
@@ -18,7 +18,7 @@ grep -q "experimental-features" ~/.config/nix/nix.conf 2>/dev/null || \
   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 
 echo "==> Bootstrapping Home Manager..."
-nix run home-manager/master -- switch --flake ~/.config/nvim/nix
+nix run home-manager/master -- switch --flake ~/.config/nix
 
 echo "==> Adding Fish to /etc/shells (requires sudo)..."
 FISH_PATH="$(which fish 2>/dev/null || echo "$HOME/.nix-profile/bin/fish")"
@@ -33,7 +33,7 @@ echo ""
 echo "Done! Log out and back in, or run: exec fish"
 echo ""
 echo "To update packages in the future:"
-echo "  cd ~/.config/nvim/nix && nix flake update && home-manager switch --flake ."
+echo "  cd ~/.config/nix && nix flake update && home-manager switch --flake ."
 echo ""
 echo "To add/remove packages:"
-echo "  Edit ~/.config/nvim/nix/home.nix, then run: home-manager switch --flake ~/.config/nvim/nix"
+echo "  Edit ~/.config/nix/home.nix, then run: home-manager switch --flake ~/.config/nix"
