@@ -49,17 +49,10 @@ end
 
 local command_spawners = {}
 
-command_spawners.lazygit = function()
+command_spawners.spawn_tool = function(label, command)
 	return wezterm.action.SpawnCommandInNewTab({
-		label = "LazyGit",
-		args = { "bash", "-c", 'lazygit || read -p "Press enter to exit..."' },
-	})
-end
-
-command_spawners.opencode = function()
-	return wezterm.action.SpawnCommandInNewTab({
-		label = "Open Code",
-		args = { "bash", "-c", 'opencode || read -p "Press enter to exit..."' },
+		label = label,
+		args = { "bash", "-c", command .. ' || read -p "Press enter to exit..."' },
 	})
 end
 
@@ -78,7 +71,6 @@ local ui_config = {
 	window = {
 		decorations = "RESIZE|TITLE",
 		padding = { left = 0, right = 0, top = 0, bottom = 0 },
-		background_opacity = 1,
 	},
 	tabs = {
 		hide_if_only_one = false,
@@ -96,10 +88,8 @@ local performance_config = {
 	max_fps = 120,
 	animation_fps = 120,
 	front_end = "WebGpu",
-	prefer_egl = true,
 }
 
--- ============================================================================
 -- ============================================================================
 -- PROJECT PROFILES
 -- ============================================================================
@@ -181,18 +171,11 @@ project_utils.add_paths_to_list = function(projects_list, options)
 end
 
 -- ============================================================================
--- PROJECT LIST BUILDER MODULE
+-- PROJECT DIRECTORY SCANNER
 -- ============================================================================
 
 local function add_subdirectories_for(root_directory)
-	local sub_directories = {}
-	local directories_under_root_directory = wezterm.glob(root_directory .. "/*")
-
-	for _, sub_directory in ipairs(directories_under_root_directory) do
-		table.insert(sub_directories, sub_directory)
-	end
-
-	return sub_directories
+	return wezterm.glob(root_directory .. "/*")
 end
 
 -- ============================================================================
@@ -329,15 +312,22 @@ config.font = wezterm.font_with_fallback({
 config.warn_about_missing_glyphs = false
 config.window_decorations = ui_config.window.decorations
 config.window_padding = ui_config.window.padding
-config.window_background_opacity = ui_config.window.background_opacity
 config.hide_tab_bar_if_only_one_tab = ui_config.tabs.hide_if_only_one
 config.inactive_pane_hsb = ui_config.panes.inactive_hsb
+
+-- Copy/Paste
+config.selection_clipboard = "ClipboardAndPrimarySelection"
 
 -- Performance Settings
 config.max_fps = performance_config.max_fps
 config.animation_fps = performance_config.animation_fps
 config.front_end = performance_config.front_end
-config.prefer_egl = performance_config.prefer_egl
+
+-- Scrollback
+config.scrollback_lines = 10000
+
+-- Window behavior
+config.window_close_confirmation = "AlwaysPrompt"
 
 config.mouse_bindings = {
 	-- Change the default click behavior so that it only selects
@@ -386,10 +376,14 @@ config.leader = {
 
 -- Keybindings
 config.keys = {
+	-- Copy/Paste
+	{ mods = "CTRL|SHIFT", key = "c", action = wezterm.action.CopyTo("ClipboardAndPrimarySelection") },
+	{ mods = "CTRL|SHIFT", key = "v", action = wezterm.action.PasteFrom("Clipboard") },
+
 	-- Projects and Tools
 	{ mods = "LEADER", key = "p", action = display_project_list() },
-	{ mods = "LEADER", key = "g", action = command_spawners.lazygit() },
-	{ mods = "LEADER", key = ".", action = command_spawners.opencode() },
+	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
+	{ mods = "LEADER", key = ".", action = command_spawners.spawn_tool("OpenCode", "opencode") },
 	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
 	-- Pane Management
@@ -435,6 +429,7 @@ config.keys = {
 
 	-- Copy Mode and Scrolling
 	{ mods = "LEADER", key = "y", action = wezterm.action.ActivateCopyMode },
+	{ mods = "LEADER", key = "f", action = wezterm.action.QuickSelect },
 	{ mods = "LEADER", key = "u", action = wezterm.action.ScrollByPage(-1) },
 	{ mods = "LEADER", key = "d", action = wezterm.action.ScrollByPage(1) },
 }
