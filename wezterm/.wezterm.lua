@@ -50,9 +50,18 @@ end
 local command_spawners = {}
 
 command_spawners.spawn_tool = function(label, command)
+	local args
+	if platform.is_windows then
+		args = { "pwsh.exe", "-NoExit", "-Command", command }
+	elseif platform.shell:find("fish") then
+		args = { platform.shell, "-c", command .. "; or read -P 'Press enter to exit...'" }
+	else
+		-- bash, zsh, etc.
+		args = { platform.shell, "-c", command .. ' || read -p "Press enter to exit..."' }
+	end
 	return wezterm.action.SpawnCommandInNewTab({
 		label = label,
-		args = { "bash", "-c", command .. ' || read -p "Press enter to exit..."' },
+		args = args,
 	})
 end
 
@@ -121,12 +130,8 @@ local project_profiles = {
 -- SHARED CONFIGURATION (Platform-agnostic)
 -- ============================================================================
 local shared_config = {
-	nvim = function()
-		if platform.is_windows then
-			return os.getenv("LOCALAPPDATA") .. "/nvim"
-		else
-			return platform.home_dir .. "/.config/nvim"
-		end
+	dotfiles = function()
+		return platform.home_dir .. "/dotfiles"
 	end,
 }
 
@@ -185,7 +190,7 @@ end
 local project_list_builder = {}
 
 project_list_builder.add_shared_entry = function(projects_list)
-	table.insert(projects_list, { id = shared_config.nvim(), label = "Neovim Config" })
+	table.insert(projects_list, { id = shared_config.dotfiles(), label = "dotfiles" })
 end
 
 project_list_builder.add_manual_projects = function(projects_list, projects)
