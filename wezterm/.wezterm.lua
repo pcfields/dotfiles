@@ -315,9 +315,6 @@ config.window_padding = ui_config.window.padding
 config.hide_tab_bar_if_only_one_tab = ui_config.tabs.hide_if_only_one
 config.inactive_pane_hsb = ui_config.panes.inactive_hsb
 
--- Copy/Paste
-config.selection_clipboard = "ClipboardAndPrimarySelection"
-
 -- Performance Settings
 config.max_fps = performance_config.max_fps
 config.animation_fps = performance_config.animation_fps
