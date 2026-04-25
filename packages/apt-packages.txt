@@ -61,8 +61,3 @@ vivaldi-stable
 # ── Media ────────────────────────────────────────────────────────────
 ffmpeg
 ubuntu-restricted-extras
-
-# ── Security / VPN ───────────────────────────────────────────────────
-protonvpn-stable-release
-proton-vpn-gnome-desktop
-wireguard-tools
