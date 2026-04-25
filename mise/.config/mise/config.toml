@@ -13,7 +13,6 @@ python = "3.12"
 erlang = "27.0"
 elixir = "1.17"
 zig = "latest"
-haskell = "latest"
 "npm:firebase-tools" = "latest"
 
 [settings]
