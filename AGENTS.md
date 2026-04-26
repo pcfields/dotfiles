@@ -14,7 +14,7 @@ Run individual steps:
 ./install.sh ohmyposh # Oh My Posh prompt engine
 ./install.sh nix      # May require shell restart before continuing
 ./install.sh flatpak
-./install.sh mise    # Language runtimes
+./install.sh mise-runtimes # Language runtimes
 ./install.sh opencode # Binary only
 ```
 

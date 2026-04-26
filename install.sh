@@ -24,7 +24,7 @@ step_script() {
     ohmyposh) echo "$INSTALL_DIR/install-ohmyposh.sh" ;;
     nix)      echo "$INSTALL_DIR/install-nix.sh" ;;
     flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
-    mise)     echo "$INSTALL_DIR/install-mise.sh" ;;
+    mise)     echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
     opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
     *)        return 1 ;;
   esac
@@ -51,7 +51,7 @@ Steps:
   ohmyposh   Install Oh My Posh prompt engine
   nix        Install Nix and run Home Manager
   flatpak    Install Flatpak apps
-  mise       Install language runtimes via mise
+mise-runtimes Install language runtimes via mise
   opencode   Install OpenCode binary
 EOF_USAGE
 }
