@@ -1,141 +1,105 @@
 #!/usr/bin/env bash
-# ── Master Install Script ───────────────────────────────────────────
-# Run this on a fresh Ubuntu-based install (Pop!_OS, Ubuntu, etc.) to set up everything.
-#
-# Usage:
-#   cd ~/dotfiles
-#   ./install.sh           # Run everything
-#   ./install.sh apt       # Run only apt install
-#   ./install.sh nix       # Run only nix/home-manager
-#   ./install.sh flatpak   # Run only flatpak install
-#   ./install.sh stow      # Run only stow symlinks
-#   ./install.sh mise      # Run only mise runtime install
-#   ./install.sh opencode  # Run only OpenCode install
-#   ./install.sh fonts     # Run only font install
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPTS="$SCRIPT_DIR/scripts"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALL_DIR="$ROOT_DIR/install"
 
-run_apt() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 1: APT Packages"
-  echo "════════════════════════════════════════════════════════════════"
-  bash "$SCRIPTS/apt-install.sh"
+STEPS=(
+  apt
+  stow
+  fonts
+  ohmyposh
+  nix
+  flatpak
+  mise
+  opencode
+)
+
+step_script() {
+  local step="$1"
+  case "$step" in
+    apt)      echo "$INSTALL_DIR/install-apt.sh" ;;
+    stow)     echo "$INSTALL_DIR/stow-dotfiles.sh" ;;
+    fonts)    echo "$INSTALL_DIR/install-fonts.sh" ;;
+    ohmyposh) echo "$INSTALL_DIR/install-ohmyposh.sh" ;;
+    nix)      echo "$INSTALL_DIR/install-nix.sh" ;;
+    flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
+    mise)     echo "$INSTALL_DIR/install-mise.sh" ;;
+    opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
+    *)        return 1 ;;
+  esac
 }
 
-run_stow() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 2: Stow Dotfiles"
-  echo "════════════════════════════════════════════════════════════════"
-  bash "$SCRIPTS/stow-dotfiles.sh"
+print_header() {
+  echo
+  echo "Dotfiles installer"
+  echo "Repo: github.com/pcfields/dotfiles"
+  echo
 }
 
-run_nix() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 3: Nix + Home Manager"
-  echo "════════════════════════════════════════════════════════════════"
-  bash "$SCRIPTS/nix-install.sh"
+print_usage() {
+  cat <<'EOF_USAGE'
+Usage:
+  ./install.sh                Run the full install flow
+  ./install.sh all            Run the full install flow
+  ./install.sh <step>         Run a single install step
+
+Steps:
+  apt         System packages and apt repositories
+  stow        Symlink dotfiles into $HOME
+  fonts       Install user fonts
+  ohmyposh   Install Oh My Posh prompt engine
+  nix        Install Nix and run Home Manager
+  flatpak    Install Flatpak apps
+  mise       Install language runtimes via mise
+  opencode   Install OpenCode binary
+EOF_USAGE
 }
 
-run_flatpak() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 4: Flatpak Apps"
-  echo "════════════════════════════════════════════════════════════════"
-  bash "$SCRIPTS/flatpak-install.sh"
-}
+run_step() {
+  local step="$1"
+  local script
 
-run_mise() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 5: mise Language Runtimes"
-  echo "════════════════════════════════════════════════════════════════"
-  if ! command -v mise &>/dev/null; then
-    echo "ERROR: mise not installed. Run apt-install.sh first."
+  script="$(step_script "$step")" || {
+    echo "Unknown step: $step"
+    echo
+    print_usage
+    exit 1
+  }
+
+  if [[ ! -f "$script" ]]; then
+    echo "Missing script: $script"
     exit 1
   fi
-  echo "==> Installing mise runtimes from global config..."
-  mise install --yes
-  echo "==> mise runtimes installed!"
-  echo ""
-  echo "Installed tools:"
-  mise list
+
+  echo "============================================================"
+  echo "Running step: $step"
+  echo "Script: $script"
+  echo "============================================================"
+  bash "$script"
+  echo
 }
 
-run_opencode() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 6: OpenCode (AI coding agent)"
-  echo "════════════════════════════════════════════════════════════════"
-  if command -v opencode &>/dev/null; then
-    echo "==> OpenCode already installed ($(opencode --version)), skipping..."
-  else
-    echo "==> Installing OpenCode..."
-    curl -fsSL https://opencode.ai/install | bash
-  fi
-  echo "==> OpenCode setup complete!"
-  echo ""
-  echo "To configure, run 'opencode' in a project directory and use /connect"
-  echo "to set up your LLM provider. See docs/SECRETS.md for details."
+main() {
+  local target="${1:-all}"
+
+  print_header
+
+  case "$target" in
+    all)
+      for step in "${STEPS[@]}"; do
+        run_step "$step"
+      done
+      ;;
+    help|-h|--help)
+      print_usage
+      ;;
+    *)
+      run_step "$target"
+      ;;
+  esac
+
+  echo "Done."
 }
 
-run_fonts() {
-  echo ""
-  echo "════════════════════════════════════════════════════════════════"
-  echo "  STEP 7: Fonts (Monaspace Neon, JetBrains Mono, MesloLGS NF)"
-  echo "════════════════════════════════════════════════════════════════"
-  bash "$SCRIPTS/fonts-install.sh"
-}
-
-# ── Main ─────────────────────────────────────────────────────────────
-TARGET="${1:-all}"
-
-echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║          Dotfiles Installer                                ║"
-echo "║          github.com/pcfields/dotfiles                      ║"
-echo "╚══════════════════════════════════════════════════════════════╝"
-
-  # Ensure git is available (needed to clone this repo in the first place,
-  # but also needed by Nix flakes and mise)
-  if ! command -v git &>/dev/null; then
-    echo "==> Installing git..."
-    sudo apt update && sudo apt install -y git
-  fi
-
-case "$TARGET" in
-  all)
-    echo ""
-    echo "Running full install: apt → stow → fonts → nix → flatpak → mise → opencode"
-    echo "This will take a while on a fresh system."
-    echo ""
-    read -rp "Press Enter to continue (Ctrl+C to abort)..."
-    run_apt
-    run_stow
-    run_fonts
-    run_nix
-    run_flatpak
-    run_mise
-    run_opencode
-    ;;
-  apt)      run_apt ;;
-  stow)     run_stow ;;
-  fonts)    run_fonts ;;
-  nix)      run_nix ;;
-  flatpak)  run_flatpak ;;
-  mise)     run_mise ;;
-  opencode) run_opencode ;;
-  *)
-    echo "Usage: $0 [all|apt|stow|fonts|nix|flatpak|mise|opencode]"
-    exit 1
-    ;;
-esac
-
-echo ""
-echo "════════════════════════════════════════════════════════════════"
-echo "  Done! You may need to log out and back in for all changes"
-echo "  to take effect (especially shell and PATH changes)."
-echo "════════════════════════════════════════════════════════════════"
+main "$@"

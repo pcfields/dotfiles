@@ -58,8 +58,6 @@
     mtr                 # traceroute + ping
 
     # --- Shell extras ---
-    oh-my-posh          # prompt theme engine
-    wezterm             # GPU-accelerated terminal
     any-nix-shell       # proper nix-shell support for fish
     fishPlugins.fzf-fish
     fishPlugins.done
@@ -70,6 +68,11 @@
   programs.fish = {
     enable = true;
     interactiveShellInit = ''
+      # Local bin (opencode, mise, etc.)
+      if not contains "$HOME/.local/bin" $PATH
+          set -gx PATH "$HOME/.local/bin" $PATH
+      end
+
       # Suppress greeting
       set -g fish_greeting
 
