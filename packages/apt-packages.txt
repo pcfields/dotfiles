@@ -11,33 +11,20 @@
 curl
 git
 unzip
-wget
 stow
 fontconfig
 
-# ── Build tools (needed for compiling native npm/pip packages) ────────
+# ── Build tools (needed for compiling native npm packages) ─────────────────
 build-essential
 cmake
 ninja-build
 
-# ── Build deps for mise-compiled runtimes (Erlang, Python) ───────────
+# ── Build deps for mise-compiled runtimes ─────────────────────────────
 # Erlang/OTP
 autoconf
 libssl-dev
 libncurses-dev
 libwxgtk3.2-dev
-libgl1-mesa-dev
-libglu1-mesa-dev
-unixodbc-dev
-xsltproc
-# Python
-zlib1g-dev
-libbz2-dev
-libreadline-dev
-libsqlite3-dev
-libffi-dev
-liblzma-dev
-tk-dev
 
 # ── Dev tools ────────────────────────────────────────────────────────
 mise
@@ -55,7 +42,6 @@ code
 flameshot
 gimp
 gnome-tweaks
-ksnip
 slack-desktop
 vivaldi-stable
 
