@@ -62,53 +62,6 @@
     fishPlugins.autopair
   ];
 
-  # ── Fish shell ──────────────────────────────────────────────────────
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      # Local bin (opencode, mise, etc.)
-      if not contains "$HOME/.local/bin" $PATH
-          set -gx PATH "$HOME/.local/bin" $PATH
-      end
-
-      # Suppress greeting
-      set -g fish_greeting
-
-      # Zoxide integration
-      zoxide init fish | source
-
-      # Oh My Posh prompt
-      oh-my-posh init fish --config ~/.config/ohmyposh/omp-pcfields.json | source
-
-      # any-nix-shell for fish (fixes nix-shell/nix develop)
-      any-nix-shell fish --info-right | source
-
-      # mise — manages Node.js, Python, Elixir, Zig runtimes
-      mise activate fish | source
-    '';
-
-    shellAbbreviations = {
-      g    = "git";
-      gs   = "git status";
-      gd   = "git diff";
-      gl   = "git log --oneline --graph";
-      ga   = "git add";
-      gc   = "git commit";
-      gp   = "git push";
-      gpl  = "git pull";
-
-      ls   = "eza --icons";
-      ll   = "eza -la --icons --git";
-      lt   = "eza --tree --level=2 --icons";
-      cat  = "bat";
-      grep = "rg";
-      find = "fd";
-      top  = "btop";
-      lg   = "lazygit";
-      ed   = "nvim";
-    };
-  };
-
   # ── Git ─────────────────────────────────────────────────────────────
   programs.git = {
     enable = true;
