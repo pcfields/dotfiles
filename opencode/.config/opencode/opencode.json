@@ -1,22 +1,67 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "copilot-sonnet",
-  "small_model": "copilot-haiku",
+  "model": "github-copilot/claude-sonnet-4.6",
+  "small_model": "github-copilot/claude-haiku-4.5",
+
   "provider": {
     "perplexity": {
       "type": "openai",
       "baseURL": "https://api.perplexity.ai",
       "apiKey": "{env:PERPLEXITY_API_KEY}",
       "models": {
-        "sonar-pro": {
-          "id": "sonar-pro"
-        }
+        "sonar-pro": { "id": "sonar-pro" }
       }
     }
   },
+
+  "instructions": [
+    "./instructions/core.md",
+    "./instructions/mindset.md",
+    "./instructions/coding.md",
+    "./instructions/testing.md"
+  ],
+
+  "default_agent": "planner",
+
   "agent": {
+    "planner": {
+      "description": "Cheap planning agent: understand, apply coding principles, break into steps.",
+      "mode": "primary",
+      "model": "github-copilot/claude-haiku-4.5",
+      "max_steps": 8,
+      "prompt": "./instructions/planner.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+
+    "implementer": {
+      "description": "Executes agreed plans; smallest correct change, matches patterns.",
+      "mode": "primary",
+      "model": "github-copilot/claude-sonnet-4.6",
+      "max_steps": 16,
+      "prompt": "./instructions/implementer.md",
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff *": "allow",
+          "rg *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+
     "researcher": {
-      "description": "Research agent using Perplexity for real-time web search",
+      "description": "Research agent using Perplexity for real-time web search.",
+      "mode": "subagent",
       "model": "perplexity/sonar-pro",
       "tools": {
         "write": false,
