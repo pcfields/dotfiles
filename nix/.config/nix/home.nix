@@ -49,8 +49,6 @@
     # --- System & networking ---
     htop
     btop                # prettier htop alternative
-    curl
-    wget
     nmap
     lsof
     nethogs             # per-process bandwidth
