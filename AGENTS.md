@@ -72,4 +72,10 @@ Switch models in OpenCode:
 API keys (set in shell):
 ```bash
 set -Ux COPILOT_API_KEY your-key
+set -Ux PERPLEXITY_API_KEY your-key
+```
+
+Using Perplexity for research:
+```bash
+@researcher What are the best practices for Rust async?
 ```

@@ -1,5 +1,28 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "copilot-sonnet",
-  "small_model": "copilot-haiku"
+  "small_model": "copilot-haiku",
+  "provider": {
+    "perplexity": {
+      "type": "openai",
+      "baseURL": "https://api.perplexity.ai",
+      "apiKey": "PERPLEXITY_API_KEY",
+      "models": {
+        "sonar-pro": {
+          "id": "sonar-pro"
+        }
+      }
+    }
+  },
+  "agent": {
+    "researcher": {
+      "description": "Research agent using Perplexity for real-time web search",
+      "model": "perplexity/sonar-pro",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    }
+  }
 }
