@@ -21,11 +21,11 @@
     "./instructions/testing.md"
   ],
 
-  "default_agent": "planner",
+  "default_agent": "plan",
 
   "agent": {
-    "planner": {
-      "description": "Cheap planning agent: understand, apply coding principles, break into steps.",
+    "plan": {
+      "description": "Analyze code and create step-by-step plans without making changes.",
       "mode": "primary",
       "model": "github-copilot/claude-haiku-4.5",
       "max_steps": 8,
@@ -39,8 +39,8 @@
       }
     },
 
-    "implementer": {
-      "description": "Executes agreed plans; smallest correct change, matches patterns.",
+    "build": {
+      "description": "Execute plans with precise, minimal changes to code.",
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-4.6",
       "max_steps": 16,
@@ -63,10 +63,9 @@
       "description": "Research agent using Perplexity for real-time web search.",
       "mode": "subagent",
       "model": "perplexity/sonar-pro",
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
       }
     }
   }
