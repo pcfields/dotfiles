@@ -2,3 +2,4 @@ plugin
 .DS_Store
 powershell/local-private.ps1
 .install-state
+fish/.config/fish/fish_variables
