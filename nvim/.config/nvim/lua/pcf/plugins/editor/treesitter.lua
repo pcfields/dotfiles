@@ -12,8 +12,7 @@ return { -- Highlight, edit, and navigate code
 	},
 	build = ":TSUpdate",
 	config = function()
-		require("nvim-treesitter.configs").setup({
-			-- Add languages to be installed here that you want installed for treesitter
+		require("nvim-treesitter").setup({
 			ensure_installed = {
 				"html",
 				"javascript",
@@ -25,19 +24,14 @@ return { -- Highlight, edit, and navigate code
 				"haskell",
 				"rust",
 			},
-
-			-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
 			auto_install = false,
 			highlight = {
 				enable = true,
 			},
-		indent = {
-			enable = true,
-			disable = { "python" },
-		},
-		-- NOTE: incremental_selection replaced by native v_an/v_in in Neovim 0.12+
-		-- Use `an` to expand selection outward and `in` to shrink inward in visual mode
-		-- Enable syntax aware text objects
+			indent = {
+				enable = true,
+				disable = { "python" },
+			},
 			textobjects = {
 				select = {
 					enable = true,
@@ -52,7 +46,6 @@ return { -- Highlight, edit, and navigate code
 			},
 		})
 
-		-- Setup rename open & closing html tag
 		require("nvim-ts-autotag").setup({})
 	end,
 }
