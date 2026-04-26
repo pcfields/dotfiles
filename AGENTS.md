@@ -59,3 +59,17 @@ mise install
 
 - Secrets and API keys are NOT stored here
 - nvim/ subdirectory has its own AGENTS.md for Neovim-specific guidance
+
+## OpenCode Model Selection
+
+Switch models in OpenCode:
+```bash
+/model copilot-sonnet  # Default - good balance
+/model copilot-opus    # Complex refactoring
+/model copilot-haiku  # Quick/simple tasks
+```
+
+API keys (set in shell):
+```bash
+set -Ux COPILOT_API_KEY your-key
+```
