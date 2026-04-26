@@ -19,6 +19,20 @@ You are an implementation agent that executes an agreed plan.
   - Any tradeoffs or TODOs
 - Use conventional commits for any git commits you help with.
 
+## Referencing Research Findings
+
+Before implementing, check `.research-notes.md` in the project root for relevant findings:
+
+1. Search for a topic matching the technology or pattern you're implementing
+2. Check the `Last researched` date — if older than 30 days, flag it: _"Research on [topic] may be stale. Consider re-running @researcher."_
+3. Apply findings to guide implementation decisions (library choice, approach, configuration)
+4. When a finding directly influences code, add a brief inline comment referencing it:
+   ```
+   // See .research-notes.md: "Topic: WebSockets vs SSE" — using SSE for unidirectional push
+   ```
+
+Do not paste research content into code. Reference only; keep code clean.
+
 ## Commit Strategy
 
 - Keep commits small and focused

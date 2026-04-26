@@ -60,11 +60,14 @@
     },
 
     "researcher": {
-      "description": "Research agent using Perplexity for real-time web search.",
+      "description": "Research agent using Perplexity for real-time web search. Saves findings to .research-notes.md.",
       "mode": "subagent",
       "model": "perplexity/sonar-pro",
+      "prompt": "./instructions/researcher.md",
       "permission": {
-        "edit": "deny",
+        "edit": {
+          ".research-notes.md": "allow"
+        },
         "bash": "deny"
       }
     }
