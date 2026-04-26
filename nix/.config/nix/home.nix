@@ -26,52 +26,22 @@
     fzf                 # fuzzy finder
     bat                 # cat with syntax highlighting
     eza                 # modern ls replacement
-    zoxide              # smarter cd
-    jq                  # JSON processor
-    yq                  # YAML/TOML/XML processor
+    yazi                # fast file navigator
     delta               # better git diffs
-    tldr                # simplified man pages
-    du-dust             # disk usage (dust)
-    duf                 # disk free (modern df)
-    procs               # modern ps replacement
-    sd                  # sed alternative
-    choose              # cut/awk alternative
-    hyperfine           # benchmarking tool
-    tokei               # count lines of code
     lazygit             # TUI for git
-    tree                # directory tree view
     unzip
     xclip               # clipboard support
-    httpie              # user-friendly HTTP client (http/https commands)
-    shellcheck          # linter for bash/sh scripts
-
-    # --- System & networking ---
-    htop
-    btop                # prettier htop alternative
-    nmap
-    lsof
-    nethogs             # per-process bandwidth
-    bandwhich           # bandwidth by process/connection
-    mtr                 # traceroute + ping
-
-    # --- Shell extras ---
-    any-nix-shell       # proper nix-shell support for fish
   ];
 
   # ── Git ─────────────────────────────────────────────────────────────
+  # Git config is in Nix for delta integration and defaults
   programs.git = {
     enable = true;
-    # Uncomment and set your identity:
-    # userName = "Your Name";
-    # userEmail = "you@example.com";
-    delta.enable = true;           # use delta for diffs
+    delta.enable = true;
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = true;
-      push.autoSetupRemote = true;
       core.editor = "nvim";
-      merge.conflictstyle = "diff3";
-      diff.colorMoved = "default";
     };
   };
 
@@ -89,16 +59,10 @@
     config.theme = "TwoDark";
   };
 
-  # ── direnv (auto-load .envrc / flake devshells) ─────────────────────
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;      # cached nix develop integration
-  };
-
   # ── Environment variables ───────────────────────────────────────────
+  # These are used when no shell config sets them
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
-    MANPAGER = "sh -c 'col -bx | bat -l man -p'";
   };
 }
