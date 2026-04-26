@@ -2,6 +2,9 @@
 if not contains "$HOME/.local/bin" $PATH
     set -gx PATH "$HOME/.local/bin" $PATH
 end
+if not contains "$HOME/.opencode/bin" $PATH
+    set -gx PATH "$HOME/.opencode/bin" $PATH
+end
 
 # Set SHELL for other terminals that respect it (cosmic-term, gnome-terminal, etc.)
 set -gx SHELL (which fish)
@@ -38,3 +41,5 @@ alias ll='eza -la --icons=auto'
 alias ls='eza --icons=auto'
 alias cat='bat'
 alias c='clear'
+source /home/pcfields/.nix-profile/etc/profile.d/nix.fish
+set -xa PATH /home/pcfields/.nix-profile/bin $PATH
