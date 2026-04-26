@@ -42,7 +42,6 @@ docker-compose-plugin
 code
 flameshot
 gimp
-gnome-tweaks
 slack-desktop
 vivaldi-stable
 
