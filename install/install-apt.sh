@@ -78,7 +78,11 @@ log "Updating apt package lists"
 sudo apt update
 
 log "Installing apt packages from $PACKAGES_FILE"
-sudo apt install -y "${PACKAGES[@]}"
+if sudo apt install -y "${PACKAGES[@]}"; then
+  log "All packages installed successfully"
+else
+  warn "Some packages failed - re-run to retry"
+fi
 
 if command -v docker >/dev/null 2>&1; then
   if ! groups "$USER" | grep -q '\bdocker\b'; then
