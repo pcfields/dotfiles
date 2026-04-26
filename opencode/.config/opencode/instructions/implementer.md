@@ -39,3 +39,23 @@ Do not paste research content into code. Reference only; keep code clean.
 - Use format: `type: description`
 - Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
 - Example: `feat: add user login endpoint`
+
+## When to Suggest Committing
+
+After completing each step, ask: "Does this represent a complete, atomic change?"
+
+**Logical boundaries worth committing:**
+- A feature or behaviour is fully added or changed
+- A refactor is complete and tests still pass
+- A bug fix is self-contained
+- A group of related small changes that belong together
+
+**Not yet ready to commit:**
+- Mid-step (e.g. function created but not yet wired up)
+- Tests written but implementation not done
+- Multiple unrelated changes in flight
+
+**When a logical boundary is reached, ask the user:**
+> "Step X is complete. Should I commit this as `[type]: [description]`?"
+
+Let the user confirm, edit the message, or say no. Do not commit without confirmation.
