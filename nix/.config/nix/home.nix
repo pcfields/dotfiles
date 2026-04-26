@@ -29,8 +29,6 @@
     yazi                # fast file navigator
     delta               # better git diffs
     lazygit             # TUI for git
-    unzip
-    xclip               # clipboard support
   ];
 
   # ── Git ─────────────────────────────────────────────────────────────

@@ -6,8 +6,8 @@ set -euo pipefail
 
 echo "==> Checking for Nix..."
 if ! command -v nix &>/dev/null; then
-  echo "==> Installing Nix (multi-user)..."
-  sh <(curl -L https://nixos.org/nix/install) --daemon
+  echo "==> Installing Nix (single-user)..."
+  sh <(curl -L https://nixos.org/nix/install) --no-daemon
   echo "==> Nix installed. Please restart your shell and re-run this script."
   exit 0
 fi
