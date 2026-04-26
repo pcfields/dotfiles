@@ -1,3 +1,4 @@
 plugin
 .DS_Store
 powershell/local-private.ps1
+.install-state
