@@ -32,7 +32,7 @@ chmod +x install.sh
 The installer runs the setup in stages so the machine can be rebuilt in a predictable order.
 
 ```text
-apt → stow → fonts → nix → flatpak → mise → opencode
+apt → fish → stow → fonts → nix → flatpak → mise → opencode
 ```
 
 For the reasoning behind that order, see [`docs/strategy.md`](docs/strategy.md).
@@ -41,6 +41,7 @@ For the reasoning behind that order, see [`docs/strategy.md`](docs/strategy.md).
 
 ```bash
 ./install.sh apt
+./install.sh fish
 ./install.sh stow
 ./install.sh fonts
 ./install.sh nix

@@ -85,7 +85,9 @@ else
 fi
 
 if command -v docker >/dev/null 2>&1; then
-  if ! groups "$USER" | grep -q '\bdocker\b'; then
+  if getent group docker | grep -q "$USER" 2>/dev/null; then
+    log "User $USER is in docker group"
+  else
     log "Adding $USER to docker group"
     sudo groupadd -f docker
     sudo usermod -aG docker "$USER"

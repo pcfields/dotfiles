@@ -13,7 +13,7 @@ systems, mainly Pop!_OS, using four package managers with distinct roles.
 
 ```text
 install.sh
-  apt → stow → fonts → ohmyposh → rustup → nix/home-manager → flatpak → mise-runtimes → opencode
+  apt → fish → stow → fonts → ohmyposh → rustup → nix/home-manager → flatpak → mise-runtimes → opencode
 ```
 
 ## Package managers
@@ -94,7 +94,7 @@ home directory.
 nvim/.config/nvim/init.lua           → ~/.config/nvim/init.lua
 nix/.config/nix/flake.nix            → ~/.config/nix/flake.nix
 mise/.config/mise/config.toml        → ~/.config/mise/config.toml
-opencode/.config/opencode/config.toml → ~/.config/opencode/config.toml
+opencode/.config/opencode/opencode.json  → ~/.config/opencode/opencode.json
 ```
 
 To add a new config package:
@@ -107,15 +107,16 @@ To add a new config package:
 ## Install order
 
 ```text
-1. apt         — System packages, apt repos, wezterm, mise.
-2. stow        — Symlink configs into $HOME.
-3. fonts       — Install user fonts.
-4. ohmyposh    — Install Oh My Posh (curl script).
-5. rustup      — Install Rustup (official installer).
-6. nix         — Install Nix and run Home Manager (neovim, CLI tools).
-7. flatpak     — Install sandboxed GUI apps.
-8. mise-runtimes — Install language runtimes.
-9. opencode    — Install the OpenCode binary.
+1. apt         — System packages, apt repos, Docker.
+2. fish        — Install Fish shell from PPA.
+3. stow        — Symlink configs into $HOME.
+4. fonts       — Install user fonts.
+5. ohmyposh    — Install Oh My Posh (curl script).
+6. rustup      — Install Rustup (official installer).
+7. nix         — Install Nix and run Home Manager (requires shell restart).
+8. flatpak     — Install sandboxed GUI apps.
+9. mise-runtimes — Install language runtimes.
+10. opencode    — Install the OpenCode binary.
 ```
 
 This order matters because each later step depends on tools or config provided

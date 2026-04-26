@@ -9,6 +9,7 @@
 Run individual steps:
 ```bash
 ./install.sh apt       # System packages
+./install.sh fish      # Fish shell
 ./install.sh stow     # Symlink configs into $HOME
 ./install.sh fonts
 ./install.sh ohmyposh # Oh My Posh prompt engine
@@ -19,7 +20,7 @@ Run individual steps:
 ./install.sh opencode # Binary only
 ```
 
-**Order matters.** Nix requires a shell restart after install but before the next step. Docker group membership requires logout/login.
+**Order matters.** Fish shell requires logout/login after install. Nix requires a shell restart after install but before the next step. Docker group membership requires logout/login.
 
 ## Stow model
 

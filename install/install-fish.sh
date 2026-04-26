@@ -39,7 +39,6 @@ if [[ -n "$FISH_PATH" ]]; then
     echo "$FISH_PATH" | sudo tee -a /etc/shells >/dev/null
   fi
 
-  warn "Fish was installed at $FISH_PATH"
-  warn "To make fish your default shell, run: chsh -s $FISH_PATH"
-  warn "Then log out and back in."
+  log "Setting fish as default shell"
+  chsh -s "$FISH_PATH"
 fi

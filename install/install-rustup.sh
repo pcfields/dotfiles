@@ -15,6 +15,10 @@ fi
 log "Installing Rustup"
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 
+if [[ -f "$HOME/.cargo/env" ]]; then
+  source "$HOME/.cargo/env"
+fi
+
 if ! command -v rustup >/dev/null 2>&1; then
   error "Rustup not found after install"
   exit 1

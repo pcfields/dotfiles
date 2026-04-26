@@ -15,11 +15,13 @@ OpenCode needs an LLM provider API key to function. After installing, run
   https://opencode.ai/auth, and paste your API key
 - **Anthropic** — set `ANTHROPIC_API_KEY` in your shell environment
 - **OpenAI** — set `OPENAI_API_KEY` in your shell environment
+- **Perplexity** — set `PERPLEXITY_API_KEY` in your shell environment (used by `researcher` agent)
 - **Other providers** — see https://opencode.ai/docs/providers
 
 To set API keys persistently in Fish shell:
 ```fish
 set -Ux ANTHROPIC_API_KEY sk-ant-xxxxx
+set -Ux PERPLEXITY_API_KEY pplx-xxxxx
 ```
 
 The `-Ux` flag makes it universal (persists across sessions) and exported
