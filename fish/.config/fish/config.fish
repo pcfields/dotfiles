@@ -35,11 +35,46 @@ end
 
 alias vim='nvim'
 alias ed='nvim'
-alias g='git'
+
+alias gt='git'
+alias gss='git status'
+alias gct='git commit'
+alias gph='git push'
+alias gpl='git pull'
+alias gdf='git diff'
+alias glg='git log --oneline'
+
 alias lg='lazygit'
+
 alias ll='eza -la --icons=auto'
 alias ls='eza --icons=auto'
+alias la='eza -a --icons=auto'
+alias lt='eza --tree --level=2'
+alias l='eza -l --icons=auto'
+alias lx='eza -la --sort=size'
+alias lm='eza -la --sort=modified'
+
+function sync
+    cd ~/dotfiles && ./install.sh stow
+end
+
+function update-packages
+    sudo apt update && sudo apt upgrade
+end
+
+function update-home
+    cd ~/.config/nix && nix flake update && home-manager switch --flake .
+end
+
+function nix-check
+    cd ~/.config/nix && nix flake update --dry-run
+end
+
 alias cat='bat'
 alias c='clear'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
 source /home/pcfields/.nix-profile/etc/profile.d/nix.fish
 set -xa PATH /home/pcfields/.nix-profile/bin $PATH
