@@ -46,15 +46,15 @@ After a fresh install, you need to:
 Log in through the GUI apps after installation. Credentials are not stored
 in dotfiles.
 
-## Environment Variables Set by Dotfiles
+## Environment Variables
 
-These are already configured in `home.nix` and don't need manual setup:
+These should be set in your shell config (Fish):
 
-| Variable | Value | Set by |
-|----------|-------|--------|
-| `EDITOR` | `nvim` | home.nix |
-| `VISUAL` | `nvim` | home.nix |
-| `MANPAGER` | `sh -c 'col -bx \| bat -l man -p'` | home.nix |
+| Variable | Value | Set in |
+|----------|-------|-------|
+| `EDITOR` | `nvim` | Fish config |
+| `VISUAL` | `nvim` | Fish config |
+| `MANPAGER` | `sh -c 'col -bx \| bat -l man -p'` | Fish config |
 
 ## Backup Checklist
 
