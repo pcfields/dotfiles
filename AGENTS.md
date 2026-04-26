@@ -12,6 +12,7 @@ Run individual steps:
 ./install.sh stow     # Symlink configs into $HOME
 ./install.sh fonts
 ./install.sh ohmyposh # Oh My Posh prompt engine
+./install.sh rustup   # Rust toolchain
 ./install.sh nix      # May require shell restart before continuing
 ./install.sh flatpak
 ./install.sh mise-runtimes # Language runtimes

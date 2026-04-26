@@ -13,7 +13,7 @@ systems, mainly Pop!_OS, using four package managers with distinct roles.
 
 ```text
 install.sh
-  apt → stow → fonts → ohmyposh → nix/home-manager → flatpak → mise-runtimes → opencode
+  apt → stow → fonts → ohmyposh → rustup → nix/home-manager → flatpak → mise-runtimes → opencode
 ```
 
 ## Package managers
@@ -107,14 +107,15 @@ To add a new config package:
 ## Install order
 
 ```text
-1. apt        — System packages, apt repos, wezterm, mise.
-2. stow       — Symlink configs into $HOME.
-3. fonts      — Install user fonts.
-4. ohmyposh   — Install Oh My Posh (curl script).
-5. nix        — Install Nix and run Home Manager (neovim, CLI tools).
-6. flatpak    — Install sandboxed GUI apps.
-7. mise-runtimes — Install language runtimes.
-8. opencode   — Install the OpenCode binary.
+1. apt         — System packages, apt repos, wezterm, mise.
+2. stow        — Symlink configs into $HOME.
+3. fonts       — Install user fonts.
+4. ohmyposh    — Install Oh My Posh (curl script).
+5. rustup      — Install Rustup (official installer).
+6. nix         — Install Nix and run Home Manager (neovim, CLI tools).
+7. flatpak     — Install sandboxed GUI apps.
+8. mise-runtimes — Install language runtimes.
+9. opencode    — Install the OpenCode binary.
 ```
 
 This order matters because each later step depends on tools or config provided
@@ -137,6 +138,7 @@ chmod +x install.sh
 ./install.sh stow
 ./install.sh fonts
 ./install.sh ohmyposh
+./install.sh rustup
 ./install.sh nix
 ./install.sh flatpak
 ./install.sh mise-runtimes
