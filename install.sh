@@ -9,9 +9,10 @@ STEPS=(
   stow
   fonts
   ohmyposh
+  rustup
   nix
   flatpak
-  mise
+  mise-runtimes
   opencode
 )
 
@@ -22,9 +23,10 @@ step_script() {
     stow)     echo "$INSTALL_DIR/stow-dotfiles.sh" ;;
     fonts)    echo "$INSTALL_DIR/install-fonts.sh" ;;
     ohmyposh) echo "$INSTALL_DIR/install-ohmyposh.sh" ;;
+    rustup)   echo "$INSTALL_DIR/install-rustup.sh" ;;
     nix)      echo "$INSTALL_DIR/install-nix.sh" ;;
     flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
-    mise)     echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
+    mise-runtimes) echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
     opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
     *)        return 1 ;;
   esac
@@ -46,12 +48,13 @@ Usage:
 
 Steps:
   apt         System packages and apt repositories
-  stow        Symlink dotfiles into $HOME
+  stow        Symlink configs into $HOME
   fonts       Install user fonts
   ohmyposh   Install Oh My Posh prompt engine
+  rustup     Install Rustup toolchain
   nix        Install Nix and run Home Manager
   flatpak    Install Flatpak apps
-mise-runtimes Install language runtimes via mise
+  mise-runtimes Install language runtimes via mise
   opencode   Install OpenCode binary
 EOF_USAGE
 }

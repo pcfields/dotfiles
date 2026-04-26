@@ -15,8 +15,7 @@
 
     # --- Programming languages & runtimes ---
     # Node.js, Python, Elixir, Zig are managed by mise (see ~/.config/mise/config.toml)
-    rustup              # manages Rust toolchains (stable/nightly) — kept here because
-                        # rustup is the industry standard and mise just wraps it anyway
+    # Rust is managed by rustup (see install/install-rustup.sh)
 
     # --- Editor ---
     neovim              # latest from nixpkgs-unstable (0.12.x)
