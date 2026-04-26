@@ -57,9 +57,6 @@
 
     # --- Shell extras ---
     any-nix-shell       # proper nix-shell support for fish
-    fishPlugins.fzf-fish
-    fishPlugins.done
-    fishPlugins.autopair
   ];
 
   # ── Git ─────────────────────────────────────────────────────────────
