@@ -1,3 +1,8 @@
+# PATH - add local bin for opencode, oh-my-posh, etc.
+if not contains "$HOME/.local/bin" $PATH
+    set -gx PATH "$HOME/.local/bin" $PATH
+end
+
 if status is-interactive
     set -g fish_greeting
 end
@@ -23,7 +28,7 @@ if command -q oh-my-posh
 end
 
 alias vim='nvim'
-alias vi='nvim'
+alias ed='nvim'
 alias g='git'
 alias lg='lazygit'
 alias ll='eza -la --icons=auto'
