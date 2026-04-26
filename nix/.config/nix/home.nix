@@ -31,36 +31,10 @@
     lazygit             # TUI for git
   ];
 
-  # ── Git ─────────────────────────────────────────────────────────────
-  # Git config is in Nix for delta integration and defaults
-  programs.git = {
-    enable = true;
-    delta.enable = true;
-    extraConfig = {
-      init.defaultBranch = "main";
-      pull.rebase = true;
-      core.editor = "nvim";
-    };
-  };
-
-  # ── fzf ─────────────────────────────────────────────────────────────
-  programs.fzf = {
-    enable = true;
-    enableFishIntegration = true;
-    defaultCommand = "fd --type f --hidden --exclude .git";
-    defaultOptions = [ "--height=40%" "--layout=reverse" "--border" ];
-  };
-
-  # ── bat ─────────────────────────────────────────────────────────────
-  programs.bat = {
-    enable = true;
-    config.theme = "TwoDark";
-  };
-
-  # ── Environment variables ───────────────────────────────────────────
-  # These are used when no shell config sets them
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-  };
+   # ── Environment variables ───────────────────────────────────────────
+   # These are used when no shell config sets them
+   home.sessionVariables = {
+     EDITOR = "nvim";
+     VISUAL = "nvim";
+   };
 }

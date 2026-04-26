@@ -1,0 +1,15 @@
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[core]
+	editor = nvim
+
+[delta]
+	enable = true
+	enableGitIntegration = true
+
+[delta "interactive"]
+	keepPlusMinusMarkers = true

@@ -6,6 +6,7 @@ source "$ROOT_DIR/lib/common.sh"
 
 STOW_PACKAGES=(
   fish
+  git
   mise
   nix
   nvim
