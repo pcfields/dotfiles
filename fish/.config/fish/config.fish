@@ -3,6 +3,9 @@ if not contains "$HOME/.local/bin" $PATH
     set -gx PATH "$HOME/.local/bin" $PATH
 end
 
+# Set SHELL for other terminals that respect it (cosmic-term, gnome-terminal, etc.)
+set -gx SHELL (which fish)
+
 if status is-interactive
     set -g fish_greeting
 end

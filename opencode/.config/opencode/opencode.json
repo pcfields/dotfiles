@@ -6,7 +6,7 @@
     "perplexity": {
       "type": "openai",
       "baseURL": "https://api.perplexity.ai",
-      "apiKey": "PERPLEXITY_API_KEY",
+      "apiKey": "{env:PERPLEXITY_API_KEY}",
       "models": {
         "sonar-pro": {
           "id": "sonar-pro"
