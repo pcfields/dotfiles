@@ -15,7 +15,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$DotfilesRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$DotfilesRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 
 # Detect the real (non-elevated) user by finding the owner of explorer.exe.
 # When "Run as Administrator" is used from a normal user session, explorer.exe

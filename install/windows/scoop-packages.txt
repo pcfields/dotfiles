@@ -1,6 +1,0 @@
-nvim
-lazygit
-eza
-bat
-git
-oh-my-posh

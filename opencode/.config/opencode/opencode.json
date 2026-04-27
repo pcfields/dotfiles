@@ -2,27 +2,28 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "github-copilot/claude-sonnet-4.6",
   "small_model": "github-copilot/claude-haiku-4.5",
-
   "provider": {
     "perplexity": {
-      "type": "openai",
-      "baseURL": "https://api.perplexity.ai",
-      "apiKey": "{env:PERPLEXITY_API_KEY}",
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Perplexity",
+      "options": {
+        "baseURL": "https://api.perplexity.ai",
+        "apiKey": "{env:PERPLEXITY_API_KEY}"
+      },
       "models": {
-        "sonar-pro": { "id": "sonar-pro" }
+        "sonar-pro": {
+          "id": "sonar-pro"
+        }
       }
     }
   },
-
   "instructions": [
     "./instructions/core.md",
     "./instructions/mindset.md",
     "./instructions/coding.md",
     "./instructions/testing.md"
   ],
-
   "default_agent": "plan",
-
   "agent": {
     "plan": {
       "description": "Analyze code and create step-by-step plans without making changes.",
@@ -38,7 +39,6 @@
         }
       }
     },
-
     "build": {
       "description": "Execute plans with precise, minimal changes to code.",
       "mode": "primary",
@@ -58,7 +58,6 @@
         }
       }
     },
-
     "researcher": {
       "description": "Research agent using Perplexity for real-time web search. Saves findings to .research-notes.md.",
       "mode": "subagent",

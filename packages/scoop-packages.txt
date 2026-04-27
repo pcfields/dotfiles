@@ -1,0 +1,29 @@
+# ── Scoop Packages ─────────────────────────────────────────────────────
+# One package per line. Lines starting with # are ignored.
+# See https://scoop.sh and https://github.com/ScoopInstaller for more.
+# These match aliases and setup for PowerShell/Fish on Windows.
+
+# ── Core CLI (needed for config/aliases to work) ────────
+git
+nvim
+eza
+bat
+lazygit
+wezterm
+zoxide
+fzf
+ripgrep
+delta
+
+# ── Prompt and Shell enhancers ──────────────────────────
+oh-my-posh
+
+# ── Fonts (needed for terminal/wezterm rendering) ───────
+monaspacene-nerd-font
+jetbrainsmono-nerd-font
+
+# ── Optional CLI / TUI / Docker (uncomment as needed) ───
+lazydocker
+
+# Extra buckets for scoop are required for certain tools.
+# The setup script will ensure extras, versions, nerd-fonts, etc. are present.

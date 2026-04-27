@@ -1,17 +1,18 @@
 # Dotfiles
 
-Personal dotfiles and machine setup for Ubuntu-based Linux systems, mainly Pop!_OS.
+Personal dotfiles and machine setup for Ubuntu-based Linux systems (mainly Pop!_OS) and Windows (Scoop + PowerShell).
 
-This repository is used to rebuild a development environment after a clean install and to keep terminal, editor, shell, and tool configuration under version control.
+This repository is used to rebuild a development environment after a clean install and to keep terminal, editor, shell, and tool configuration under version control—across both Linux and Windows.
 
 ## Start here
 
-Read these documents in order:
+Read these documents in order (for Linux). For Windows, see [`docs/install-windows.md`](docs/install-windows.md):
 
-1. [`docs/install.md`](docs/install.md) — first-boot prerequisites, GitHub SSH setup, and cloning the repo.
-2. [`docs/secrets.md`](docs/secrets.md) — secrets, API keys, git identity, and backup checklist.
-3. [`docs/strategy.md`](docs/strategy.md) — package-manager philosophy, install order, and decision framework.
-4. [`docs/terminal.md`](docs/terminal.md) — terminal, prompt, and shell-specific setup notes.
+1. [`docs/install.md`](docs/install.md) — Linux: prerequisites, first-boot steps, GitHub SSH, repo cloning.
+2. [`docs/install-windows.md`](docs/install-windows.md) — Windows: prerequisites and full setup for Scoop, PowerShell, fonts, and CLI tools.
+3. [`docs/secrets.md`](docs/secrets.md) — secrets, API keys, git identity, and backup checklist.
+4. [`docs/strategy.md`](docs/strategy.md) — package-manager philosophy, install order, and decision framework.
+5. [`docs/terminal.md`](docs/terminal.md) — terminal, prompt, and shell-specific setup notes.
 
 ## Fresh install flow
 

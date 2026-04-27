@@ -6,6 +6,7 @@
 
 ## Install workflow
 
+### Linux:
 Run individual steps:
 ```bash
 ./install.sh apt       # System packages
@@ -20,7 +21,15 @@ Run individual steps:
 ./install.sh opencode # Binary only
 ```
 
-**Order matters.** Fish shell requires logout/login after install. Nix requires a shell restart after install but before the next step. Docker group membership requires logout/login.
+### Windows:
+Run in PowerShell (as Administrator if needed):
+```powershell
+cd dotfiles
+powershell -ExecutionPolicy Bypass -File install\windows\install-scoop.ps1
+```
+This installs Scoop, required buckets, all core CLI tools, editors, prompt, and Nerd Fonts from `packages/scoop-packages.txt`.
+
+**Order matters.** Fish shell (Linux) requires logout/login after install. Nix requires a shell restart after install but before the next step. Docker group membership requires logout/login.
 
 ## Stow model
 
@@ -39,12 +48,13 @@ To add a new config package:
 
 ## Package manager boundaries
 
-| Package type | Tool | Config |
-|---|---|---|
-| System apps, Docker, GUI apps | apt | `packages/apt-packages.txt` |
-| CLI dev tools, shell config | Nix + Home Manager | `nix/.config/nix/home.nix` |
-| Sandboxed GUI apps | Flatpak | `packages/flatpak-packages.txt` |
-| Language runtimes (Node, Python, etc.) | mise | `mise/.config/mise/config.toml` |
+| Package type | Tool (Linux) | Tool (Windows) | Config |
+|---|---|---|---|
+| System apps, Docker, GUI apps | apt | (N/A or winget) | `packages/apt-packages.txt` |
+| Core CLI dev tools | Nix + Home Manager | Scoop | `nix/.config/nix/home.nix` (Linux), `packages/scoop-packages.txt` (Windows) |
+| Shell config (Fish, etc.) | Nix + Stow | PowerShell + profile | `fish/.config/fish/config.fish`, `powershell/aliases.ps1` |
+| Sandboxed GUI apps | Flatpak | (N/A or winget) | `packages/flatpak-packages.txt` |
+| Language runtimes (Node, Python, etc.) | mise | (manual or installer) | `mise/.config/mise/config.toml` |
 
 ## Updating configs
 
@@ -59,6 +69,7 @@ mise install
 ## Notes
 
 - Secrets and API keys are NOT stored here
+- All Windows-specific config/scripts live under the `windows/` and `powershell/` subdirs; see [`docs/install-windows.md`](docs/install-windows.md) for the workflow
 - nvim/ subdirectory has its own AGENTS.md for Neovim-specific guidance
 
 ## OpenCode Model Selection
