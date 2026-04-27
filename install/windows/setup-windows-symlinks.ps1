@@ -57,6 +57,10 @@ $Links = @(
     @{
         Source = Join-Path $DotfilesRoot "ohmyposh\.config\ohmyposh"
         Target = Join-Path $realUserProfile ".config\ohmyposh"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "opencode\.config\opencode"
+        Target = Join-Path $realUserProfile ".config\opencode"
     }
 )
 

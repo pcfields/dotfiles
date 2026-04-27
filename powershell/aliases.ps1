@@ -2,26 +2,39 @@
 # Add new aliases/functions below. These are PUBLIC and versioned.
 
 # Aliases
-Set-Alias ll "ls -Force"
-Set-Alias vim "nvim"
-Set-Alias ed "nvim"
+Set-Alias vim nvim
+Set-Alias ed nvim
 Set-Alias lg lazygit
+Set-Alias gt git
+Set-Alias gph git
+Set-Alias gct 'git commit'
+Set-Alias gss 'git status'
+Set-Alias gdf git
+Set-Alias cat bat
+Set-Alias c Clear-Host
 Set-Alias pwdc Show-And-Copy-Current-Directory-Path
 Set-Alias rmnode RemoveNodeModules
-
-# Git command aliases (all real work done by functions below)
-Set-Alias ggs GitStatus
-Set-Alias ggp GitPull
-Set-Alias ggc GitCommit
-Set-Alias ggd GitSwitchDevelop
-Set-Alias ggl GitSwitchLast
-Set-Alias ggm GitSwitchMaster
 
 # Set EDITOR
 $env:EDITOR = "nvim"
 
-# Generic Functions
-function ll { Get-ChildItem -Force | Format-Table Mode, LastWriteTime, Length, Name }
+# Functions for extended aliases/commands
+function glg { git log --oneline @args }
+function ls  { eza --icons=auto @args }
+function la  { eza -a --icons=auto @args }
+function lt  { eza --tree --level=2 @args }
+function l   { eza -l --icons=auto @args }
+function lx  { eza -la --sort=size @args }
+function lm  { eza -la --sort=modified @args }
+
+# Aliases previously defined to avoid duplication
+# ll (included in functions)
+function ll { eza -la --icons=auto @args }
+
+# Git command aliases implemented as functions for custom logic
+function gpl { git pull @args }
+function ggs { git status @args }
+function ggc { git commit -am @args }
 
 function Show-And-Copy-Current-Directory-Path {
     $currentDirectory = Get-Location
@@ -41,24 +54,7 @@ function RemoveNodeModules {
     }
 }
 
-function GitSwitchDevelop {
-    Write-Host "Switching to the 'develop' branch..." -ForegroundColor Cyan
-    & git switch develop
-}
-function GitSwitchMaster {
-    Write-Host "Switching to the 'master' branch..." -ForegroundColor Cyan
-    & git switch master
-}
-function GitSwitchLast {
-    Write-Host "Switching to the 'last' branch..." -ForegroundColor Cyan
-    & git switch -
-}
-function GitStatus {
-    Write-Host "Checking the status of the current branch..." -ForegroundColor Cyan
-    & git status $args
-}
-function GitCommit { & git commit -am $args }
-function GitPull {
-    Write-Host "Pulling the latest changes from the remote repository..." -ForegroundColor Cyan
-    & git pull
-}
+# Optional: Safer versions of file commands
+function rm { Remove-Item -Confirm $args }
+function cp { Copy-Item -Confirm $args }
+function mv { Move-Item -Confirm $args }
