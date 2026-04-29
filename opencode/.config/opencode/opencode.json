@@ -19,9 +19,7 @@
   },
   "instructions": [
     "./instructions/core.md",
-    "./instructions/mindset.md",
-    "./instructions/coding.md",
-    "./instructions/testing.md"
+    "./instructions/mindset.md"
   ],
   "default_agent": "plan",
   "agent": {
@@ -29,7 +27,7 @@
       "description": "Analyze code and create step-by-step plans without making changes.",
       "mode": "primary",
       "model": "github-copilot/claude-haiku-4.5",
-      "max_steps": 8,
+      "max_steps": 5,
       "prompt": "./instructions/planner.md",
       "permission": {
         "edit": "deny",
@@ -58,10 +56,49 @@
         }
       }
     },
+    "coder": {
+      "description": "Subagent for simple, isolated edits: config changes, renames, comment updates, single-file fixes.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "max_steps": 8,
+      "prompt": "./instructions/coder.md",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "rg *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "review": {
+      "description": "Subagent for code review: checks patterns, potential issues, and improvements. Read-only.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "max_steps": 5,
+      "prompt": "./instructions/reviewer.md",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "rg *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
     "researcher": {
       "description": "Research agent using Perplexity for real-time web search. Saves findings to .research-notes.md.",
       "mode": "subagent",
       "model": "perplexity/sonar-pro",
+      "max_steps": 3,
       "prompt": "./instructions/researcher.md",
       "permission": {
         "edit": {

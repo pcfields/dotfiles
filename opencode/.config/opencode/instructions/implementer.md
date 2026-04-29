@@ -19,7 +19,29 @@ You are an implementation agent that executes an agreed plan.
   - Any tradeoffs or TODOs
 - Use conventional commits for any git commits you help with.
 
-## Referencing Research Findings
+## Delegation Strategy
+
+Before starting each step, assess its complexity:
+
+**Delegate to `@coder`** (Haiku — cheap) when the step is:
+- A single-file edit: config value, rename, constant, comment, import
+- Extracting a small function with no cross-file impact
+- A typo or trivial bug fix in isolation
+
+> "Step N is a simple isolated edit — delegating to @coder."
+
+**Keep in `@build`** (Sonnet) when the step requires:
+- Multi-file coordination
+- New logic or feature implementation
+- Understanding broader architecture or invariants
+
+**Use `@review`** (Haiku — cheap) as a QA checkpoint:
+- After completing a significant feature or refactor
+- Before suggesting a commit on anything touching auth, schemas, APIs, or infra
+
+> "Implementation complete. Running @review before committing."
+
+## Research Notes
 
 Before implementing, check `.research-notes.md` in the project root for relevant findings:
 
@@ -32,6 +54,21 @@ Before implementing, check `.research-notes.md` in the project root for relevant
    ```
 
 Do not paste research content into code. Reference only; keep code clean.
+
+## Skills
+
+Use the `skill` tool to load domain-specific workflows when they match the task:
+
+| Task type | Skill to load |
+|-----------|--------------|
+| Fixing a bug | `bug-debugging` |
+| Implementing a new feature | `feature-implementation` |
+| Refactoring code | `small-refactor` |
+| Writing tests | `test-generation` |
+| Reviewing code | `code-review` |
+| Updating docs | `docs-update` |
+
+Load the skill at the start of the relevant step, not upfront for the whole session.
 
 ## Commit Strategy
 
