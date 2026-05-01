@@ -11,11 +11,19 @@
         "apiKey": "{env:PERPLEXITY_API_KEY}"
       },
       "models": {
+        "sonar": {
+          "id": "sonar"
+        },
         "sonar-pro": {
           "id": "sonar-pro"
         }
       }
     }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
   },
   "instructions": [
     "./instructions/core.md",
@@ -27,13 +35,16 @@
       "description": "Analyze code and create step-by-step plans without making changes.",
       "mode": "primary",
       "model": "github-copilot/claude-haiku-4.5",
-      "max_steps": 5,
+      "temperature": 0.1,
+      "max_steps": 8,
       "prompt": "./instructions/planner.md",
       "permission": {
         "edit": "deny",
         "bash": "deny",
         "task": {
-          "*": "deny"
+          "*": "deny",
+          "explore": "allow",
+          "researcher": "allow"
         }
       }
     },
@@ -52,7 +63,11 @@
           "rg *": "allow"
         },
         "task": {
-          "*": "deny"
+          "*": "deny",
+          "coder": "allow",
+          "review": "allow",
+          "explore": "allow",
+          "researcher": "ask"
         }
       }
     },
@@ -60,6 +75,7 @@
       "description": "Subagent for simple, isolated edits: config changes, renames, comment updates, single-file fixes.",
       "mode": "subagent",
       "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.1,
       "max_steps": 8,
       "prompt": "./instructions/coder.md",
       "permission": {
@@ -79,6 +95,7 @@
       "description": "Subagent for code review: checks patterns, potential issues, and improvements. Read-only.",
       "mode": "subagent",
       "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.1,
       "max_steps": 5,
       "prompt": "./instructions/reviewer.md",
       "permission": {
@@ -97,7 +114,7 @@
     "researcher": {
       "description": "Research agent using Perplexity for real-time web search. Saves findings to .research-notes.md.",
       "mode": "subagent",
-      "model": "perplexity/sonar-pro",
+      "model": "perplexity/sonar",
       "max_steps": 3,
       "prompt": "./instructions/researcher.md",
       "permission": {
