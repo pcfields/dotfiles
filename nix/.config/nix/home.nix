@@ -20,6 +20,21 @@
     # --- Editor ---
     neovim              # latest from nixpkgs-unstable (0.12.x)
 
+    # --- LSP servers ---
+    lua-language-server                 # lua_ls
+    vscode-langservers-extracted        # jsonls, cssls, eslint, htmlls
+    typescript-language-server          # ts_ls
+    emmet-language-server               # emmet_language_server
+    marksman                            # marksman (markdown)
+    biome                               # biome (LSP + formatter/linter for JS/TS/JSON)
+
+    # --- Formatters ---
+    prettierd                           # prettierd (fast Prettier daemon)
+    stylua                              # stylua (Lua formatter)
+
+    # --- Treesitter ---
+    tree-sitter                         # required by nvim-treesitter to compile parsers
+
     # --- Terminal utilities ---
     ripgrep             # rg  — fast grep replacement
     fd                  # fast find replacement

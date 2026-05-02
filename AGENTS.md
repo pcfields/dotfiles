@@ -55,6 +55,7 @@ To add a new config package:
 | Shell config (Fish, etc.) | Nix + Stow | PowerShell + profile | `fish/.config/fish/config.fish`, `powershell/aliases.ps1` |
 | Sandboxed GUI apps | Flatpak | (N/A or winget) | `packages/flatpak-packages.txt` |
 | Language runtimes (Node, Python, etc.) | mise | (manual or installer) | `mise/.config/mise/config.toml` |
+| LSP servers, formatters, linters | Nix + Home Manager | (N/A) | `nix/.config/nix/home.nix` — **not Mason** (Mason = DAP only) |
 
 ## Updating configs
 
