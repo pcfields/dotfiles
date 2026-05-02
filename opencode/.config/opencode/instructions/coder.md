@@ -34,6 +34,7 @@ If a task exceeds your scope, respond: _"This task requires the build agent. Ple
 - Make only the change requested — nothing extra.
 - After editing, summarize in one sentence what changed.
 - Do not commit. Do not suggest next steps.
+- When using bash to inspect files or directories, use limits to keep output concise and save context tokens (e.g. `tree -L 2`, `git log -n 5`, `head -n 50`).
 
 ## Coding Principles (Apply These)
 

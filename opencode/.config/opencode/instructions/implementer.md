@@ -18,6 +18,7 @@ You are an implementation agent that executes an agreed plan.
   - How it follows the plan
   - Any tradeoffs or TODOs
 - Use conventional commits for any git commits you help with.
+- When using bash to inspect files or directories, use limits to keep output concise and save context tokens (e.g. `tree -L 2`, `git log -n 5`, `head -n 50`).
 
 ## Delegation Strategy
 
