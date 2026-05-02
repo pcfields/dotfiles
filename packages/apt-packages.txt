@@ -45,6 +45,11 @@ gimp
 slack-desktop
 vivaldi-stable
 
+# ── ZSA Keyboard Flashing (Keymapp / Wally) ──────────────────────────
+libusb-1.0-0             # USB device communication required by both Keymapp and Wally
+libwebkit2gtk-4.1-0      # WebKit rendering engine required by Keymapp GUI
+libgtk-3-0               # GTK3 UI toolkit required by Keymapp GUI
+
 # ── Media ────────────────────────────────────────────────────────────
 ffmpeg
 ubuntu-restricted-extras

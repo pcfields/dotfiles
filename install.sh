@@ -41,6 +41,7 @@ STEPS=(
   flatpak
   mise-runtimes
   opencode
+  zsa-wally
 )
 
 step_script() {
@@ -56,6 +57,7 @@ step_script() {
     flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
     mise-runtimes) echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
     opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
+    zsa-wally) echo "$INSTALL_DIR/install-zsa-wally.sh" ;;
     *)        return 1 ;;
   esac
 }
@@ -73,6 +75,7 @@ Usage:
   ./install.sh                Run the full install flow (resumes if interrupted)
   ./install.sh all            Run the full install flow
   ./install.sh <step>         Run a single install step
+  ./install.sh <step> --force Re-run a step even if already completed
   ./install.sh reset          Clear state and start fresh
 
 Steps:
@@ -86,11 +89,13 @@ Steps:
   flatpak    Install Flatpak apps
   mise-runtimes Install language runtimes via mise
   opencode   Install OpenCode binary
+  zsa-wally  Set up ZSA keyboard flashing (udev rules, plugdev group)
 EOF_USAGE
 }
 
 run_step() {
   local step="$1"
+  local force="${2:-}"
   local script
 
   script="$(step_script "$step")" || {
@@ -105,9 +110,10 @@ run_step() {
     exit 1
   fi
 
-  if is_completed "$step"; then
+  if is_completed "$step" && [[ "$force" != "--force" ]]; then
     echo "============================================================"
     echo "Step already completed: $step (skipping)"
+    echo "Use --force to re-run: ./install.sh $step --force"
     echo "============================================================"
     return 0
   fi
@@ -145,7 +151,7 @@ main() {
       print_usage
       ;;
     *)
-      run_step "$target"
+      run_step "$target" "${2:-}"
       ;;
   esac
 
