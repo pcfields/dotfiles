@@ -14,19 +14,19 @@ return { -- Code formatting
 
 		conform.setup({
 			formatters_by_ft = {
-				javascript = { "biome", "prettier" },
-				typescript = { "biome", "prettier" },
-				javascriptreact = { "biome", "prettier" },
-				typescriptreact = { "biome", "prettier" },
-				css = { "prettier" },
-				json = { "biome" },
-				yaml = { "prettier" },
-				html = { "prettier" },
-				markdown = { "prettier" },
-				graphql = { "prettier" },
-				liquid = { "prettier" },
-				lua = { "stylua" },
-			},
+			javascript = { "biome", "prettierd", stop_after_first = true },
+			typescript = { "biome", "prettierd", stop_after_first = true },
+			javascriptreact = { "biome", "prettierd", stop_after_first = true },
+			typescriptreact = { "biome", "prettierd", stop_after_first = true },
+			css = { "prettierd" },
+			json = { "biome", "prettierd", stop_after_first = true },
+			yaml = { "prettierd" },
+			html = { "prettierd" },
+			markdown = { "prettierd" },
+			graphql = { "prettierd" },
+			liquid = { "prettierd" },
+			lua = { "stylua" },
+		},
 			format_on_save = save_settings,
 		})
 

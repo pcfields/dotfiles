@@ -40,7 +40,6 @@ plugin_manager.setup({
 	plugin("git.gitsigns"),
 
 	plugin("lsp.format"),
-	plugin("lsp.lint"),
 	plugin("lsp.lsp-config"),
 
 	plugin("navigation.mini-files"),

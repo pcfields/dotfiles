@@ -19,7 +19,8 @@ return {
       cssls = {},
       ts_ls = {},
       eslint = {},
-      emmet_ls = {},
+      emmet_language_server = {},
+      biome = {},
       lua_ls = {
         settings = {
           Lua = {
