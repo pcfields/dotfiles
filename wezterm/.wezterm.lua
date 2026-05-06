@@ -11,7 +11,7 @@ local platform = {
 }
 
 platform.shell = platform.is_windows and "pwsh.exe"
-	or (os.getenv("SHELL") or "/usr/bin/fish")
+		or (os.getenv("SHELL") or "/usr/bin/fish")
 
 platform.home_dir = wezterm.home_dir
 
@@ -383,10 +383,10 @@ config.keys = {
 	{ mods = "CTRL|SHIFT", key = "v", action = wezterm.action.PasteFrom("Clipboard") },
 
 	-- Projects and Tools
-	{ mods = "LEADER", key = "p", action = display_project_list() },
-	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
-	{ mods = "LEADER", key = ".", action = command_spawners.spawn_tool("OpenCode", "opencode") },
-	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+	{ mods = "LEADER",     key = "p", action = display_project_list() },
+	{ mods = "LEADER",     key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
+	{ mods = "LEADER",     key = ";", action = command_spawners.spawn_tool("OpenCode", "opencode") },
+	{ mods = "LEADER",     key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
 	-- Pane Management
 	{ -- [s]plit pane
