@@ -22,6 +22,9 @@ oh-my-posh
 monaspacene-nerd-font
 jetbrainsmono-nerd-font
 
+# ── Dev Tools (LSP servers, formatters, linters) ────────
+biome
+
 # ── Optional CLI / TUI / Docker (uncomment as needed) ───
 lazydocker
 
