@@ -10,7 +10,7 @@ Set-Alias gph git
 Set-Alias gct 'git commit'
 Set-Alias gss 'git status'
 Set-Alias gdf git
-Set-Alias cat bat
+# Set-Alias cat bat
 Set-Alias c Clear-Host
 Set-Alias pwdc Show-And-Copy-Current-Directory-Path
 Set-Alias rmnode RemoveNodeModules
