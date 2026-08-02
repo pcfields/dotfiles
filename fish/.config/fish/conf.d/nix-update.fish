@@ -2,7 +2,7 @@
 # Updates flakes and rebuilds home-manager configuration
 function nix-update
     echo "Updating Nix flakes..."
-    nix flake update
+    nix flake update --flake ~/.config/nix
     echo "Rebuilding home-manager configuration..."
     home-manager switch --flake ~/.config/nix
 end
