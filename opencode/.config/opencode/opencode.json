@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/claude-sonnet-4.6",
+  "model": "github-copilot/claude-sonnet-5",
   "small_model": "github-copilot/claude-haiku-4.5",
   "compaction": {
     "auto": true,
@@ -13,7 +13,7 @@
     "plan": {
       "description": "Analyze code and create step-by-step plans without making changes.",
       "mode": "primary",
-      "model": "github-copilot/claude-haiku-4.5",
+      "model": "github-copilot/claude-sonnet-5",
       "temperature": 0.1,
       "max_steps": 8,
       "prompt": "./instructions/planner.md",
@@ -30,7 +30,7 @@
     "build": {
       "description": "Execute plans with precise, minimal changes to code.",
       "mode": "primary",
-      "model": "github-copilot/claude-sonnet-4.6",
+      "model": "github-copilot/claude-sonnet-5",
       "max_steps": 16,
       "prompt": "./instructions/implementer.md",
       "permission": {
@@ -73,7 +73,11 @@
           "coder": "allow",
           "review": "allow",
           "explore": "allow",
-          "researcher": "allow"
+          "researcher": "allow",
+          "committer": "allow",
+          "debugger": "allow",
+          "test-writer": "allow",
+          "docs": "allow"
         }
       }
     },
@@ -111,7 +115,7 @@
       "mode": "subagent",
       "model": "github-copilot/claude-haiku-4.5",
       "temperature": 0.1,
-      "max_steps": 5,
+      "max_steps": 8,
       "prompt": "./instructions/reviewer.md",
       "permission": {
         "edit": "deny",
@@ -138,6 +142,127 @@
           ".research-notes.md": "allow"
         },
         "bash": "deny"
+      }
+    },
+    "committer": {
+      "description": "Subagent that drafts conventional commit messages from the staged diff and commits on confirmation.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.1,
+      "max_steps": 5,
+      "prompt": "./instructions/committer.md",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "git diff --cached *": "allow",
+          "git log *": "allow",
+          "git show *": "allow",
+          "git add *": "allow",
+          "git commit *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "debugger": {
+      "description": "Subagent for bug reproduction and localized fixes. Uses the bug-debugging skill.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-sonnet-5",
+      "temperature": 0.1,
+      "max_steps": 12,
+      "prompt": "./instructions/debugger.md",
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git show *": "allow",
+          "rg *": "allow",
+          "fd *": "allow",
+          "cat *": "allow",
+          "ls *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "wc *": "allow",
+          "tree *": "allow",
+          "npm test *": "allow",
+          "npm run test *": "allow",
+          "npx *": "allow",
+          "node *": "allow",
+          "cargo test *": "allow",
+          "cargo check *": "allow",
+          "pytest *": "allow",
+          "mise *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "test-writer": {
+      "description": "Subagent that generates focused tests for existing code using the test-generation skill.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.1,
+      "max_steps": 10,
+      "prompt": "./instructions/test-writer.md",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "rg *": "allow",
+          "fd *": "allow",
+          "cat *": "allow",
+          "ls *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "tree *": "allow",
+          "npm test *": "allow",
+          "npm run test *": "allow",
+          "npx *": "allow",
+          "node *": "allow",
+          "cargo test *": "allow",
+          "pytest *": "allow",
+          "mise *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "docs": {
+      "description": "Subagent for documentation updates: READMEs, comments, changelogs. Uses the docs-update skill.",
+      "mode": "subagent",
+      "model": "github-copilot/claude-haiku-4.5",
+      "temperature": 0.1,
+      "max_steps": 8,
+      "prompt": "./instructions/docs.md",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "rg *": "allow",
+          "fd *": "allow",
+          "cat *": "allow",
+          "ls *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "tree *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
       }
     }
   }

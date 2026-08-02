@@ -15,3 +15,26 @@
 - **Explicit data flow**: Pass data as arguments, return data as results. Avoid hidden state and implicit mutation.
 - **Small pure functions**: Each function does one thing. Easy to test = well-designed. Extract reusable logic when patterns repeat.
 - **Change strategy**: Identify what is pure calculation vs side-effecting. Make the smallest correct change first. Preserve existing behavior.
+
+## Delegation Map
+
+Single source of truth for when to route work to subagents. Both `plan` and `build` should prefer cheap subagents when the task fits — this controls cost without hurting quality.
+
+| Subagent | Model tier | Use when |
+|---|---|---|
+| `@explore` | cheap | Finding files, searching code, mapping the codebase before planning |
+| `@researcher` | Perplexity | Choosing libraries/frameworks, current best practices, API versions, security guidance. Skip if `.research-notes.md` has the topic within 30 days |
+| `@coder` | Haiku | Single-file edits: config change, rename, import, constant, comment, typo, small function extraction |
+| `@test-writer` | Haiku | Generating tests for existing code (uses `test-generation` skill) |
+| `@docs` | Haiku | README, comments, changelog, doc-only updates (uses `docs-update` skill) |
+| `@committer` | Haiku | Drafting conventional commit messages from a staged diff and committing on confirmation |
+| `@review` | Haiku | QA checkpoint before commits, especially on auth / schemas / APIs / infra. Escalates 🔴 Critical findings to Sonnet re-review |
+| `@debugger` | Sonnet | Reproducing a bug, hypothesis-driven fix (uses `bug-debugging` skill) |
+| `@build` | Sonnet | Multi-file coordination, new feature implementation, architectural decisions |
+
+**Routing rules:**
+
+- Prefer the cheapest agent that can correctly do the job.
+- Reserve `@build` and `@debugger` (Sonnet) for genuinely complex work.
+- A step that looks isolated but touches architecture is not isolated — keep it in `@build`.
+- If a subagent reports the task exceeds its scope, escalate to `@build` rather than pushing it to retry.
