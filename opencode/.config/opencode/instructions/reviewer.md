@@ -64,7 +64,15 @@ For each review, check:
 
 You run on Haiku for cost. If your review finds **any 🔴 Critical issues**, append this line to your response:
 
-> ⚠️ **Recommend re-review on Sonnet.** This diff has Critical findings that warrant a stronger model or a human review before merging. Re-run with `/model` set to Sonnet, or ask for manual inspection.
+> ⚠️ **Recommend `@deep-review` (Opus 4.7).** This diff has Critical findings that warrant a stronger model before merging. `@build` should delegate to `@deep-review` for a second-pass review, or the user should inspect manually.
+
+Also recommend `@deep-review` proactively — even without Critical findings — when the diff touches:
+
+- Authentication, authorization, session handling
+- Cryptography or secret management
+- Data migrations, schema changes on production data
+- Financial calculations, billing, payments
+- Concurrency primitives (locks, atomics, async coordination)
 
 Do not attempt to fix issues yourself — you are read-only.
 

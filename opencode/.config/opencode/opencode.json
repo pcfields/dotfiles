@@ -7,7 +7,7 @@
     "prune": true,
     "reserved": 20000
   },
-  "instructions": ["./instructions/core.md", "./instructions/mindset.md"],
+  "instructions": ["./instructions/core.md"],
   "default_agent": "plan",
   "agent": {
     "plan": {
@@ -15,8 +15,25 @@
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-5",
       "temperature": 0.1,
-      "max_steps": 8,
+      "max_steps": 10,
       "prompt": "./instructions/planner.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "researcher": "allow"
+        }
+      }
+    },
+    "architect": {
+      "description": "Opt-in high-reasoning planner for architectural decisions, threat modeling, and complex tradeoff analysis. Read-only, Opus 4.7 via Perplexity. Use sparingly.",
+      "mode": "primary",
+      "model": "perplexity-agent/anthropic/claude-opus-4-7",
+      "temperature": 0.2,
+      "max_steps": 12,
+      "prompt": "./instructions/architect.md",
       "permission": {
         "edit": "deny",
         "bash": "deny",
@@ -31,7 +48,7 @@
       "description": "Execute plans with precise, minimal changes to code.",
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-5",
-      "max_steps": 16,
+      "max_steps": 20,
       "prompt": "./instructions/implementer.md",
       "permission": {
         "edit": "ask",
@@ -48,6 +65,10 @@
           "git checkout *": "allow",
           "git switch *": "allow",
           "git tag *": "allow",
+          "git rev-parse *": "allow",
+          "git remote *": "allow",
+          "git fetch *": "allow",
+          "git pull *": "allow",
           "cat *": "allow",
           "ls *": "allow",
           "head *": "allow",
@@ -62,16 +83,28 @@
           "nix *": "allow",
           "home-manager *": "allow",
           "mise *": "allow",
+          "make *": "allow",
+          "./install.sh *": "allow",
           "npm *": "allow",
           "npx *": "allow",
           "node *": "allow",
+          "pnpm *": "allow",
+          "yarn *": "allow",
+          "bun *": "allow",
+          "jest *": "allow",
+          "vitest *": "allow",
           "cargo *": "allow",
+          "go *": "allow",
+          "python *": "allow",
+          "python3 *": "allow",
+          "pytest *": "allow",
           "stow *": "allow"
         },
         "task": {
           "*": "deny",
           "coder": "allow",
           "review": "allow",
+          "deep-review": "allow",
           "explore": "allow",
           "researcher": "allow",
           "committer": "allow",
@@ -111,7 +144,7 @@
       }
     },
     "review": {
-      "description": "Subagent for code review: checks patterns, potential issues, and improvements. Read-only.",
+      "description": "Subagent for code review: checks patterns, potential issues, and improvements. Read-only. Escalates Critical findings to @deep-review.",
       "mode": "subagent",
       "model": "github-copilot/claude-haiku-4.5",
       "temperature": 0.1,
@@ -123,6 +156,29 @@
           "*": "deny",
           "git status": "allow",
           "git diff *": "allow",
+          "git log *": "allow",
+          "rg *": "allow"
+        },
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "deep-review": {
+      "description": "High-reasoning code review for critical code (auth, security, data migrations, financial logic). Read-only, Opus 4.7. Invoked when @review escalates.",
+      "mode": "subagent",
+      "model": "perplexity-agent/anthropic/claude-opus-4-7",
+      "temperature": 0.1,
+      "max_steps": 10,
+      "prompt": "./instructions/deep-review.md",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git show *": "allow",
           "rg *": "allow"
         },
         "task": {
@@ -131,11 +187,11 @@
       }
     },
     "researcher": {
-      "description": "Research agent using Perplexity for real-time web search. Saves findings to .research-notes.md.",
+      "description": "Research agent using Perplexity Sonar (reasoning-pro) for real-time web search. Saves findings to .research-notes.md.",
       "mode": "subagent",
-      "model": "perplexity-agent/anthropic/claude-sonnet-4-6",
+      "model": "perplexity/sonar-reasoning-pro",
       "temperature": 0.3,
-      "max_steps": 5,
+      "max_steps": 8,
       "prompt": "./instructions/researcher.md",
       "permission": {
         "edit": {
@@ -158,8 +214,11 @@
           "git status": "allow",
           "git diff *": "allow",
           "git diff --cached *": "allow",
+          "git diff --stat *": "allow",
           "git log *": "allow",
           "git show *": "allow",
+          "git rev-parse *": "allow",
+          "git branch --show-current": "allow",
           "git add *": "allow",
           "git commit *": "allow"
         },
@@ -192,11 +251,19 @@
           "wc *": "allow",
           "tree *": "allow",
           "npm test *": "allow",
-          "npm run test *": "allow",
+          "npm run *": "allow",
           "npx *": "allow",
           "node *": "allow",
+          "pnpm *": "allow",
+          "yarn *": "allow",
+          "bun *": "allow",
+          "jest *": "allow",
+          "vitest *": "allow",
           "cargo test *": "allow",
           "cargo check *": "allow",
+          "go test *": "allow",
+          "python *": "allow",
+          "python3 *": "allow",
           "pytest *": "allow",
           "mise *": "allow"
         },
@@ -213,7 +280,7 @@
       "max_steps": 10,
       "prompt": "./instructions/test-writer.md",
       "permission": {
-        "edit": "allow",
+        "edit": "ask",
         "bash": {
           "*": "deny",
           "git status": "allow",
@@ -226,10 +293,18 @@
           "tail *": "allow",
           "tree *": "allow",
           "npm test *": "allow",
-          "npm run test *": "allow",
+          "npm run *": "allow",
           "npx *": "allow",
           "node *": "allow",
+          "pnpm *": "allow",
+          "yarn *": "allow",
+          "bun *": "allow",
+          "jest *": "allow",
+          "vitest *": "allow",
           "cargo test *": "allow",
+          "go test *": "allow",
+          "python *": "allow",
+          "python3 *": "allow",
           "pytest *": "allow",
           "mise *": "allow"
         },
@@ -246,7 +321,7 @@
       "max_steps": 8,
       "prompt": "./instructions/docs.md",
       "permission": {
-        "edit": "allow",
+        "edit": "ask",
         "bash": {
           "*": "deny",
           "git status": "allow",
