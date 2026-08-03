@@ -4,6 +4,9 @@
 # Oh My Posh initialization (correct config path for theme)
 oh-my-posh init pwsh --config "$HOME\.config\ohmyposh\base.json" | Invoke-Expression
 
+# mise: activate shims for version-managed tools (node, etc.)
+mise activate pwsh | Out-String | Invoke-Expression
+
 # Import custom aliases/functions from dotfiles
 . "$HOME\dotfiles\powershell\aliases.ps1"
 
