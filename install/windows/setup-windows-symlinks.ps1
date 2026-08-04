@@ -61,6 +61,26 @@ $Links = @(
     @{
         Source = Join-Path $DotfilesRoot "opencode\.config\opencode"
         Target = Join-Path $realUserProfile ".config\opencode"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "claude\.claude\CLAUDE.md"
+        Target = Join-Path $realUserProfile ".claude\CLAUDE.md"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "claude\.claude\settings.json"
+        Target = Join-Path $realUserProfile ".claude\settings.json"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "claude\.claude\agents"
+        Target = Join-Path $realUserProfile ".claude\agents"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "claude\.claude\skills"
+        Target = Join-Path $realUserProfile ".claude\skills"
+    },
+    @{
+        Source = Join-Path $DotfilesRoot "claude\.claude\hooks"
+        Target = Join-Path $realUserProfile ".claude\hooks"
     }
 )
 

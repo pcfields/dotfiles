@@ -1,0 +1,35 @@
+{
+  "autoUpdatesChannel": "latest",
+  "theme": "dark",
+  "model": "sonnet",
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(mkfs*)",
+      "Bash(dd if=* of=/dev/*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/protect-secrets.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/block-catastrophic-bash.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
