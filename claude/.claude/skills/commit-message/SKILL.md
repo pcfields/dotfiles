@@ -21,5 +21,11 @@ above.
 - Body only if the summary line can't carry the "why" - explain motivation,
   not a restatement of the diff.
 - If the diff is empty, say so instead of inventing a message.
+- If the staged diff clearly mixes unrelated concerns (e.g. a feature plus an
+  unrelated bug fix or dependency bump), say so explicitly and recommend
+  splitting into separate commits (unstage the unrelated hunks with
+  `git restore --staged <path>` or `git add -p`) instead of drafting one
+  message that papers over multiple logical changes.
 
-Return only the drafted message - do not run `git commit`.
+Return only the drafted message (or the split recommendation) - do not run
+`git commit`.

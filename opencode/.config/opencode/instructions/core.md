@@ -27,6 +27,10 @@
 
 - Use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`, `perf:`, `style:`, `build:`, `ci:`.
 - Keep commits small and focused — one logical change per commit.
+- Before committing, review the full diff and split it by *type of work*, not just by file: feature work, bug fixes, refactors, chores, and docs each get their own commit even if they touch overlapping files.
+- If unrelated pre-existing bugs are found and fixed while doing the main task (e.g. a stale path, a missing config flag), commit those separately from the primary change — don't bundle "fix a bug I stumbled into" with "implement the feature I was asked for".
+- Do this splitting proactively; don't wait for the user to ask "can you do multiple commits" — propose the split as part of the commit step.
+- When a single file (e.g. `package.json`) has changes belonging to multiple logical commits, stage/commit them incrementally (edit → stage → commit → repeat) rather than committing everything at once.
 
 ## Coding Principles
 

@@ -34,6 +34,15 @@ session's context.
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`,
   `chore:`, `perf:`, `style:`, `build:`, `ci:`.
 - Small, focused commits — one logical change each.
+- Split by type of work, not just by file: feature work, bug fixes, refactors,
+  chores, and docs each get their own commit, even when they touch the same
+  file (e.g. `package.json`). If unrelated pre-existing bugs are fixed while
+  doing the main task, commit those separately from the primary change.
+- Propose this split proactively when preparing a commit — don't wait to be
+  asked to break work into multiple commits.
+- When one file has changes for multiple logical commits, stage and commit
+  incrementally (edit the file back to an intermediate state, stage, commit,
+  repeat) rather than committing everything together.
 
 ## Delegation map
 
