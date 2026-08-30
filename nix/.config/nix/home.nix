@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   # ── Identity ────────────────────────────────────────────────────────
@@ -9,6 +9,12 @@
   # Do not change — tracks Home Manager release compatibility
   home.stateVersion = "24.05";
   programs.home-manager.enable = true;
+
+  # Postman is unfree; keep the exception limited to this package.
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "postman"
+    ];
 
   # ── Packages ────────────────────────────────────────────────────────
   home.packages = with pkgs; [
@@ -44,6 +50,10 @@
     yazi                # fast file navigator
     delta               # better git diffs
     lazygit             # TUI for git
+
+    # --- API development --
+    postman
+    insomnia
   ];
 
    # ── Environment variables ───────────────────────────────────────────
