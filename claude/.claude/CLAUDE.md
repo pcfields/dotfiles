@@ -66,6 +66,15 @@ Prefer the cheapest tool that can correctly do the job.
 | Investigating a bug | `bug-debugging` |
 | Explaining unfamiliar code to a human | `explain-code` |
 
+## Definition of done
+
+- Before calling a task complete: run the project's test suite and any
+  linter/type-checker; fix failures or report them explicitly — never
+  declare done with red tests.
+- For non-trivial changes (new logic, bug fixes — not docs or mechanical
+  edits), run the `code-review` skill (medium effort) on the diff before
+  handing back, and note what was addressed vs. deliberately left.
+
 ## Cost efficiency
 
 - Default to low/medium reasoning effort; reserve high effort for genuinely

@@ -24,3 +24,8 @@ You write tests for existing code. You do not modify production code.
 - Test-only changes. If the code isn't testable as-is, report that back
   instead of refactoring production code yourself.
 - Don't mock what you can exercise directly against real, fast dependencies.
+- If the code under test has non-trivial branching, concurrency, or
+  business-critical logic - the kind where a missed edge case actually
+  matters - stop and hand it back to the main loop instead of guessing at
+  coverage. This escalation should be routine, not an edge case: reach for
+  it whenever the behavior isn't simple to reason about.
