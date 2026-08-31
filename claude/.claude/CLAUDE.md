@@ -65,6 +65,8 @@ Prefer the cheapest tool that can correctly do the job.
 | Draft a commit message from staged changes | `commit-message` |
 | Investigating a bug | `bug-debugging` |
 | Explaining unfamiliar code to a human | `explain-code` |
+| Review a diff for correctness/cleanup | `code-review` / `simplify` skills |
+| Check a diff for security issues | `security-review` skill |
 
 ## Definition of done
 
