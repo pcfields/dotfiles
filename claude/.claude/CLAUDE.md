@@ -56,7 +56,7 @@ Prefer the cheapest tool that can correctly do the job.
 | Single-file mechanical edit (rename, config tweak, constant, typo) | `small-edits` subagent (Haiku) |
 | README / comments / changelog only | `docs` subagent (Haiku) |
 | Generate tests for existing code | `test-writer` subagent (Haiku) |
-| Review a diff or check for security issues | built-in `review` / `security-review` / `simplify` skills — don't reinvent these |
+| Hard architecture tradeoffs, gnarly root-causing, security-sensitive design review | `deep-review` subagent (Opus) — use sparingly, this is the expensive tier |
 
 ## Skills map
 
