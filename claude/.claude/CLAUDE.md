@@ -43,6 +43,7 @@ session's context.
 - When one file has changes for multiple logical commits, stage and commit
   incrementally (edit the file back to an intermediate state, stage, commit,
   repeat) rather than committing everything together.
+- Do not include `Co-Authored-By: Claude ...` trailers in commit messages.
 
 ## Delegation map
 
