@@ -39,7 +39,7 @@
     # --- LSP servers: infrastructure and config ---
     bash-language-server                # bashls (uses shellcheck below when present)
     yaml-language-server                # yamlls
-    dockerfile-language-server-nodejs   # dockerls
+    dockerfile-language-server          # dockerls
     taplo                               # taplo (TOML LSP + formatter)
 
     # --- LSP servers: .NET ---
