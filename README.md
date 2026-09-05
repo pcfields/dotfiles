@@ -38,6 +38,11 @@ apt → fish → stow → fonts → nix → flatpak → mise → opencode
 
 For the reasoning behind that order, see [`docs/strategy.md`](docs/strategy.md).
 
+After lazy.nvim installs the Neovim plugins for the first time, run
+`:TSInstallConfigured` for Tree-sitter parsers and `:DapInstallAdapters` for
+debug adapters. These downloads are explicit and do not run during ordinary
+Neovim startup.
+
 ### Run individual steps
 
 ```bash

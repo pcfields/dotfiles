@@ -71,8 +71,8 @@ local function start_treesitter(buf, filetype)
 		return
 	end
 
-	-- Fails when the parser is not installed yet, which is expected on a first
-	-- run while install() is still going.
+	-- Fails when the parser is not installed yet, which is expected until
+	-- :TSInstallConfigured completes.
 	if not pcall(vim.treesitter.start, buf, lang) then
 		return
 	end
@@ -155,7 +155,10 @@ return { -- Highlight, edit, and navigate code
 			end,
 		})
 
-		install_missing_parsers(nvim_treesitter)
+		vim.api.nvim_create_user_command("TSInstallConfigured", function()
+			install_missing_parsers(nvim_treesitter)
+		end, { desc = "Install missing configured Tree-sitter parsers" })
+
 		setup_textobjects()
 
 		require("nvim-ts-autotag").setup({})

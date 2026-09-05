@@ -9,6 +9,9 @@
 ## Debugging
 - Install missing debug adapters explicitly with `:DapInstallAdapters`
 
+## Tree-sitter
+- Install missing configured parsers explicitly with `:TSInstallConfigured`
+
 ## Formatting & Linting
 - Auto-format on save via conform.nvim
 - JS/TS: biome (preferred), prettier fallback

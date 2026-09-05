@@ -345,8 +345,8 @@ dotnet --info
 
 Note the file no longer has an `ensure_installed` table — that was a `master`
 branch option. Add the parsers to the `PARSERS` list at the top of
-`treesitter.lua` instead; `install_missing_parsers()` picks them up on the next
-start and installs whatever is absent. The same applies to `toml` in Stage 2.4.
+`treesitter.lua` instead, then run `:TSInstallConfigured` to install whatever is
+absent. The same applies to `toml` in Stage 2.4.
 
 **3.3 — Debug adapter.** Add `"netcoredbg"` to the adapter-install list, and
 create `lua/pcf/dap/dotnet.lua` with the `coreclr` adapter and launch
@@ -504,14 +504,15 @@ startup buffer   ft=typescript   highlighter=true
 runtime buffer   ft=javascript   highlighter=false
 ```
 
-`treesitter.lua` now drives highlighting, indentation and parser installation
-explicitly, and both nvim-treesitter and nvim-treesitter-textobjects pin
+`treesitter.lua` now drives highlighting and indentation and exposes parser
+installation through `:TSInstallConfigured`. Both nvim-treesitter and
+nvim-treesitter-textobjects pin
 `branch = "main"`.
 
 Two consequences for later stages:
 
 - **Adding a parser** means adding to the `PARSERS` list in `treesitter.lua`,
-  not to an `ensure_installed` table.
+  not to an `ensure_installed` table, then running `:TSInstallConfigured`.
 - **The tree-sitter CLI (>= 0.26.1) is now a hard requirement**, because `main`
   shells out to `tree-sitter build`. Provisioned in `home.nix` (Linux) and
   `packages/scoop-packages.txt` (Windows); macOS would need

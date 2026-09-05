@@ -31,6 +31,10 @@ This installs Scoop, required buckets, all core CLI tools, editors, prompt, and 
 
 **Order matters.** Fish shell (Linux) requires logout/login after install. Nix requires a shell restart after install but before the next step. Docker group membership requires logout/login.
 
+After lazy.nvim installs the Neovim plugins for the first time, run
+`:TSInstallConfigured` for Tree-sitter parsers and `:DapInstallAdapters` for
+debug adapters. Ordinary Neovim startup does not download either.
+
 ## Stow model
 
 Each top-level directory is a stow package. The internal structure mirrors the target location:
