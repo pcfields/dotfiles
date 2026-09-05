@@ -15,6 +15,8 @@ return { -- Run tests
 			adapters = {
 				require("neotest-vitest"),
 				require("neotest-jest"),
+				-- Ships with rustaceanvim; drives `cargo test`
+				require("rustaceanvim.neotest"),
 			},
 			status = {
 				enabled = true,

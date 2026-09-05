@@ -17,7 +17,7 @@
 Update this as you go. An agent resuming work reads this first.
 
 - [x] **Stage 1** — Repair Node/TypeScript debugging *(done)*
-- [ ] **Stage 2** — Rust
+- [x] **Stage 2** — Rust *(done)*
 - [ ] **Stage 3** — .NET foundation (shared by C# and F#)
 - [ ] **Stage 4** — C#
 - [ ] **Stage 5** — F#
@@ -579,6 +579,59 @@ first real project appears rather than assuming these are finished.
   and formatter. Revisit when there is a database to point at.
 - **A Neovim REST client** (`kulala.nvim` and similar). Postman and Insomnia are
   already installed and cover this.
+
+---
+
+## Stage 2 notes (Rust, done)
+
+`rust-analyzer` now comes from `rustup component add`, so it is version-locked to
+the toolchain (1.98.1 for both). `install/install-rustup.sh` installs
+`rust-analyzer`, `clippy` and `rustfmt` idempotently, so a fresh machine gets
+them without a manual step.
+
+`rustaceanvim` owns the Rust LSP client. `rust_analyzer` is deliberately absent
+from `lsp-config.lua`; verified exactly one client attaches. Keymaps live under
+`<leader>r` (`ra` code action, `rr` runnables, `rd` debuggables, `rm` expand
+macro, `rc` open Cargo.toml, `re` explain error).
+
+`check.command = "clippy"` is set, so the editor shows the same lints
+`cargo clippy` does. Verified against CLI ground truth: `clippy::let_and_return`
+appears in-editor with source `clippy`. Note a hard type error aborts the clippy
+run, so lints disappear until the file compiles — that is cargo's behaviour, not
+a misconfiguration.
+
+Formatting needs no conform entry: `lsp_format = "fallback"` routes Rust through
+rust-analyzer's rustfmt. Verified on save.
+
+### Things that cost time here, recorded so they do not again
+
+- **`mason.setup()` was not being called.** Removing the `mason.nvim` dependency
+  from `lsp-config.lua` in the previous stage also removed its `config = true`,
+  which was the only thing calling `mason.setup()`. The registry then exposed
+  **1** package instead of 594, so `codelldb` "did not exist" and
+  `ensure_adapters` skipped it silently. Fixed by restoring `config = true` on
+  the dependency in `dap.lua`. `ensure_adapters` now emits a warning for an
+  unresolvable package rather than skipping quietly.
+- **`rustaceanvim`'s DAP adapter is a lazy getter**, not a nvim-dap callback
+  adapter: `internal.dap.adapter` is `function() return adapter_table end`.
+  Assigning it straight to `dap.adapters.codelldb` hangs at "Starting adapter".
+  Let rustaceanvim drive debugging via `<leader>rd`; do not wire it manually.
+- **neotest discovery looks broken headlessly and is not.** Querying
+  `neotest.state.positions()` from a script returns nothing because neotest's own
+  discovery has not been triggered. Calling the adapter directly inside `nio.run`
+  returns `file:main.rs, namespace:tests, test:adds_two_numbers` as expected.
+- **`vim.lsp.get_buffers_by_client_id() is deprecated`** on every Rust buffer
+  comes from `rustaceanvim/lua/rustaceanvim/server_status.lua:52`. Upstream's to
+  fix; cosmetic.
+
+### Verified
+
+rust-analyzer attaches (exactly one client), treesitter highlights, `:RustLsp`
+exists, rust-analyzer returns 6 runnables including the test, clippy diagnostics
+match the CLI, format-on-save applies rustfmt, the neotest adapter discovers
+tests, `:checkhealth rustaceanvim` is all-OK including "debug adapter: found",
+and a breakpoint in `add()` is hit under codelldb with Rust formatters loaded
+from the rustup toolchain.
 
 ---
 

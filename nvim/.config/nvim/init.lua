@@ -41,6 +41,7 @@ plugin_manager.setup({
 
 	plugin("lsp.format"),
 	plugin("lsp.lsp-config"),
+	plugin("lsp.rustaceanvim"),
 
 	plugin("navigation.mini-files"),
 	plugin("navigation.neo-tree"),

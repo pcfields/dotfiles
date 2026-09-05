@@ -5,7 +5,10 @@ return { -- Debugger
 	"mfussenegger/nvim-dap",
 	dependencies = {
 		"rcarriga/nvim-dap-ui",
-		"williamboman/mason.nvim",
+		-- config = true runs mason.setup(), which initialises the package
+		-- registry. Without it ensure_adapters below can only see packages that
+		-- are already installed.
+		{ "williamboman/mason.nvim", config = true },
 		"theHamsta/nvim-dap-virtual-text",
 		"nvim-neotest/nvim-nio",
 	},
@@ -31,7 +34,11 @@ return { -- Debugger
 					-- not `package`: that name shadows Lua's standard library table
 					local found, pkg = pcall(registry.get_package, name)
 
-					if found and not pkg:is_installed() then
+					if not found then
+						-- Silently skipping here once hid a genuine misconfiguration
+						-- for a whole stage, so say so loudly instead.
+						vim.notify("DAP adapter not found in the Mason registry: " .. name, vim.log.levels.WARN)
+					elseif not pkg:is_installed() then
 						vim.notify("Installing DAP adapter: " .. name, vim.log.levels.INFO)
 						pkg:install()
 					end
@@ -39,7 +46,8 @@ return { -- Debugger
 			end)
 		end
 
-		ensure_adapters({ "js-debug-adapter" })
+		-- codelldb is picked up automatically by rustaceanvim
+		ensure_adapters({ "js-debug-adapter", "codelldb" })
 
 		require("pcf.dap.javascript").setup()
 
