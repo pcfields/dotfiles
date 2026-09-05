@@ -32,7 +32,7 @@ function M.get_winbar_filename()
 	local filename = vim.fn.fnamemodify(file_path, ":t") -- Tail (filename only)
 
 	local open_buffers_count_formatted = "(" .. open_buffers_count .. ") "
-	local dimmed_directory_path = "%#FilePathColor#" .. directory_path .. "/"
+	local dimmed_directory_path = "%#FilePathDimColor#" .. directory_path .. "/"
 	local bright_filename = "%#BrightGreenColor#" .. filename
 
 	return modified_buffer_icon .. "%#BrightGreenColor#" .. open_buffers_count_formatted .. dimmed_directory_path .. bright_filename
