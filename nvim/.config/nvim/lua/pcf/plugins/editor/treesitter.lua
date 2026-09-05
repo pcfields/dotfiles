@@ -37,6 +37,7 @@ local PARSERS = {
 	"elixir",
 	"elm",
 	"erlang",
+	"fsharp",
 	"haskell",
 	"heex",
 	"lua",

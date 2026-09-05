@@ -48,6 +48,8 @@
     # `dotnet` runtime from PATH, which mise provides.
     roslyn-ls                           # roslyn_ls (C#)
     csharpier                           # C# formatter
+    fsautocomplete                      # fsautocomplete (F#)
+    fantomas                            # F# formatter
 
     # --- LSP servers: runtimes managed by mise ---
     basedpyright                        # basedpyright (Python types)

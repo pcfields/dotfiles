@@ -52,6 +52,9 @@ return { -- Code formatting
 
 				-- Languages
 				cs = { "csharpier" },
+				-- fantomas rewrites the file in place (stdin = false), unlike
+				-- most formatters here, so format-on-save writes twice.
+				fsharp = { "fantomas" },
 				lua = { "stylua" },
 				python = { "ruff_organize_imports", "ruff_format" },
 				elixir = { "mix" },

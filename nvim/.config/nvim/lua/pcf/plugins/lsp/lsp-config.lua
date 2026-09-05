@@ -75,6 +75,10 @@ return {
       -- inlay hints, code lens and decompiled-source navigation, so there is
       -- nothing to add here. Razor is the one gap; it needs seblyng/roslyn.nvim.
       roslyn_ls = {},
+      -- lspconfig's defaults are FsAutoComplete's own recommended settings
+      -- (linter, stub generation, unused-open analysis, code lens), so there
+      -- is nothing worth overriding here.
+      fsautocomplete = {},
 
       -- Runtimes managed by mise
       basedpyright = {},

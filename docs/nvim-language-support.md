@@ -7,8 +7,8 @@
 > (Parts 1–3), and an AI agent picking the work up mid-flight (Part 4).
 >
 > **Created.** 2026-09-05. **Baseline commit:** `c601cf3`.
-> **Status:** Stage 1 complete, plus the treesitter repair it uncovered.
-> Stages 2-6 outstanding.
+> **Status:** Stages 1-5 complete, plus a treesitter repair and an
+> environment-breadth pass. Only Stage 6 (polish) remains.
 
 ---
 
@@ -20,7 +20,7 @@ Update this as you go. An agent resuming work reads this first.
 - [x] **Stage 2** — Rust *(done)*
 - [x] **Stage 3** — .NET foundation *(done)*
 - [x] **Stage 4** — C# *(done)*
-- [ ] **Stage 5** — F#
+- [x] **Stage 5** — F# *(done)*
 - [ ] **Stage 6** — Cross-cutting polish and repo/doc updates
 - [x] **Interlude** — developer environment breadth *(done; see below)*
 - [x] **Interlude** — treesitter ported to the `main` branch *(done, `26277c0`)*
@@ -700,6 +700,54 @@ cross-project debugging works too.
 Note the first solution load takes ~16 s on a trivial solution and will be
 noticeably longer on a real one. Roslyn also needs a `.sln` or `.csproj`; a
 loose `.cs` file gets nothing, by design.
+
+---
+
+## Stage 5 notes (F#, done)
+
+`fsautocomplete` and `fantomas` from Nix, the `fsharp` parser, and one entry in
+`lsp-config.lua`. Debugging needed nothing: Stage 3 registered the `coreclr`
+adapter for the `fsharp` filetype alongside `cs`.
+
+`fsautocomplete = {}` with no overrides. lspconfig's defaults are FsAutoComplete's
+own recommended settings from its README -- linter, union/record/interface stub
+generation, unused-open and unused-declaration analyzers, namespace resolution,
+reference code lens. Adding settings here would only risk diverging from them.
+
+**`ionide-vim` is not installed.** The original plan listed it as optional for F#
+Interactive and `.fsproj` file-ordering commands. Everything asked for -- LSP,
+diagnostics, navigation, formatting, debugging -- works without it. Add it only
+if FSI or heavy `.fsproj` editing becomes routine.
+
+The stale advice in lspconfig's docs about `.fs` defaulting to Forth no longer
+applies: Neovim 0.12 detects `.fs`, `.fsx` and `.fsi` as `fsharp` already, so no
+ftdetect entry is needed.
+
+`fantomas` rewrites the file in place (`stdin = false` in conform's definition),
+unlike most formatters here, so format-on-save writes twice.
+
+### Verified
+
+Against a two-project solution (`FsApp` referencing `FsCore`):
+
+```
+ft=fsharp  treesitter=true
+fsautocomplete attached; root = solution directory
+DIAGNOSTICS: [F# Compiler] expression was expected to have type   (deliberate type error)
+             [FSAC] This value is unused                          (FSAC's own analyzer)
+DEFINITION Calculator.add -> FsCore/Library.fs                    (cross-project)
+HOVER: returns content
+fantomas reformats on :w
+```
+
+Diagnostics appear essentially immediately, unlike roslyn's ~16 s solution load.
+
+### A note on file order
+
+F# compiles files in the order they are listed in the `.fsproj`, and a symbol is
+only visible to files after the one defining it. If fsautocomplete cannot find a
+symbol that plainly exists, check the `.fsproj` ordering before suspecting the
+editor. This is the one F#-specific gotcha likely to look like a tooling bug.
 
 ---
 
