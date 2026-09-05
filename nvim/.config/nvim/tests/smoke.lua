@@ -30,6 +30,18 @@ for _, file in ipairs(lua_files) do
 	end
 end
 
+local stylua = vim.fn.exepath("stylua")
+
+if stylua == "" then
+	error("StyLua is not available on PATH", 0)
+end
+
+local formatting = vim.system({ stylua, "--check", config_root }, { text = true }):wait()
+
+if formatting.code ~= 0 then
+	error(string.format("StyLua check failed:\n%s%s", formatting.stdout or "", formatting.stderr or ""), 0)
+end
+
 local runtime_command = string.format("lua vim.opt.runtimepath:prepend(%q)", config_root)
 local startup = vim.system({
 	vim.v.progpath,
