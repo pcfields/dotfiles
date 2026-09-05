@@ -125,17 +125,22 @@ The repo's boundary rules (`CLAUDE.md`, `AGENTS.md`) already answer most of this
 **LSP servers / formatters / linters → Nix**; **DAP adapters → Mason**;
 **language runtimes → mise**. The plan follows them.
 
+Mason's scope is exactly two packages. It is not that the adapters are hard to
+install otherwise -- both are in nixpkgs -- but that neither is in scoop, and
+`js-debug-adapter` is not on npm, so Windows has no other source. See
+`docs/strategy.md` for the full reasoning.
+
 | Tool | Role | Source | Why |
 |---|---|---|---|
 | `rust-analyzer` | Rust LSP | **rustup component** | Version-locked to the toolchain that compiles your code; nixpkgs' copy can drift from `rustc`. This is a deliberate exception to "LSP → Nix", consistent with `home.nix` already ceding Rust to rustup. |
-| `codelldb` | Rust debug adapter | Mason | Follows "Mason = DAP only". |
+| `codelldb` | Rust debug adapter | Mason | Mason owns DAP adapters. Also in nixpkgs as `vscode-extensions.vadimcn.vscode-lldb`, but not in scoop, so Windows needs Mason. |
 | .NET SDK | C#/F# runtime | **mise** (`core:dotnet` backend) | Follows "runtimes → mise". Confirmed available: `mise registry` lists `dotnet → core:dotnet`. Per-project pinning via `.mise.toml` is the point. |
 | `roslyn-ls` | C# LSP | Nix (`roslyn-ls`) | Confirmed in nixpkgs. |
 | `csharpier` | C# formatter | Nix (`csharpier`) | Confirmed in nixpkgs. |
 | `fsautocomplete` | F# LSP | Nix (`fsautocomplete`) | Confirmed in nixpkgs. |
 | `fantomas` | F# formatter | Nix (`fantomas`) | Confirmed in nixpkgs. |
-| `netcoredbg` | .NET debug adapter | Mason | Follows "Mason = DAP only". Also in nixpkgs if Mason gives trouble. |
-| `js-debug-adapter` | Node debug adapter | Mason | Already the intent; just needs to actually install. |
+| `netcoredbg` | .NET debug adapter | Mason | Mason owns DAP adapters. Also in nixpkgs if Mason gives trouble. |
+| `js-debug-adapter` | Node debug adapter | Mason | Already the intent; just needs to actually install. In nixpkgs as `vscode-js-debug`, but not in scoop and not on npm. |
 
 ### C# language server: `roslyn-ls`, not OmniSharp
 

@@ -77,14 +77,37 @@ and takes the rest from npm, with Node supplied by mise.
 
 Config files: `packages/scoop-packages.txt`, `packages/npm-global-packages.txt`
 
-**Why not Mason?** Mason would cover all of them from inside Neovim and is the
-obvious alternative. It was rejected because its state lives in a gitignored
-directory with no lockfile, so a rebuilt machine silently gets whatever is
-latest, and nothing in the repo records what should be there. Keeping the list
-in `packages/npm-global-packages.txt` costs one manual step and keeps every
-dependency declared in the repo, which is the same reason Linux uses Nix rather
-than Mason. Mason is still used for DAP adapters, where there is no comparable
-alternative on either platform.
+**Why not Mason for language servers?** Mason would cover all of them from
+inside Neovim and is the obvious alternative. It is rejected here because its
+state lives in a gitignored directory with no lockfile, so a rebuilt machine
+silently gets whatever is latest and nothing in the repo records what should be
+there. Keeping the list in `packages/npm-global-packages.txt` costs one manual
+step and keeps every dependency declared in the repo -- the same reason Linux
+uses Nix rather than Mason.
+
+### Mason (DAP adapters only)
+
+Mason installs `js-debug-adapter` and `codelldb`, and nothing else. The install
+list lives in `ensure_adapters` in
+`nvim/.config/nvim/lua/pcf/plugins/debugging/dap.lua`.
+
+Both adapters *are* packaged in nixpkgs (`vscode-js-debug` and
+`vscode-extensions.vadimcn.vscode-lldb`), so on Linux alone Mason would be
+unnecessary. The reason it stays is Windows: neither is in any scoop bucket, and
+`js-debug-adapter` is not published to npm. They are VS Code extension bundles
+distributed as `.vsix` files on GitHub releases, so the alternative on Windows is
+downloading and unpacking those by hand -- which is what Mason automates.
+
+The pinning argument that makes Nix right for language servers is also weaker
+here. A drifting language server changes diagnostics and completions every day;
+a debug adapter is a protocol bridge that only matters when a breakpoint is set,
+and version drift rarely breaks it. Using Mason on both platforms keeps one code
+path instead of two, and lets rustaceanvim auto-detect codelldb with no
+configuration.
+
+If reproducibility of *everything* ever matters more than that simplicity, the
+Linux side can move to nixpkgs -- at the cost of platform-conditional adapter
+paths in `dap.lua` and an explicit `vim.g.rustaceanvim.dap.adapter`.
 
 **The tradeoff, stated plainly:** the npm step is manual and easy to forget. Skip
 it and Neovim starts perfectly, then silently offers no TypeScript completion,

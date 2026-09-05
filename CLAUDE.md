@@ -62,7 +62,7 @@ Which tool owns what — respect these when adding software (from `AGENTS.md`):
 | Sandboxed GUI apps | Flatpak | — | `packages/flatpak-packages.txt` |
 | Language runtimes | mise | mise | `mise/.config/mise/config.toml` |
 | **LSP servers, formatters, linters** | Nix + Home Manager | Scoop, else npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason handles DAP only) |
-| DAP debug adapters | Mason | Mason | `lua/pcf/plugins/debugging/dap.lua` (`ensure_adapters`) |
+| DAP debug adapters | Mason | Mason | `lua/pcf/plugins/debugging/dap.lua` (`ensure_adapters`) — exactly two packages; see `docs/strategy.md` for why Mason and not Nix here |
 
 **Provisioning is split by platform, not by tool type.** Linux gets everything
 from Nix. Windows takes what scoop has (`lua-language-server`, `marksman`,
