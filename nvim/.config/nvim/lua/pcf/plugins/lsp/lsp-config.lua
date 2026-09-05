@@ -24,6 +24,7 @@ return {
       -- Web
       cssls = {},
       emmet_language_server = {},
+      html = {},
       biome = {},
       eslint = {},
       graphql = {},
