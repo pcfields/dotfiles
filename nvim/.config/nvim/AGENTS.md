@@ -1,6 +1,7 @@
 # Agent Instructions for Neovim Config
 
 ## Testing
+- Validate the Neovim config: `nvim --headless -u NONE -l nvim/.config/nvim/tests/smoke.lua` from the repository root
 - Run nearest test: `<leader>tt` via neotest
 - Run current file tests: `<leader>tf` via neotest  
 - Watch file: `<leader>tw` via neotest

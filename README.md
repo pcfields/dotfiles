@@ -66,6 +66,7 @@ Neovim startup.
 | Change runtime versions | Edit `mise/.config/mise/config.toml`, then run `mise install` |
 | Add a new dotfile config | Add a new stow package and run `./install.sh stow` |
 | Install OpenCode only | Run `./install.sh opencode` |
+| Validate Neovim config | Run `nvim --headless -u NONE -l nvim/.config/nvim/tests/smoke.lua` |
 
 ## Repository layout
 
