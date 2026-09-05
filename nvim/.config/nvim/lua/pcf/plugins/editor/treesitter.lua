@@ -17,15 +17,31 @@
 --   macOS    brew install tree-sitter, plus the Xcode command line tools
 
 local PARSERS = {
-	"elm",
-	"haskell",
+	-- Web
+	"css",
+	"graphql",
 	"html",
 	"javascript",
 	"json",
-	"lua",
-	"rust",
+	"scss",
 	"tsx",
 	"typescript",
+	-- Infrastructure and config
+	"bash",
+	"dockerfile",
+	"sql",
+	"toml",
+	"yaml",
+	-- Languages
+	"elixir",
+	"elm",
+	"erlang",
+	"haskell",
+	"heex",
+	"lua",
+	"python",
+	"rust",
+	"zig",
 }
 
 -- Treesitter indentation is still marked experimental upstream; where it is

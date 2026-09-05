@@ -22,6 +22,7 @@ Update this as you go. An agent resuming work reads this first.
 - [ ] **Stage 4** — C#
 - [ ] **Stage 5** — F#
 - [ ] **Stage 6** — Cross-cutting polish and repo/doc updates
+- [x] **Interlude** — developer environment breadth *(done; see below)*
 - [x] **Interlude** — treesitter ported to the `main` branch *(done, `26277c0`)*
 
 Stages 2–5 are independent of one another; only Stage 1 and Stage 3 are
@@ -515,6 +516,69 @@ Still outstanding, deliberately left alone: the on-disk plugin set has drifted
 ahead of `lazy-lock.json` for roughly fifteen plugins, and `nvim-lspconfig`'s
 locked commit does not match what is checked out. Running `:Lazy sync` will
 reconcile all of it at once — do that deliberately, in its own commit.
+
+---
+
+## Environment breadth (done)
+
+Filled the gaps found when auditing whether the setup covered professional
+frontend and backend work. Verified on Linux; the Nix profile must be activated
+first (`cd ~/.config/nix && home-manager switch --flake .`).
+
+All nineteen servers were verified attaching to real files with correct root
+markers — including `elixirls` on a `mix new` project (it takes ~15 s on first
+start while it compiles) and `elp` on a `rebar.config` project.
+
+**Language servers added** (`home.nix` + `lsp-config.lua`): `bashls`, `yamlls`,
+`dockerls`, `taplo`, `tailwindcss`, `graphql`, `basedpyright`, `ruff`,
+`elixirls`, `elp`, `zls`. Nineteen servers enabled in total.
+
+**`ts_ls` replaced by `vtsls`.** Better on monorepos and project references. The
+nixpkgs build bundles TypeScript 5.9.3 including `tsserver`, so it is
+self-contained. `typescript-language-server` was removed from `home.nix`.
+**Never enable both** — every buffer would get two clients and doubled
+diagnostics. Verified: 19 enabled, `ts_ls` not among them.
+
+**Tailwind is constrained on purpose.** lspconfig falls back to `.git` as a root
+marker (Tailwind v4 makes `tailwind.config.*` optional), which starts a **168 MB**
+server in every repository whether or not it uses Tailwind — measured, not
+estimated. `lsp-config.lua` overrides `root_dir` to drop that fallback while
+keeping `package.json` detection, which catches v3 and v4 alike. If a genuine
+Tailwind project ever fails to attach, that override is the first place to look.
+
+**Schema validation.** `SchemaStore.nvim` feeds `jsonls` (1459 schemas) and
+`yamlls` (1360), so `package.json`, `tsconfig.json`, GitHub Actions workflows and
+compose files are validated while editing. `yamlls`' built-in schema store is
+disabled so the two do not fight.
+
+**Parsers: 9 to 22.** Added `bash`, `css`, `scss`, `yaml`, `dockerfile`, `toml`,
+`sql`, `graphql`, `python`, `elixir`, `erlang`, `heex`, `zig`. Before this, every
+one of those filetypes fell back to regex highlighting.
+
+**Formatters** (`conform`): `shfmt` for shell, `taplo` for TOML, `sqlfluff` for
+SQL, `ruff` for Python, `mix` for Elixir, `zigfmt` for Zig, prettier for SCSS.
+Note `sqlfluff` sets `require_cwd`, so it no-ops unless the project has a
+`.sqlfluff` or `pyproject.toml` — SQL is never reformatted by surprise.
+
+**CLI**: `gh`, `sqlite`, `postgresql` (for `psql`), `shellcheck` (picked up
+automatically by `bashls`).
+
+### On the mise runtimes
+
+Python, Erlang, Elixir and Zig are installed by mise but had no editor support at
+all. Tooling now exists for each. They are not yet used in anger, so the servers
+are configured but unproven against a real project — `elixirls` needs a
+`mix.exs`, `elp` needs `rebar.config`, and `basedpyright` wants a
+`pyproject.toml` to resolve imports properly. Expect to tune settings when the
+first real project appears rather than assuming these are finished.
+
+### Deliberately not done
+
+- **SQL language server.** `sqls` and `postgres_lsp` both need per-connection
+  configuration to be useful; without a database they add little over the parser
+  and formatter. Revisit when there is a database to point at.
+- **A Neovim REST client** (`kulala.nvim` and similar). Postman and Insomnia are
+  already installed and cover this.
 
 ---
 

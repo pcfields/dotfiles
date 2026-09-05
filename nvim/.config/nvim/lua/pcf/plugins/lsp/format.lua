@@ -28,18 +28,33 @@ return { -- Code formatting
 		conform.setup({
 			notify_on_error = true,
 			formatters_by_ft = {
+				-- Web
 				javascript = { "biome", "prettier", stop_after_first = true },
 				typescript = { "biome", "prettier", stop_after_first = true },
 				javascriptreact = { "biome", "prettier", stop_after_first = true },
 				typescriptreact = { "biome", "prettier", stop_after_first = true },
-				css = { "prettier" },
 				json = { "biome", "prettier", stop_after_first = true },
-				yaml = { "prettier" },
+				css = { "prettier" },
+				scss = { "prettier" },
 				html = { "prettier" },
-				markdown = { "prettier" },
 				graphql = { "prettier" },
 				liquid = { "prettier" },
+				markdown = { "prettier" },
+				yaml = { "prettier" },
+
+				-- Infrastructure and config
+				sh = { "shfmt" },
+				bash = { "shfmt" },
+				toml = { "taplo" },
+				-- sqlfluff needs a project config (.sqlfluff, pyproject.toml, ...)
+				-- and no-ops without one, so SQL is never reformatted by surprise.
+				sql = { "sqlfluff" },
+
+				-- Languages
 				lua = { "stylua" },
+				python = { "ruff_organize_imports", "ruff_format" },
+				elixir = { "mix" },
+				zig = { "zigfmt" },
 			},
 			formatters = {
 				prettier = { command = prettier_cmd },

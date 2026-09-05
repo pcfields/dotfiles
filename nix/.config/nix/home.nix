@@ -26,17 +26,39 @@
     # --- Editor ---
     neovim              # latest from nixpkgs-unstable (0.12.x)
 
-    # --- LSP servers ---
+    # --- LSP servers: web ---
     lua-language-server                 # lua_ls
     vscode-langservers-extracted        # jsonls, cssls, eslint, htmlls
-    typescript-language-server          # ts_ls
+    vtsls                               # vtsls -- replaces ts_ls; better on monorepos
     emmet-language-server               # emmet_language_server
+    tailwindcss-language-server         # tailwindcss
+    graphql-language-service-cli        # graphql
     marksman                            # marksman (markdown)
     biome                               # biome (LSP + formatter/linter for JS/TS/JSON)
 
-    # --- Formatters ---
+    # --- LSP servers: infrastructure and config ---
+    bash-language-server                # bashls (uses shellcheck below when present)
+    yaml-language-server                # yamlls
+    dockerfile-language-server-nodejs   # dockerls
+    taplo                               # taplo (TOML LSP + formatter)
+
+    # --- LSP servers: runtimes managed by mise ---
+    basedpyright                        # basedpyright (Python types)
+    ruff                                # ruff (Python lint + format, also an LSP)
+    elixir-ls                           # elixirls
+    erlang-language-platform            # elp (Erlang, lspconfig calls it `elp`)
+    zls                                 # zls (Zig)
+
+    # --- Formatters and linters ---
     prettierd                           # prettierd (fast Prettier daemon)
     stylua                              # stylua (Lua formatter)
+    shfmt                               # shfmt (shell formatter)
+    shellcheck                          # shell linter; bash-language-server uses it
+    sqlfluff                            # SQL linter and formatter
+
+    # --- Database clients ---
+    sqlite                              # sqlite3
+    postgresql                          # psql (client; the server is unused here)
 
     # --- Treesitter ---
     tree-sitter                         # tree-sitter CLI (>= 0.26.1); nvim-treesitter's
@@ -51,6 +73,7 @@
     yazi                # fast file navigator
     delta               # better git diffs
     lazygit             # TUI for git
+    gh                  # GitHub CLI
 
     # --- API development --
     postman
