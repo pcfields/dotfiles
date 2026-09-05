@@ -39,8 +39,7 @@ function M.close_buffer_and_keep_split()
 end
 
 function M.is_windows_platform()
-	return vim.fn.has("win32") == 1 or
-	vim.fn.has("win64") == 1                                   -- return wezterm.target_triple == windows_platform
+	return vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 -- return wezterm.target_triple == windows_platform
 end
 
 return M

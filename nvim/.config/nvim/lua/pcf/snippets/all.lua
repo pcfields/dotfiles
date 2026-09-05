@@ -4,7 +4,7 @@
 -- Check if LuaSnip is available before loading snippets
 local luasnip_ok, luasnip = pcall(require, "luasnip")
 if not luasnip_ok then
-    return
+	return
 end
 
 -- Load JavaScript snippets

@@ -44,7 +44,7 @@ function M.spec(active)
 
 					["@string.escape"] = { fg = colors.rose },
 
-					["@type"] = { fg = colors.orange },     -- types, enums, interfaces, etc.
+					["@type"] = { fg = colors.orange }, -- types, enums, interfaces, etc.
 					["@lsp.type.type"] = { fg = colors.orange }, -- for type declarations e.g. type alias name.
 					["@lsp.type.variable"] = { fg = colors.silver },
 					["@lsp.type.keyword"] = { fg = colors.amber },
