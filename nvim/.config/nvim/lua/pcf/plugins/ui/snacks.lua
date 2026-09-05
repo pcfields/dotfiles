@@ -48,22 +48,14 @@ return {
     map({ "n", "v" }, "<leader>gdl", u.GitDiffList, { desc = "Git Diff list" })
     map({ "n", "v" }, "<leader>gb", u.ListGitBranches, { desc = "List Git Branches" })
 
-    -- [LSP] Jump to
-    map({ "n", "v" }, "<leader>jd", u.GotoDefinition, { desc = "Goto Definition" })
-    map({ "n", "v" }, "<leader>ji", u.GotoImplementation, { desc = "Goto Implementation" })
-    map({ "n", "v" }, "<leader>jt", u.GotoTypeDefinition, { desc = "Goto T[y]pe Definition" })
-    map({ "n", "v" }, "<leader>jr", u.GotoReferences, { desc = "Goto References", nowait = true })
-
     -- Lists
     map({ "n", "v" }, "<leader>ef", u.SearchDiagnosticsBuffer, { desc = "Search Diagnostics" })
     map({ "n", "v" }, "<leader>ea", u.SearchAllDiagnostics, { desc = "Search All Diagnostics" })
 
     -- Open
-    map({ "n", "v" }, "<leader>os", u.ListLSPSymbols, { desc = "Open LSP Symbols" })
     map({ "n", "v" }, "<leader>om", u.SearchMarks, { desc = "Open Marks" })
     map({ "n", "v" }, "<leader>oj", u.SearchJumps, { desc = "Open Jumps" })
     map({ "n", "v" }, "<leader>or", u.DisplayRegisters, { desc = "Open Registers" })
-    map({ "n", "v" }, "<leader>oh", vim.lsp.buf.hover, { desc = "Hover Documentation" })
     map({ "n", "v" }, "<leader>ot", u.TodoComments, { desc = "Open Todo Comments" })
     map({ "n", "v" }, "<leader>on", u.Notifications, { desc = "Open Notification History" })
 

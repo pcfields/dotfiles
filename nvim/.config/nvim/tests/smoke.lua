@@ -8,6 +8,7 @@ local test_file = source:sub(2)
 local config_root = vim.fs.dirname(vim.fs.dirname(test_file))
 local init_file = vim.fs.joinpath(config_root, "init.lua")
 local conform_callback_test = vim.fs.joinpath(config_root, "tests", "conform-callback.lua")
+local lsp_attach_mappings_test = vim.fs.joinpath(config_root, "tests", "lsp-attach-mappings.lua")
 
 local lua_files = vim.fs.find(function(name)
   return vim.endswith(name, ".lua")
@@ -84,6 +85,33 @@ local conform_callback = vim
 
 if conform_callback.code ~= 0 then
   error(string.format("Conform callback test failed (exit %d):\n%s%s", conform_callback.code, conform_callback.stdout or "", conform_callback.stderr or ""), 0)
+end
+
+local lsp_attach_mappings = vim
+  .system({
+    vim.v.progpath,
+    "--headless",
+    "-i",
+    "NONE",
+    "--cmd",
+    runtime_command,
+    "-u",
+    init_file,
+    "-l",
+    lsp_attach_mappings_test,
+  }, { text = true })
+  :wait()
+
+if lsp_attach_mappings.code ~= 0 then
+  error(
+    string.format(
+      "LspAttach mappings test failed (exit %d):\n%s%s",
+      lsp_attach_mappings.code,
+      lsp_attach_mappings.stdout or "",
+      lsp_attach_mappings.stderr or ""
+    ),
+    0
+  )
 end
 
 print(string.format("Neovim smoke test passed: %d Lua files parsed", #lua_files))
