@@ -27,7 +27,13 @@ if (-not (Test-Path $pkgList)) {
   exit 1
 }
 
-$pkgs = Get-Content $pkgList | Where-Object { $_ -match '^[^#\s]' }
+# Strip inline comments and surrounding whitespace, then drop blank/comment
+# lines -- matching read_package_file() in lib/common.sh, so both platforms
+# parse packages/*.txt the same way.
+$pkgs = Get-Content $pkgList |
+  ForEach-Object { ($_ -replace '#.*$', '').Trim() } |
+  Where-Object { $_ -ne '' }
+
 foreach ($pkg in $pkgs) {
   Write-Host ("Installing: $pkg")
   scoop install $pkg

@@ -54,8 +54,15 @@ To add a new config package:
 | Core CLI dev tools | Nix + Home Manager | Scoop | `nix/.config/nix/home.nix` (Linux), `packages/scoop-packages.txt` (Windows) |
 | Shell config (Fish, etc.) | Nix + Stow | PowerShell + profile | `fish/.config/fish/config.fish`, `powershell/aliases.ps1` |
 | Sandboxed GUI apps | Flatpak | (N/A or winget) | `packages/flatpak-packages.txt` |
-| Language runtimes (Node, Python, etc.) | mise | (manual or installer) | `mise/.config/mise/config.toml` |
-| LSP servers, formatters, linters | Nix + Home Manager | (N/A) | `nix/.config/nix/home.nix` — **not Mason** (Mason = DAP only) |
+| Language runtimes (Node, Python, etc.) | mise | mise | `mise/.config/mise/config.toml` |
+| LSP servers, formatters, linters | Nix + Home Manager | Scoop where available, otherwise npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason = DAP only) |
+| DAP debug adapters | Mason | Mason | `ensure_adapters` in `lua/pcf/plugins/debugging/dap.lua` |
+
+Provisioning splits by platform, not by tool type. `typescript-language-server`,
+`vscode-langservers-extracted` and `@olrtg/emmet-language-server` are npm
+packages with no scoop manifest, so Windows installs them with npm via
+`install/windows/install-npm-globals.ps1`. Skipping that step leaves Neovim with
+no TypeScript intelligence and no error message.
 
 ## Updating configs
 

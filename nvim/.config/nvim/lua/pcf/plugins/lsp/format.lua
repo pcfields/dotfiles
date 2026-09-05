@@ -12,8 +12,11 @@ return { -- Code formatting
 			timeout_ms = 10000,
 		}
 
-		-- On Windows, Volta installs prettier as a bash shim that Neovim can't spawn
-		-- directly. The .cmd shim is the correct entry point for Windows.
+		-- On Windows, a global npm install writes both a bare shell script and a
+		-- .cmd wrapper. Neovim can spawn the .cmd but not the bare shim, so prefer
+		-- it when present. This is a property of npm itself, not of whichever tool
+		-- manages Node -- it applied under Volta and still applies under mise.
+		-- See packages/npm-global-packages.txt.
 		local prettier_cmd = "prettier"
 		if vim.fn.has("win32") == 1 then
 			local cmd_path = vim.fn.exepath("prettier.cmd")

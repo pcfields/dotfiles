@@ -60,8 +60,21 @@ Which tool owns what — respect these when adding software (from `AGENTS.md`):
 | System/GUI apps, Docker | apt | (winget/manual) | `packages/apt-packages.txt` |
 | Core CLI dev tools | Nix + Home Manager | Scoop | `nix/.config/nix/home.nix` / `packages/scoop-packages.txt` |
 | Sandboxed GUI apps | Flatpak | — | `packages/flatpak-packages.txt` |
-| Language runtimes | mise | manual | `mise/.config/mise/config.toml` |
-| **LSP servers, formatters, linters** | Nix + Home Manager | — | `nix/.config/nix/home.nix` — **not Mason** (Mason handles DAP only) |
+| Language runtimes | mise | mise | `mise/.config/mise/config.toml` |
+| **LSP servers, formatters, linters** | Nix + Home Manager | Scoop, else npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason handles DAP only) |
+| DAP debug adapters | Mason | Mason | `lua/pcf/plugins/debugging/dap.lua` (`ensure_adapters`) |
+
+**Provisioning is split by platform, not by tool type.** Linux gets everything
+from Nix. Windows takes what scoop has (`lua-language-server`, `marksman`,
+`biome`) and the rest from npm, because servers like `typescript-language-server`
+and `vscode-langservers-extracted` ship as npm packages and have no scoop
+manifest. See `packages/npm-global-packages.txt` and `docs/install-windows.md`.
+
+Two consequences worth remembering: the Windows npm step is manual and easy to
+skip, which leaves Neovim running with no TypeScript intelligence and no error
+message; and a `# comment` after a package name is stripped on both platforms,
+so `packages/*.txt` parse identically (`read_package_file` in `lib/common.sh`,
+and the matching regex in the PowerShell installers).
 
 Update installed packages:
 

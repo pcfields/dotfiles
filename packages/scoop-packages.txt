@@ -5,6 +5,7 @@
 
 # ── Core CLI (needed for config/aliases to work) ────────
 git
+mise                    # runtime manager; provides Node (mise use -g node@22)
 nvim
 eza
 bat
@@ -27,7 +28,8 @@ biome
 # tree-sitter CLI: required by nvim-treesitter (main branch) to build parsers.
 # Also needs a C compiler on PATH -- install MSVC Build Tools or `scoop install gcc`.
 tree-sitter
-# prettier is installed via: npm install -g prettier
+# Node-based tooling (LSP servers, prettier) has no scoop manifest and is
+# installed with npm instead -- see packages/npm-global-packages.txt
 
 # ── Optional CLI / TUI / Docker (uncomment as needed) ───
 lazydocker

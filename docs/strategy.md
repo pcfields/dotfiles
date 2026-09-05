@@ -57,6 +57,41 @@ Examples: Node.js, Python, Erlang, Elixir, Zig.
 
 Config file: `mise/.config/mise/config.toml`
 
+Used on both platforms. On Windows mise comes from scoop, so runtimes are
+managed the same way everywhere.
+
+### Scoop and npm (Windows only)
+
+Windows has no Nix, so its tooling comes from two places rather than one.
+
+Scoop is the default and covers most things, but a few developer tools ship as
+**npm packages rather than standalone binaries**, and scoop has no manifest for
+them. Verified absent from the Main, Extras and Versions buckets:
+`typescript-language-server`, `vscode-langservers-extracted` and
+`@olrtg/emmet-language-server`. Those three provide `ts_ls`, `jsonls`, `cssls`,
+`eslint` and `emmet_language_server` — in other words, most of what makes
+TypeScript work.
+
+So Windows installs what scoop has (`lua-language-server`, `marksman`, `biome`)
+and takes the rest from npm, with Node supplied by mise.
+
+Config files: `packages/scoop-packages.txt`, `packages/npm-global-packages.txt`
+
+**Why not Mason?** Mason would cover all of them from inside Neovim and is the
+obvious alternative. It was rejected because its state lives in a gitignored
+directory with no lockfile, so a rebuilt machine silently gets whatever is
+latest, and nothing in the repo records what should be there. Keeping the list
+in `packages/npm-global-packages.txt` costs one manual step and keeps every
+dependency declared in the repo, which is the same reason Linux uses Nix rather
+than Mason. Mason is still used for DAP adapters, where there is no comparable
+alternative on either platform.
+
+**The tradeoff, stated plainly:** the npm step is manual and easy to forget. Skip
+it and Neovim starts perfectly, then silently offers no TypeScript completion,
+no go-to-definition and no diagnostics, with nothing in the UI explaining why.
+`docs/install-windows.md` therefore makes it an explicit numbered step with a
+`where.exe` verification.
+
 ## Directory structure
 
 ```text

@@ -1,0 +1,23 @@
+# ── Global npm Packages (Windows) ──────────────────────────────────────
+# One package per line. Lines starting with # are ignored.
+#
+# These are Node-based developer tools that have no scoop manifest, because
+# they ship as npm packages rather than standalone binaries. On Linux the same
+# tools come from Nix (see nix/.config/nix/home.nix) and this file is unused.
+#
+# Requires Node, which mise provides:
+#   mise use --global node@22
+#
+# Install them with:
+#   npm install -g (Get-Content packages/npm-global-packages.txt | Where-Object { $_ -notmatch '^\s*#' -and $_.Trim() })
+#
+# Verify afterwards with `where.exe <name>`; see docs/install-windows.md for the
+# shim caveat if Neovim reports a server failing to start.
+
+# ── LSP servers ────────────────────────────────────────
+typescript-language-server      # ts_ls
+vscode-langservers-extracted    # jsonls, cssls, eslint, html
+@olrtg/emmet-language-server    # emmet_language_server
+
+# ── Formatters ─────────────────────────────────────────
+prettier

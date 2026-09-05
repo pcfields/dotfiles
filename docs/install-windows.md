@@ -10,6 +10,7 @@ This guide covers initial environment setup *after* Windows has finished install
 - Creating or restoring SSH keys for GitHub
 - Cloning the dotfiles repo
 - Bootstrapping the core CLI/tooling environment with Scoop
+- Installing Node via mise and the npm-based language servers
 
 ## Prerequisites
 
@@ -47,6 +48,56 @@ This will:
 - Install Scoop if missing
 - Add required buckets (extras, nerd-fonts, versions)
 - Install all core CLI tools, TUI/editor apps, Nerd Fonts (from `packages/scoop-packages.txt`)
+- Install `mise`, which provides language runtimes (as it does on Linux)
+
+### Node and the npm-based tooling
+
+Some developer tooling ships as npm packages rather than standalone binaries, so
+scoop has no manifest for it. On Linux these come from Nix; on Windows they come
+from npm. This is the one place where Windows needs a package manager Linux does
+not, and it is deliberate rather than an oversight.
+
+Install Node through mise, then the packages:
+
+```powershell
+mise use --global node@22
+powershell -ExecutionPolicy Bypass -File install\windows\install-npm-globals.ps1
+```
+
+This installs everything in `packages/npm-global-packages.txt`:
+
+| Package | Provides |
+|---|---|
+| `typescript-language-server` | `ts_ls` — the TypeScript/JavaScript language server |
+| `vscode-langservers-extracted` | `jsonls`, `cssls`, `eslint` |
+| `@olrtg/emmet-language-server` | `emmet_language_server` |
+| `prettier` | formatter fallback where biome does not apply |
+
+Without this step Neovim starts cleanly but silently has no TypeScript
+intelligence — no completion, no go-to-definition, no diagnostics. The failure
+is quiet, so check it explicitly:
+
+```powershell
+where.exe typescript-language-server
+```
+
+Then open a `.ts` file in Neovim and run `:checkhealth lsp`; `ts_ls` should be
+listed as attached.
+
+#### If a server fails to start
+
+A global npm install on Windows writes two files per binary: a bare shell script
+and a `.cmd` wrapper. Neovim can spawn the `.cmd` but not the bare shim, so a
+server whose configured command resolves to the shim will fail to launch. If
+`:checkhealth lsp` reports a server that will not start, check which one is being
+found:
+
+```powershell
+where.exe <server-name>
+```
+
+If the `.cmd` is absent, reinstall that package. `format.lua` already applies
+this workaround for prettier and documents the reasoning.
 
 **Next, you MUST set up symlinks for your PowerShell profile and other configs:**
 ```powershell
