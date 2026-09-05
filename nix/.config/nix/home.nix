@@ -39,7 +39,8 @@
     stylua                              # stylua (Lua formatter)
 
     # --- Treesitter ---
-    tree-sitter                         # required by nvim-treesitter to compile parsers
+    tree-sitter                         # tree-sitter CLI (>= 0.26.1); nvim-treesitter's
+                                        # main branch shells out to it to build parsers
 
     # --- Terminal utilities ---
     ripgrep             # rg  — fast grep replacement

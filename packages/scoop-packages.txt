@@ -24,6 +24,9 @@ jetbrainsmono-nerd-font
 
 # ── Dev Tools (LSP servers, formatters, linters) ────────
 biome
+# tree-sitter CLI: required by nvim-treesitter (main branch) to build parsers.
+# Also needs a C compiler on PATH -- install MSVC Build Tools or `scoop install gcc`.
+tree-sitter
 # prettier is installed via: npm install -g prettier
 
 # ── Optional CLI / TUI / Docker (uncomment as needed) ───
