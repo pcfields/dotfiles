@@ -68,7 +68,7 @@ This installs everything in `packages/npm-global-packages.txt`:
 
 | Package | Provides |
 |---|---|
-| `typescript-language-server` | `ts_ls` — the TypeScript/JavaScript language server |
+| `@vtsls/language-server` | `vtsls` — the TypeScript/JavaScript language server |
 | `vscode-langservers-extracted` | `jsonls`, `cssls`, `eslint` |
 | `@olrtg/emmet-language-server` | `emmet_language_server` |
 | `prettier` | formatter fallback where biome does not apply |
@@ -78,10 +78,10 @@ intelligence — no completion, no go-to-definition, no diagnostics. The failure
 is quiet, so check it explicitly:
 
 ```powershell
-where.exe typescript-language-server
+where.exe vtsls
 ```
 
-Then open a `.ts` file in Neovim and run `:checkhealth lsp`; `ts_ls` should be
+Then open a `.ts` file in Neovim and run `:checkhealth lsp`; `vtsls` should be
 listed as attached.
 
 #### If a server fails to start

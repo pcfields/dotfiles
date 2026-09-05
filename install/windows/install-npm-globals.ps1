@@ -31,5 +31,5 @@ foreach ($pkg in $pkgs) {
 
 Write-Host ""
 Write-Host "=== Global npm tooling complete ==="
-Write-Host "Verify a server resolves, e.g.:  where.exe typescript-language-server"
+Write-Host "Verify a server resolves, e.g.:  where.exe vtsls"
 Write-Host "If Neovim reports a server failing to start, see docs/install-windows.md"

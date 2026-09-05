@@ -15,7 +15,7 @@
 # shim caveat if Neovim reports a server failing to start.
 
 # ── LSP servers ────────────────────────────────────────
-typescript-language-server      # ts_ls
+@vtsls/language-server          # vtsls
 vscode-langservers-extracted    # jsonls, cssls, eslint, html
 @olrtg/emmet-language-server    # emmet_language_server
 

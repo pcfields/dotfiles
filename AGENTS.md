@@ -58,7 +58,7 @@ To add a new config package:
 | LSP servers, formatters, linters | Nix + Home Manager | Scoop where available, otherwise npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason = DAP only) |
 | DAP debug adapters | Mason | Mason | `ensure_adapters` in `lua/pcf/plugins/debugging/dap.lua` — exactly two packages; see `docs/strategy.md` |
 
-Provisioning splits by platform, not by tool type. `typescript-language-server`,
+Provisioning splits by platform, not by tool type. `@vtsls/language-server`,
 `vscode-langservers-extracted` and `@olrtg/emmet-language-server` are npm
 packages with no scoop manifest, so Windows installs them with npm via
 `install/windows/install-npm-globals.ps1`. Skipping that step leaves Neovim with

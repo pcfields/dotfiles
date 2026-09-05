@@ -67,8 +67,8 @@ Windows has no Nix, so its tooling comes from two places rather than one.
 Scoop is the default and covers most things, but a few developer tools ship as
 **npm packages rather than standalone binaries**, and scoop has no manifest for
 them. Verified absent from the Main, Extras and Versions buckets:
-`typescript-language-server`, `vscode-langservers-extracted` and
-`@olrtg/emmet-language-server`. Those three provide `ts_ls`, `jsonls`, `cssls`,
+`@vtsls/language-server`, `vscode-langservers-extracted` and
+`@olrtg/emmet-language-server`. Those three provide `vtsls`, `jsonls`, `cssls`,
 `eslint` and `emmet_language_server` — in other words, most of what makes
 TypeScript work.
 
