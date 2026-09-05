@@ -67,15 +67,13 @@ return { -- Code formatting
 		})
 
 		require("pcf.utils").map({ "n", "v" }, "<leader>hf", function()
-			conform.format(vim.tbl_extend("force", save_settings, {
-				callback = function(err, did_edit)
-					if err then
-						vim.notify("Format error: " .. err, vim.log.levels.ERROR)
-					elseif did_edit then
-						vim.notify("Formatted", vim.log.levels.INFO)
-					end
-				end,
-			}))
+			conform.format(vim.tbl_extend("force", save_settings, {}), function(err, did_edit)
+				if err then
+					vim.notify("Format error: " .. err, vim.log.levels.ERROR)
+				elseif did_edit then
+					vim.notify("Formatted", vim.log.levels.INFO)
+				end
+			end)
 		end, { desc = "Format file or range (in visual mode)" })
 
 		require("pcf.utils").map({ "n" }, "<leader>hi", function()
