@@ -1,6 +1,7 @@
 -----------------------------------------------------
 -- Load configuration
 -----------------------------------------------------
+require("pcf.config.version").assert_supported()
 require("pcf.config.options")
 require("pcf.config.keymaps")
 require("pcf.config.diagnostics")
