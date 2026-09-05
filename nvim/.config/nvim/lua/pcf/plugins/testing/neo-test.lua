@@ -14,6 +14,7 @@ return { -- Run tests
 		neo_test.setup({
 			adapters = {
 				require("neotest-vitest"),
+				require("neotest-jest"),
 			},
 			status = {
 				enabled = true,
