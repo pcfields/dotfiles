@@ -9,6 +9,9 @@
 
 [tools]
 node = "22"
+# .NET SDK for C# and F#. The roslyn-ls wrapper resolves `dotnet` from PATH,
+# so the language server depends on this being installed.
+dotnet = "9"
 python = "3.12"
 erlang = "27.0"
 elixir = "1.17"

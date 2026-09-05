@@ -42,6 +42,13 @@
     dockerfile-language-server-nodejs   # dockerls
     taplo                               # taplo (TOML LSP + formatter)
 
+    # --- LSP servers: .NET ---
+    # roslyn-ls ships bin/Microsoft.CodeAnalysis.LanguageServer, which is the
+    # first name nvim-lspconfig's roslyn_ls config looks for. It resolves the
+    # `dotnet` runtime from PATH, which mise provides.
+    roslyn-ls                           # roslyn_ls (C#)
+    csharpier                           # C# formatter
+
     # --- LSP servers: runtimes managed by mise ---
     basedpyright                        # basedpyright (Python types)
     ruff                                # ruff (Python lint + format, also an LSP)

@@ -47,9 +47,10 @@ return { -- Debugger
 		end
 
 		-- codelldb is picked up automatically by rustaceanvim
-		ensure_adapters({ "js-debug-adapter", "codelldb" })
+		ensure_adapters({ "js-debug-adapter", "codelldb", "netcoredbg" })
 
 		require("pcf.dap.javascript").setup()
+		require("pcf.dap.dotnet").setup()
 
 		-- Keymaps
 		map("n", "<F7>", dapui.toggle, { desc = "[Debugger] Toggle last session result" })

@@ -28,6 +28,7 @@ local PARSERS = {
 	"typescript",
 	-- Infrastructure and config
 	"bash",
+	"c_sharp",
 	"dockerfile",
 	"sql",
 	"toml",

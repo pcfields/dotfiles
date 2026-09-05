@@ -70,6 +70,12 @@ return {
       dockerls = {},
       taplo = {},
 
+      -- .NET
+      -- nvim-lspconfig's defaults already cover solution/project loading,
+      -- inlay hints, code lens and decompiled-source navigation, so there is
+      -- nothing to add here. Razor is the one gap; it needs seblyng/roslyn.nvim.
+      roslyn_ls = {},
+
       -- Runtimes managed by mise
       basedpyright = {},
       ruff = {},

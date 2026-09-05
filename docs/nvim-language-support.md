@@ -18,8 +18,8 @@ Update this as you go. An agent resuming work reads this first.
 
 - [x] **Stage 1** — Repair Node/TypeScript debugging *(done)*
 - [x] **Stage 2** — Rust *(done)*
-- [ ] **Stage 3** — .NET foundation (shared by C# and F#)
-- [ ] **Stage 4** — C#
+- [x] **Stage 3** — .NET foundation *(done)*
+- [x] **Stage 4** — C# *(done)*
 - [ ] **Stage 5** — F#
 - [ ] **Stage 6** — Cross-cutting polish and repo/doc updates
 - [x] **Interlude** — developer environment breadth *(done; see below)*
@@ -637,6 +637,69 @@ match the CLI, format-on-save applies rustfmt, the neotest adapter discovers
 tests, `:checkhealth rustaceanvim` is all-OK including "debug adapter: found",
 and a breakpoint in `add()` is hit under codelldb with Rust formatters loaded
 from the rustup toolchain.
+
+---
+
+## Stages 3 and 4 notes (.NET and C#, done)
+
+Done together: Stage 3 alone produces nothing visible, and Stage 4 turned out to
+be a two-line change.
+
+**No `seblyng/roslyn.nvim`.** The original plan called for it because driving
+roslyn-ls used to require it. nvim-lspconfig now ships `roslyn_ls` natively, and
+its defaults already cover solution/project loading, inlay hints, code lens,
+fix-all actions and decompiled-source navigation. The plugin is now only needed
+for **Razor**, which its own source says. So C# is `roslyn_ls = {}` in
+`lsp-config.lua` and nothing else.
+
+nixpkgs `roslyn-ls` ships `bin/Microsoft.CodeAnalysis.LanguageServer`, which is
+the first name lspconfig's `cmd` probes for, so there is no glue.
+
+.NET comes from mise (`dotnet = "9"`), matching the runtimes rule. Debugging uses
+`netcoredbg` from Mason with `lua/pcf/dap/dotnet.lua`, which finds the target DLL
+under `bin/Debug` and only prompts when the guess is ambiguous. Configurations
+are registered for `cs` and `fsharp` (deepcopied, not aliased), so Stage 5 gets
+debugging for free.
+
+### The gotcha that matters: mise shims vs mise activate
+
+roslyn-ls's Nix wrapper resolves the runtime from whatever `dotnet` is on PATH.
+That makes *how* mise exposes dotnet load-bearing:
+
+| PATH contains | `dotnet` resolves to | roslyn-ls |
+|---|---|---|
+| `~/.local/share/mise/shims` | a symlink to `/usr/bin/mise` | **fails** — `No .NET SDKs were found`, `hostfxr_resolve_sdk2` |
+| `mise activate` (what `config.fish` does) | `~/.local/share/mise/dotnet-root/dotnet` | works |
+
+`fish/.config/fish/config.fish` runs `mise activate fish`, so a Neovim started
+from the shell is fine. A Neovim started from a desktop launcher that never
+sources the shell profile would not be. If C# intellisense is ever silently
+absent, check `:echo exepath('dotnet')` first — it should be the dotnet-root
+path, not a mise shim.
+
+The same applies to `csharpier`, which is also a Nix-wrapped .NET application.
+
+### Verified
+
+Against a two-project solution (`App` referencing `Core`), with the real
+dotnet on PATH:
+
+```
+workspace ready after ~16s
+DEFINITION Calculator -> Core/Calculator.cs            (cross-project)
+COMPLETION: 5 items; has 'Add' = true                  (Add, Equals, GetHashCode, GetType, ToString)
+DEFINITION Console -> /tmp/MetadataAsSource/.../Console.cs   (into framework metadata)
+formattingProvider: true
+```
+
+Plus: `roslyn_ls` attaches as the only client, treesitter highlights `cs`,
+csharpier formats, zero SDK errors in the LSP log, and a breakpoint set in
+`Core/Calculator.cs` is hit while launching `App.dll` under netcoredbg — so
+cross-project debugging works too.
+
+Note the first solution load takes ~16 s on a trivial solution and will be
+noticeably longer on a real one. Roslyn also needs a `.sln` or `.csproj`; a
+loose `.cs` file gets nothing, by design.
 
 ---
 
