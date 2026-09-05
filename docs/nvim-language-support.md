@@ -7,7 +7,8 @@
 > (Parts 1–3), and an AI agent picking the work up mid-flight (Part 4).
 >
 > **Created.** 2026-09-05. **Baseline commit:** `c601cf3`.
-> **Status:** Stage 1 complete. Stages 2-6 outstanding.
+> **Status:** Stage 1 complete, plus the treesitter repair it uncovered.
+> Stages 2-6 outstanding.
 
 ---
 
@@ -21,6 +22,7 @@ Update this as you go. An agent resuming work reads this first.
 - [ ] **Stage 4** — C#
 - [ ] **Stage 5** — F#
 - [ ] **Stage 6** — Cross-cutting polish and repo/doc updates
+- [x] **Interlude** — treesitter ported to the `main` branch *(done, `26277c0`)*
 
 Stages 2–5 are independent of one another; only Stage 1 and Stage 3 are
 prerequisites (Stage 3 blocks Stages 4 and 5). Stage 1 is first because it is a
@@ -335,11 +337,10 @@ dotnet --info
 **3.2 — Treesitter.** Add `c_sharp` and `fsharp` to `ensure_installed` in
 `treesitter.lua`.
 
-> **Blocked until the treesitter issue below is resolved.** `ensure_installed` is
-> currently a no-op (the installed plugin is the `main` branch rewrite, whose
-> `setup()` accepts only `install_dir`). Until that is fixed, new parsers must be
-> installed by hand with `:TSInstall c_sharp fsharp`. The same caveat applies to
-> `toml` in Stage 2.4.
+Note the file no longer has an `ensure_installed` table — that was a `master`
+branch option. Add the parsers to the `PARSERS` list at the top of
+`treesitter.lua` instead; `install_missing_parsers()` picks them up on the next
+start and installs whatever is absent. The same applies to `toml` in Stage 2.4.
 
 **3.3 — Debug adapter.** Add `"netcoredbg"` to the adapter-install list, and
 create `lua/pcf/dap/dotnet.lua` with the `coreclr` adapter and launch
@@ -478,54 +479,42 @@ mentioned React/TypeScript is the day job.
 
 ---
 
-## Known issue: treesitter is running an unconfigured `main` branch
+## Resolved: treesitter was running an unconfigured `main` branch
 
-Found while verifying Stage 1; **pre-existing and unrelated to it**, but it
-silently disables part of the editor and blocks Stages 2.4 and 3.2.
+Found while verifying Stage 1, fixed in `26277c0`. Recorded here because the
+failure mode is easy to reintroduce.
 
-`treesitter.lua` has no `branch` pin, so lazy.nvim followed nvim-treesitter's
-default branch when upstream switched it from `master` to `main`. The checked-out
-copy is `main` (`4916d659`, 2026-04-03), whose `setup()` accepts **only**
-`install_dir`:
+The plugin spec pinned no branch, so lazy.nvim followed nvim-treesitter when
+upstream renamed its default branch from `master` to `main`. The `main` branch is
+a rewrite whose `setup()` accepts only `install_dir`, so `ensure_installed`,
+`indent` and `textobjects` were all accepted and silently discarded.
 
-```lua
-function M.setup(user_data)
-  if user_data then
-    if user_data.install_dir then ... end
-    config = vim.tbl_deep_extend('force', config, user_data)
-  end
-end
+Highlighting *appeared* to work only because snacks.nvim's `quickfile` module
+calls `vim.treesitter.start` on files named on the command line. Files opened
+during a session had none, falling back to regex syntax:
+
+```
+startup buffer   ft=typescript   highlighter=true
+runtime buffer   ft=javascript   highlighter=false
 ```
 
-Everything else the config passes is silently discarded. Verified consequences:
+`treesitter.lua` now drives highlighting, indentation and parser installation
+explicitly, and both nvim-treesitter and nvim-treesitter-textobjects pin
+`branch = "main"`.
 
-| Config block | Actual behaviour |
-|---|---|
-| `ensure_installed` | **ignored** — no parser is ever installed automatically |
-| `highlight` | irrelevant; Neovim 0.12 starts treesitter highlighting on its own |
-| `indent` | **ignored** — `.ts` files fall back to `GetTypescriptIndent()` |
-| `textobjects` | **ignored** — `af` / `if` / `ac` / `ic` are not mapped in operator-pending mode |
+Two consequences for later stages:
 
-Highlighting still looks fine only because nine parsers (`elm`, `haskell`, `html`,
-`javascript`, `json`, `lua`, `rust`, `tsx`, `typescript`) are left over in
-`~/.local/share/nvim/site/parser` from when the plugin was on `master`, and
-Neovim 0.12 picks them up by itself.
+- **Adding a parser** means adding to the `PARSERS` list in `treesitter.lua`,
+  not to an `ensure_installed` table.
+- **The tree-sitter CLI (>= 0.26.1) is now a hard requirement**, because `main`
+  shells out to `tree-sitter build`. Provisioned in `home.nix` (Linux) and
+  `packages/scoop-packages.txt` (Windows); macOS would need
+  `brew install tree-sitter`.
 
-Two ways out, both worth their own stage:
-
-1. **Pin back to `master`** — add `branch = "master"` to the plugin spec. One
-   line, restores the existing config exactly as written. `master` is in
-   maintenance upstream, so this is a deferral, not a fix.
-2. **Port the config to `main`** — install parsers via `:TSInstall` or a small
-   startup hook, start highlighting through an autocmd calling
-   `vim.treesitter.start()`, set `indentexpr` per filetype, and move textobjects
-   onto `nvim-treesitter-textobjects`' own `main`-branch setup. More work, but it
-   is where upstream is going.
-
-Note also that the on-disk plugin set has drifted well ahead of `lazy-lock.json`
-for about fifteen plugins. Running `:Lazy clean` or `:Lazy sync` will rewrite the
-lockfile with all of that at once, including the treesitter branch switch — do
-that deliberately in its own commit, not as a side effect of another change.
+Still outstanding, deliberately left alone: the on-disk plugin set has drifted
+ahead of `lazy-lock.json` for roughly fifteen plugins, and `nvim-lspconfig`'s
+locked commit does not match what is checked out. Running `:Lazy sync` will
+reconcile all of it at once — do that deliberately, in its own commit.
 
 ---
 
@@ -609,11 +598,12 @@ end, 3000)"
   native `vim.lsp.config`. Any snippet you recall from training data is likely
   the old shape. Read the current README; do not guess.
 - **`fantomas` stdin flags** vary across major versions. Run `fantomas --help`.
-- **`nvim-treesitter` is on the `main` branch but configured as if it were on
-  `master`** — see "Known issue: treesitter" below. Check which branch is
-  actually checked out (`git -C ~/.local/share/nvim/lazy/nvim-treesitter rev-parse
-  --abbrev-ref HEAD`) before touching `treesitter.lua`; the two branches have
-  incompatible APIs and most snippets in circulation are for `master`.
+- **`nvim-treesitter` tracks the `main` branch, pinned.** The two branches have
+  incompatible APIs and most snippets in circulation — including, most likely,
+  the one you are about to recall — are written for `master`. If you find
+  yourself typing `ensure_installed`, `highlight = { enable = true }` or a
+  `textobjects` block into `treesitter.lua`, stop: none of those exist on `main`.
+  Do not remove the `branch = "main"` pins.
 - **Do not run `home-manager switch` unprompted.** It mutates the user's profile.
   Edit `home.nix`, then tell the user the command to run.
 - **`.install-state` is gitignored** and tracks completed install steps. If you
