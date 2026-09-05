@@ -3,7 +3,7 @@
 
 local luasnip_ok, luasnip = pcall(require, "luasnip")
 if not luasnip_ok then
-	return {}
+  return {}
 end
 
 local snippet = luasnip.snippet
@@ -12,29 +12,29 @@ local fmt = require("luasnip.extras.fmt").fmt
 
 -- TypeScript type snippets
 local typescript_snippets = {
-	snippet(
-		"type",
-		fmt("type {} = {};", {
-			insert_node(1, "Name"),
-			insert_node(2, "string | number"),
-		})
-	),
+  snippet(
+    "type",
+    fmt("type {} = {};", {
+      insert_node(1, "Name"),
+      insert_node(2, "string | number"),
+    })
+  ),
 
-	snippet(
-		"interface",
-		fmt("interface {} {{\n\t{}\n}}", {
-			insert_node(1, "Name"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "interface",
+    fmt("interface {} {{\n\t{}\n}}", {
+      insert_node(1, "Name"),
+      insert_node(2, ""),
+    })
+  ),
 
-	snippet(
-		"enum",
-		fmt("enum {} {{\n\t{}\n}}", {
-			insert_node(1, "Name"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "enum",
+    fmt("enum {} {{\n\t{}\n}}", {
+      insert_node(1, "Name"),
+      insert_node(2, ""),
+    })
+  ),
 }
 
 return typescript_snippets

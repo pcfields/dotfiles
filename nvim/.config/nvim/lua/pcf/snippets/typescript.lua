@@ -1,7 +1,7 @@
 -- TypeScript Snippets - Using shared modules
 local luasnip_ok, _ = pcall(require, "luasnip")
 if not luasnip_ok then
-	return
+  return
 end
 
 -- Import shared snippet modules

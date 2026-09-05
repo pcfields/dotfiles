@@ -167,18 +167,18 @@ map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move up" })
 -- Terminal
 --------------------------------------------------------------------------------------------
 vim.api.nvim_create_autocmd("TermOpen", {
-	pattern = "term://*",
-	callback = function()
-		local buf = 0
+  pattern = "term://*",
+  callback = function()
+    local buf = 0
 
-		map("t", "<A-i>", [[<C-\><C-n>]], { desc = "Exit terminal mode", buffer = buf })
-		map("t", "<A-w>", [[<C-\><C-n><C-w>]], { desc = "Exit terminal mode and enter window command mode", buffer = buf })
+    map("t", "<A-i>", [[<C-\><C-n>]], { desc = "Exit terminal mode", buffer = buf })
+    map("t", "<A-w>", [[<C-\><C-n><C-w>]], { desc = "Exit terminal mode and enter window command mode", buffer = buf })
 
-		map("t", "<A-h>", [[<Cmd>wincmd h<CR>]], { desc = "Move to left window", buffer = buf })
-		map("t", "<A-j>", [[<Cmd>wincmd j<CR>]], { desc = "Move to lower window", buffer = buf })
-		map("t", "<A-k>", [[<Cmd>wincmd k<CR>]], { desc = "Move to upper window", buffer = buf })
-		map("t", "<A-l>", [[<Cmd>wincmd l<CR>]], { desc = "Move to right window", buffer = buf })
-	end,
+    map("t", "<A-h>", [[<Cmd>wincmd h<CR>]], { desc = "Move to left window", buffer = buf })
+    map("t", "<A-j>", [[<Cmd>wincmd j<CR>]], { desc = "Move to lower window", buffer = buf })
+    map("t", "<A-k>", [[<Cmd>wincmd k<CR>]], { desc = "Move to upper window", buffer = buf })
+    map("t", "<A-l>", [[<Cmd>wincmd l<CR>]], { desc = "Move to right window", buffer = buf })
+  end,
 })
 
 --------------------------------------------------------------------------------------------
@@ -192,20 +192,20 @@ map({ "n" }, "<leader>gx", "<cmd>::DiffviewClose<cr>", { desc = "Close Git diff 
 --------------------------------------------------------------------------------------------
 -- Go to next diagnostic
 map({ "n" }, "<leader>ej", function()
-	vim.diagnostic.jump({ count = 1, float = true })
+  vim.diagnostic.jump({ count = 1, float = true })
 end, { desc = "Go to next diagnostic message" })
 
 -- Go to previous diagnostic
 map({ "n" }, "<leader>ek", function()
-	vim.diagnostic.jump({ count = -1, float = true })
+  vim.diagnostic.jump({ count = -1, float = true })
 end, { desc = "Go to previous diagnostic message" })
 
 map({ "n" }, "<leader>ei", vim.diagnostic.open_float, { desc = "Open floating diagnostic info message" })
 
 map("n", "<leader>es", function()
-	local toggled_value = not vim.diagnostic.config().virtual_text
+  local toggled_value = not vim.diagnostic.config().virtual_text
 
-	vim.diagnostic.config({ virtual_text = toggled_value })
+  vim.diagnostic.config({ virtual_text = toggled_value })
 end, { desc = "Toggle diagnostic virtual_text ([s]how)" })
 
 map({ "n" }, "<leader>oef", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Trouble: File/buffer issues" })
@@ -233,60 +233,60 @@ map({ "n", "v" }, "<leader>ye", yank_register .. "y$", { desc = "Yank till end o
 local brackets_or_strings_text = " (...) or [...] or {...} or strings"
 
 map({ "n", "v" }, "<leader>yi", function()
-	local command_yank_inside_to_register_z = yank_register .. "yi"
+  local command_yank_inside_to_register_z = yank_register .. "yi"
 
-	execute_command_on_enclosing_node(command_yank_inside_to_register_z)
+  execute_command_on_enclosing_node(command_yank_inside_to_register_z)
 end, { desc = "Yank inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>ya", function()
-	local command_yank_around_to_register_z = yank_register .. "ya"
+  local command_yank_around_to_register_z = yank_register .. "ya"
 
-	execute_command_on_enclosing_node(command_yank_around_to_register_z)
+  execute_command_on_enclosing_node(command_yank_around_to_register_z)
 end, { desc = "Yank around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Delete Inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>di", function()
-	local command_delete_inside_save_to_delete_register = delete_register .. "di"
+  local command_delete_inside_save_to_delete_register = delete_register .. "di"
 
-	execute_command_on_enclosing_node(command_delete_inside_save_to_delete_register)
+  execute_command_on_enclosing_node(command_delete_inside_save_to_delete_register)
 end, { desc = "Delete inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>da", function()
-	local command_delete_around_save_to_delete_register = delete_register .. "da"
+  local command_delete_around_save_to_delete_register = delete_register .. "da"
 
-	execute_command_on_enclosing_node(command_delete_around_save_to_delete_register)
+  execute_command_on_enclosing_node(command_delete_around_save_to_delete_register)
 end, { desc = "Delete around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Select inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>vi", function()
-	local command_select_inside = "vi"
+  local command_select_inside = "vi"
 
-	execute_command_on_enclosing_node(command_select_inside)
+  execute_command_on_enclosing_node(command_select_inside)
 end, { desc = "Select inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>va", function()
-	local command_select_around = "va"
+  local command_select_around = "va"
 
-	execute_command_on_enclosing_node(command_select_around)
+  execute_command_on_enclosing_node(command_select_around)
 end, { desc = "Select around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Change inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>ci", function()
-	local command_change_inside_save_to_delete_register = delete_register .. "ci"
+  local command_change_inside_save_to_delete_register = delete_register .. "ci"
 
-	execute_command_on_enclosing_node(command_change_inside_save_to_delete_register)
+  execute_command_on_enclosing_node(command_change_inside_save_to_delete_register)
 end, { desc = "Change inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>ca", function()
-	local command_change_around_save_to_delete_register = delete_register .. "ca"
+  local command_change_around_save_to_delete_register = delete_register .. "ca"
 
-	execute_command_on_enclosing_node(command_change_around_save_to_delete_register)
+  execute_command_on_enclosing_node(command_change_around_save_to_delete_register)
 end, { desc = "Change around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------

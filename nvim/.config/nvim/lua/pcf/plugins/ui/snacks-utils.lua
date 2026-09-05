@@ -3,120 +3,120 @@ local Snacks = require("snacks")
 local M = {}
 
 local function enter_normal_mode()
-	vim.api.nvim_input("<Esc>")
+  vim.api.nvim_input("<Esc>")
 end
 
 M.ViewOpenBuffers = function()
-	Snacks.picker.buffers()
-	enter_normal_mode()
+  Snacks.picker.buffers()
+  enter_normal_mode()
 end
 
 M.SearchGrep = function()
-	Snacks.picker.grep()
+  Snacks.picker.grep()
 end
 
 M.SearchFiles = function()
-	Snacks.picker.files()
+  Snacks.picker.files()
 end
 
 M.SearchGitFiles = function()
-	Snacks.picker.git_files()
+  Snacks.picker.git_files()
 end
 
 M.SearchRecentFiles = function()
-	Snacks.picker.recent()
+  Snacks.picker.recent()
 end
 
 M.SearchGrepWord = function()
-	Snacks.picker.grep_word()
+  Snacks.picker.grep_word()
 end
 
 M.GitFileLog = function()
-	Snacks.picker.git_log_file()
+  Snacks.picker.git_log_file()
 end
 
 M.OpenLazyGit = function()
-	Snacks.lazygit()
+  Snacks.lazygit()
 end
 
 M.GitLogHistory = function()
-	Snacks.picker.git_log()
+  Snacks.picker.git_log()
 end
 
 M.GitStatus = function()
-	Snacks.picker.git_status()
+  Snacks.picker.git_status()
 end
 
 M.GitDiffList = function()
-	Snacks.picker.git_diff()
+  Snacks.picker.git_diff()
 end
 
 M.ListGitBranches = function()
-	Snacks.picker.git_branches()
+  Snacks.picker.git_branches()
 end
 
 M.SearchHelpPages = function()
-	Snacks.picker.help()
+  Snacks.picker.help()
 end
 
 M.GotoDefinition = function()
-	Snacks.picker.lsp_definitions()
+  Snacks.picker.lsp_definitions()
 end
 
 M.GotoImplementation = function()
-	Snacks.picker.lsp_implementations()
+  Snacks.picker.lsp_implementations()
 end
 
 M.SearchDiagnosticsBuffer = function()
-	Snacks.picker.diagnostics_buffer({
-		layout = "vertical",
-	})
+  Snacks.picker.diagnostics_buffer({
+    layout = "vertical",
+  })
 end
 
 M.SearchAllDiagnostics = function()
-	Snacks.picker.diagnostics({
-		layout = "vertical",
-	})
+  Snacks.picker.diagnostics({
+    layout = "vertical",
+  })
 end
 
 M.GotoReferences = function()
-	Snacks.picker.lsp_references()
+  Snacks.picker.lsp_references()
 end
 
 M.ListLSPSymbols = function()
-	Snacks.picker.lsp_symbols()
+  Snacks.picker.lsp_symbols()
 end
 
 M.GotoTypeDefinition = function()
-	Snacks.picker.lsp_type_definitions()
+  Snacks.picker.lsp_type_definitions()
 end
 
 M.SearchMarks = function()
-	Snacks.picker.marks()
+  Snacks.picker.marks()
 end
 
 M.SearchJumps = function()
-	Snacks.picker.jumps()
+  Snacks.picker.jumps()
 end
 
 M.DisplayRegisters = function()
-	Snacks.picker.registers()
+  Snacks.picker.registers()
 end
 
 M.Explorer = function()
-	Snacks.explorer()
+  Snacks.explorer()
 end
 
 M.ToggleTerminal = function()
-	Snacks.terminal.toggle()
+  Snacks.terminal.toggle()
 end
 
 M.TodoComments = function()
-	Snacks.picker.todo_comments()
+  Snacks.picker.todo_comments()
 end
 
 M.Notifications = function()
-	Snacks.picker.notifications()
+  Snacks.picker.notifications()
 end
 
 return M

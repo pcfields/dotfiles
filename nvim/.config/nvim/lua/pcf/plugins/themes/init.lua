@@ -11,15 +11,15 @@
 local active_theme = "oldworld"
 
 local themes = {
-	nightfox = require("pcf.plugins.themes.nightfox"),
-	rosepine = require("pcf.plugins.themes.rosepine"),
-	oldworld = require("pcf.plugins.themes.oldworld"),
+  nightfox = require("pcf.plugins.themes.nightfox"),
+  rosepine = require("pcf.plugins.themes.rosepine"),
+  oldworld = require("pcf.plugins.themes.oldworld"),
 }
 
 local specs = {}
 
 for name, theme in pairs(themes) do
-	table.insert(specs, theme.spec(name == active_theme))
+  table.insert(specs, theme.spec(name == active_theme))
 end
 
 return specs

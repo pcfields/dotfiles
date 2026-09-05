@@ -3,7 +3,7 @@
 
 local luasnip_ok, luasnip = pcall(require, "luasnip")
 if not luasnip_ok then
-	return {}
+  return {}
 end
 
 local snippet = luasnip.snippet
@@ -12,55 +12,55 @@ local fmt = require("luasnip.extras.fmt").fmt
 
 -- Test block snippets
 local test_snippets = {
-	snippet(
-		"desc",
-		fmt("describe('{}', () => {{\n\t{}\n}});", {
-			insert_node(1, "description"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "desc",
+    fmt("describe('{}', () => {{\n\t{}\n}});", {
+      insert_node(1, "description"),
+      insert_node(2, ""),
+    })
+  ),
 
-	snippet(
-		"it",
-		fmt("it('{}', () => {{\n\t{}\n}});", {
-			insert_node(1, "should do something"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "it",
+    fmt("it('{}', () => {{\n\t{}\n}});", {
+      insert_node(1, "should do something"),
+      insert_node(2, ""),
+    })
+  ),
 
-	snippet(
-		"test",
-		fmt("test('{}', () => {{\n\t{}\n}});", {
-			insert_node(1, "should do something"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "test",
+    fmt("test('{}', () => {{\n\t{}\n}});", {
+      insert_node(1, "should do something"),
+      insert_node(2, ""),
+    })
+  ),
 
-	snippet(
-		"dt",
-		fmt("describe('{}', () => {{\n\ttest('{}', () => {{\n\t\t{}\n\t}});\n}});", {
-			insert_node(1, "description"),
-			insert_node(2, "should do something"),
-			insert_node(3, ""),
-		})
-	),
+  snippet(
+    "dt",
+    fmt("describe('{}', () => {{\n\ttest('{}', () => {{\n\t\t{}\n\t}});\n}});", {
+      insert_node(1, "description"),
+      insert_node(2, "should do something"),
+      insert_node(3, ""),
+    })
+  ),
 
-	-- Async test blocks
-	snippet(
-		"ita",
-		fmt("it('{}', async () => {{\n\t{}\n}});", {
-			insert_node(1, "should do something"),
-			insert_node(2, ""),
-		})
-	),
+  -- Async test blocks
+  snippet(
+    "ita",
+    fmt("it('{}', async () => {{\n\t{}\n}});", {
+      insert_node(1, "should do something"),
+      insert_node(2, ""),
+    })
+  ),
 
-	snippet(
-		"testa",
-		fmt("test('{}', async () => {{\n\t{}\n}});", {
-			insert_node(1, "should do something"),
-			insert_node(2, ""),
-		})
-	),
+  snippet(
+    "testa",
+    fmt("test('{}', async () => {{\n\t{}\n}});", {
+      insert_node(1, "should do something"),
+      insert_node(2, ""),
+    })
+  ),
 }
 
 return test_snippets

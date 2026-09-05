@@ -20,7 +20,7 @@
 - Linters: biomejs, eslint_d for JS/TS
 
 ## Code Style
-- **Indentation**: Tabs (width 4) for Lua, 2 spaces for JS/TS/JSON
+- **Indentation**: 2 spaces for Lua/JS/TS/JSON
 - **Line width**: 160 chars (Lua)
 - **Quotes**: Prefer double quotes
 - **Imports**: Use pcall for requiring modules (e.g., `local ok, mod = pcall(require, "module")`)

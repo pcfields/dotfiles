@@ -23,12 +23,12 @@ opt.expandtab = true -- Use spaces instead of tabs for consistent indentation
 
 -- Configure various UI folding elements and characters for a cleaner interface
 opt.fillchars = {
-	foldopen = "",
-	foldclose = "",
-	fold = " ",
-	foldsep = " ",
-	diff = "╱",
-	eob = " ",
+  foldopen = "",
+  foldclose = "",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
 }
 opt.foldenable = true -- Enable code folding functionality
 opt.foldlevel = 99 -- Start with all folds open by default

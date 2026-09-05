@@ -3,7 +3,7 @@
 
 local luasnip_ok, luasnip = pcall(require, "luasnip")
 if not luasnip_ok then
-	return {}
+  return {}
 end
 
 local snippet = luasnip.snippet
@@ -12,68 +12,68 @@ local fmt = require("luasnip.extras.fmt").fmt
 
 -- Basic function snippets (no types)
 local basic_function_snippets = {
-	snippet(
-		"fn",
-		fmt("function {}({}) {{\n\t{}\n}}", {
-			insert_node(1, "name"),
-			insert_node(2, ""),
-			insert_node(3, ""),
-		})
-	),
+  snippet(
+    "fn",
+    fmt("function {}({}) {{\n\t{}\n}}", {
+      insert_node(1, "name"),
+      insert_node(2, ""),
+      insert_node(3, ""),
+    })
+  ),
 
-	snippet(
-		"af",
-		fmt("const {} = ({}) => {{\n\t{}\n}};", {
-			insert_node(1, "name"),
-			insert_node(2, ""),
-			insert_node(3, ""),
-		})
-	),
+  snippet(
+    "af",
+    fmt("const {} = ({}) => {{\n\t{}\n}};", {
+      insert_node(1, "name"),
+      insert_node(2, ""),
+      insert_node(3, ""),
+    })
+  ),
 
-	snippet(
-		"afs",
-		fmt("const {} = ({}) => {};", {
-			insert_node(1, "name"),
-			insert_node(2, ""),
-			insert_node(3, ""),
-		})
-	),
+  snippet(
+    "afs",
+    fmt("const {} = ({}) => {};", {
+      insert_node(1, "name"),
+      insert_node(2, ""),
+      insert_node(3, ""),
+    })
+  ),
 }
 
 -- Typed function snippets (for TypeScript)
 local typed_function_snippets = {
-	snippet(
-		"fnt",
-		fmt("function {}({}): {} {{\n\t{}\n}}", {
-			insert_node(1, "name"),
-			insert_node(2, "param: type"),
-			insert_node(3, "ReturnType"),
-			insert_node(4, ""),
-		})
-	),
+  snippet(
+    "fnt",
+    fmt("function {}({}): {} {{\n\t{}\n}}", {
+      insert_node(1, "name"),
+      insert_node(2, "param: type"),
+      insert_node(3, "ReturnType"),
+      insert_node(4, ""),
+    })
+  ),
 
-	snippet(
-		"aft",
-		fmt("const {} = ({}): {} => {{\n\t{}\n}};", {
-			insert_node(1, "name"),
-			insert_node(2, "param: type"),
-			insert_node(3, "ReturnType"),
-			insert_node(4, ""),
-		})
-	),
+  snippet(
+    "aft",
+    fmt("const {} = ({}): {} => {{\n\t{}\n}};", {
+      insert_node(1, "name"),
+      insert_node(2, "param: type"),
+      insert_node(3, "ReturnType"),
+      insert_node(4, ""),
+    })
+  ),
 
-	snippet(
-		"afst",
-		fmt("const {} = ({}): {} => {};", {
-			insert_node(1, "name"),
-			insert_node(2, "param: type"),
-			insert_node(3, "ReturnType"),
-			insert_node(4, ""),
-		})
-	),
+  snippet(
+    "afst",
+    fmt("const {} = ({}): {} => {};", {
+      insert_node(1, "name"),
+      insert_node(2, "param: type"),
+      insert_node(3, "ReturnType"),
+      insert_node(4, ""),
+    })
+  ),
 }
 
 return {
-	basic = basic_function_snippets,
-	typed = typed_function_snippets,
+  basic = basic_function_snippets,
+  typed = typed_function_snippets,
 }

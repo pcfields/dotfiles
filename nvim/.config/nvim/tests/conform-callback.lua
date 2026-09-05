@@ -8,7 +8,7 @@ local notifications = {}
 local original_notify = vim.notify
 
 vim.notify = function(message)
-	table.insert(notifications, message)
+  table.insert(notifications, message)
 end
 
 local keys = vim.api.nvim_replace_termcodes("<leader>hf", true, false, true)

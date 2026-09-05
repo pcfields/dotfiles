@@ -13,46 +13,46 @@ require("pcf.config.autocmds")
 local plugin_manager = require("pcf.config.plugin-manager")
 
 local function plugin(path)
-	return require("pcf.plugins." .. path)
+  return require("pcf.plugins." .. path)
 end
 
 plugin_manager.setup({
-	plugin("themes"),
+  plugin("themes"),
 
-	plugin("ai.copilot"),
+  plugin("ai.copilot"),
 
-	plugin("completion.blink"),
+  plugin("completion.blink"),
 
-	plugin("debugging.dap"),
+  plugin("debugging.dap"),
 
-	plugin("editor.autopairs"),
-	plugin("editor.code-indentation"),
-	plugin("editor.comment"),
-	plugin("editor.flash"),
-	plugin("editor.local-highlight"),
-	plugin("editor.nvim-surround"),
-	plugin("editor.refactoring"),
-	plugin("editor.todo-comments"),
-	plugin("editor.treesitter"),
-	plugin("editor.trouble"),
-	plugin("editor.ufo"),
+  plugin("editor.autopairs"),
+  plugin("editor.code-indentation"),
+  plugin("editor.comment"),
+  plugin("editor.flash"),
+  plugin("editor.local-highlight"),
+  plugin("editor.nvim-surround"),
+  plugin("editor.refactoring"),
+  plugin("editor.todo-comments"),
+  plugin("editor.treesitter"),
+  plugin("editor.trouble"),
+  plugin("editor.ufo"),
 
-	plugin("git.diffview"),
-	plugin("git.gitsigns"),
+  plugin("git.diffview"),
+  plugin("git.gitsigns"),
 
-	plugin("lsp.format"),
-	plugin("lsp.lsp-config"),
-	plugin("lsp.rustaceanvim"),
+  plugin("lsp.format"),
+  plugin("lsp.lsp-config"),
+  plugin("lsp.rustaceanvim"),
 
-	plugin("navigation.mini-files"),
-	plugin("navigation.neo-tree"),
+  plugin("navigation.mini-files"),
+  plugin("navigation.neo-tree"),
 
-	plugin("testing.neo-test"),
+  plugin("testing.neo-test"),
 
-	plugin("ui.lualine"),
-	plugin("ui.noice"),
-	plugin("ui.snacks"),
-	plugin("ui.which-key"),
+  plugin("ui.lualine"),
+  plugin("ui.noice"),
+  plugin("ui.snacks"),
+  plugin("ui.which-key"),
 
-	plugin("utils.lazydev"),
+  plugin("utils.lazydev"),
 }, {})
