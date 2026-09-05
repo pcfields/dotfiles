@@ -69,9 +69,18 @@ This installs everything in `packages/npm-global-packages.txt`:
 | Package | Provides |
 |---|---|
 | `@vtsls/language-server` | `vtsls` — the TypeScript/JavaScript language server |
-| `vscode-langservers-extracted` | `jsonls`, `cssls`, `eslint` |
+| `vscode-langservers-extracted` | `jsonls`, `cssls`, `eslint`, `html` |
 | `@olrtg/emmet-language-server` | `emmet_language_server` |
+| `@tailwindcss/language-server` | `tailwindcss` |
+| `graphql-language-service-cli` | `graphql` |
+| `yaml-language-server` | `yamlls` |
+| `bash-language-server` | `bashls` |
+| `dockerfile-language-server-nodejs` | `dockerls` |
+| `@taplo/cli` | `taplo` |
 | `prettier` | formatter fallback where biome does not apply |
+
+The Scoop step supplies the remaining web/config tools: `biome`,
+`lua-language-server`, `marksman`, `shellcheck`, `shfmt`, and `stylua`.
 
 Without this step Neovim starts cleanly but silently has no TypeScript
 intelligence — no completion, no go-to-definition, no diagnostics. The failure

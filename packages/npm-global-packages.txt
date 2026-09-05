@@ -18,6 +18,14 @@
 @vtsls/language-server          # vtsls
 vscode-langservers-extracted    # jsonls, cssls, eslint, html
 @olrtg/emmet-language-server    # emmet_language_server
+@tailwindcss/language-server    # tailwindcss
+graphql-language-service-cli    # graphql
+
+# ── Infrastructure and config LSP servers ───────────────
+yaml-language-server            # yamlls
+bash-language-server            # bashls
+dockerfile-language-server-nodejs # dockerls
+@taplo/cli                      # taplo
 
 # ── Formatters ─────────────────────────────────────────
 prettier

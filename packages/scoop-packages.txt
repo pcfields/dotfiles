@@ -25,6 +25,11 @@ jetbrainsmono-nerd-font
 
 # ── Dev Tools (LSP servers, formatters, linters) ────────
 biome
+lua-language-server
+marksman
+shellcheck
+shfmt
+stylua
 # tree-sitter CLI: required by nvim-treesitter (main branch) to build parsers.
 # Also needs a C compiler on PATH -- install MSVC Build Tools or `scoop install gcc`.
 tree-sitter

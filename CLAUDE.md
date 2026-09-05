@@ -66,9 +66,9 @@ Which tool owns what — respect these when adding software (from `AGENTS.md`):
 
 **Provisioning is split by platform, not by tool type.** Linux gets everything
 from Nix. Windows takes what scoop has (`lua-language-server`, `marksman`,
-`biome`) and the rest from npm, because servers like `@vtsls/language-server`
-and `vscode-langservers-extracted` ship as npm packages and have no scoop
-manifest. See `packages/npm-global-packages.txt` and `docs/install-windows.md`.
+`biome`) and the Node-based tools from npm, including
+`@vtsls/language-server` and `vscode-langservers-extracted`. See
+`packages/npm-global-packages.txt` and `docs/install-windows.md`.
 
 Two consequences worth remembering: the Windows npm step is manual and easy to
 skip, which leaves Neovim running with no TypeScript intelligence and no error

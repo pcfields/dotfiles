@@ -64,16 +64,14 @@ managed the same way everywhere.
 
 Windows has no Nix, so its tooling comes from two places rather than one.
 
-Scoop is the default and covers most things, but a few developer tools ship as
-**npm packages rather than standalone binaries**, and scoop has no manifest for
-them. Verified absent from the Main, Extras and Versions buckets:
-`@vtsls/language-server`, `vscode-langservers-extracted` and
-`@olrtg/emmet-language-server`. Those three provide `vtsls`, `jsonls`, `cssls`,
-`eslint` and `emmet_language_server` — in other words, most of what makes
-TypeScript work.
+Scoop is the default and covers standalone tools such as `lua-language-server`,
+`marksman`, `biome`, `shellcheck`, `shfmt`, and `stylua`. Developer tools
+distributed as Node packages instead come from npm: TypeScript, extracted VS
+Code language servers, Emmet, Tailwind, GraphQL, YAML, Bash, Dockerfile, Taplo,
+and Prettier.
 
-So Windows installs what scoop has (`lua-language-server`, `marksman`, `biome`)
-and takes the rest from npm, with Node supplied by mise.
+Windows installs what Scoop has and takes the Node-based tools from npm, with
+Node supplied by mise.
 
 Config files: `packages/scoop-packages.txt`, `packages/npm-global-packages.txt`
 
