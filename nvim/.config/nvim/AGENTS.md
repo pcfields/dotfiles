@@ -6,6 +6,9 @@
 - Watch file: `<leader>tw` via neotest
 - Test runner: neotest with vitest adapter
 
+## Debugging
+- Install missing debug adapters explicitly with `:DapInstallAdapters`
+
 ## Formatting & Linting
 - Auto-format on save via conform.nvim
 - JS/TS: biome (preferred), prettier fallback

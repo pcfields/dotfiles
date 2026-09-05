@@ -85,16 +85,17 @@ uses Nix rather than Mason.
 
 ### Mason (DAP adapters only)
 
-Mason installs `js-debug-adapter` and `codelldb`, and nothing else. The install
-list lives in `ensure_adapters` in
-`nvim/.config/nvim/lua/pcf/plugins/debugging/dap.lua`.
+Mason installs `js-debug-adapter`, `codelldb`, and `netcoredbg`, and nothing
+else. The install list lives in the `:DapInstallAdapters` command in
+`nvim/.config/nvim/lua/pcf/plugins/debugging/dap.lua`. Installation is explicit,
+so ordinary Neovim startup never refreshes the Mason registry or downloads an
+adapter.
 
-Both adapters *are* packaged in nixpkgs (`vscode-js-debug` and
-`vscode-extensions.vadimcn.vscode-lldb`), so on Linux alone Mason would be
-unnecessary. The reason it stays is Windows: neither is in any scoop bucket, and
-`js-debug-adapter` is not published to npm. They are VS Code extension bundles
-distributed as `.vsix` files on GitHub releases, so the alternative on Windows is
-downloading and unpacking those by hand -- which is what Mason automates.
+All three adapters are packaged in nixpkgs (`vscode-js-debug`,
+`vscode-extensions.vadimcn.vscode-lldb`, and `netcoredbg`), so on Linux alone
+Mason would be unnecessary. The reason it stays is Windows: Scoop/npm do not
+provide one consistent source for all three release formats and executable
+layouts. Mason handles those downloads and paths on both platforms.
 
 The pinning argument that makes Nix right for language servers is also weaker
 here. A drifting language server changes diagnostics and completions every day;

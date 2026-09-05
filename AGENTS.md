@@ -56,7 +56,7 @@ To add a new config package:
 | Sandboxed GUI apps | Flatpak | (N/A or winget) | `packages/flatpak-packages.txt` |
 | Language runtimes (Node, Python, etc.) | mise | mise | `mise/.config/mise/config.toml` |
 | LSP servers, formatters, linters | Nix + Home Manager | Scoop where available, otherwise npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason = DAP only) |
-| DAP debug adapters | Mason | Mason | `ensure_adapters` in `lua/pcf/plugins/debugging/dap.lua` — exactly two packages; see `docs/strategy.md` |
+| DAP debug adapters | Mason | Mason | `:DapInstallAdapters` installs the three adapters declared in `lua/pcf/plugins/debugging/dap.lua`; see `docs/strategy.md` |
 
 Provisioning splits by platform, not by tool type. Node-based language servers
 such as `@vtsls/language-server`, `vscode-langservers-extracted`, and

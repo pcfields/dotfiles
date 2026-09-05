@@ -125,10 +125,10 @@ The repo's boundary rules (`CLAUDE.md`, `AGENTS.md`) already answer most of this
 **LSP servers / formatters / linters → Nix**; **DAP adapters → Mason**;
 **language runtimes → mise**. The plan follows them.
 
-Mason's scope is exactly two packages. It is not that the adapters are hard to
-install otherwise -- both are in nixpkgs -- but that neither is in scoop, and
-`js-debug-adapter` is not on npm, so Windows has no other source. See
-`docs/strategy.md` for the full reasoning.
+Mason's scope is exactly three packages: `js-debug-adapter`, `codelldb`, and
+`netcoredbg`. The adapters are available from nixpkgs, but the same declarative
+path is not available through Scoop/npm on Windows. See `docs/strategy.md` for
+the full reasoning.
 
 | Tool | Role | Source | Why |
 |---|---|---|---|

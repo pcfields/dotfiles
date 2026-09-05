@@ -6,7 +6,7 @@ return { -- Debugger
 	dependencies = {
 		"rcarriga/nvim-dap-ui",
 		-- config = true runs mason.setup(), which initialises the package
-		-- registry. Without it ensure_adapters below can only see packages that
+		-- registry. Without it install_adapters below can only see packages that
 		-- are already installed.
 		{ "williamboman/mason.nvim", config = true },
 		"theHamsta/nvim-dap-virtual-text",
@@ -22,7 +22,7 @@ return { -- Debugger
 
 		-- mason-nvim-dap's ensure_installed silently does nothing against
 		-- mason.nvim v2, so drive the registry directly instead.
-		local function ensure_adapters(names)
+		local function install_adapters(names)
 			local ok, registry = pcall(require, "mason-registry")
 
 			if not ok then
@@ -46,8 +46,10 @@ return { -- Debugger
 			end)
 		end
 
-		-- codelldb is picked up automatically by rustaceanvim
-		ensure_adapters({ "js-debug-adapter", "codelldb", "netcoredbg" })
+		vim.api.nvim_create_user_command("DapInstallAdapters", function()
+			-- codelldb is picked up automatically by rustaceanvim
+			install_adapters({ "js-debug-adapter", "codelldb", "netcoredbg" })
+		end, { desc = "Install missing DAP adapters with Mason" })
 
 		require("pcf.dap.javascript").setup()
 		require("pcf.dap.dotnet").setup()
