@@ -12,7 +12,7 @@ return {
       local snacks_ok, snacks = pcall(require, "pcf.plugins.ui.snacks-utils")
 
       map("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Refactor: Rename variable" })
-      map("n", "<leader>ka", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+      map("n", "<leader>ra", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Refactor: Code action" })
       map({ "n", "v" }, "<leader>oh", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover Documentation" })
 
       map("n", "<leader>uh", function()

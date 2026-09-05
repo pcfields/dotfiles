@@ -15,6 +15,6 @@ return {
   },
   -- stylua: ignore
   keys = {
-    { "<leader>si", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash search" },
+    { "<leader>jf", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
   },
 }

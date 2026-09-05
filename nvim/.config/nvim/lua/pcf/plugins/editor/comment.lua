@@ -19,12 +19,12 @@ return {
       return option == "commentstring" and require("ts_context_commentstring.internal").calculate_commentstring() or get_option(filetype, option)
     end
 
-    -- Custom keymaps to match previous <leader>lk / <leader>bk mappings
+    -- Custom keymaps for line and block comments
     local map = require("pcf.utils").map
 
-    map({ "n" }, "<leader>lk", "gcc", { desc = "Toggle line comment", remap = true })
-    map({ "v" }, "<leader>lk", "gc", { desc = "Toggle line comment", remap = true })
-    map({ "n" }, "<leader>bk", "gbc", { desc = "Toggle block comment", remap = true })
-    map({ "v" }, "<leader>bk", "gb", { desc = "Toggle block comment", remap = true })
+    map({ "n" }, "<leader>cl", "gcc", { desc = "Toggle line comment", remap = true })
+    map({ "v" }, "<leader>cl", "gc", { desc = "Toggle line comment", remap = true })
+    map({ "n" }, "<leader>cb", "gbc", { desc = "Toggle block comment", remap = true })
+    map({ "v" }, "<leader>cb", "gb", { desc = "Toggle block comment", remap = true })
   end,
 }

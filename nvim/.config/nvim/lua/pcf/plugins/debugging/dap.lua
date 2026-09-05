@@ -60,8 +60,8 @@ return { -- Debugger
     map("n", "<F1>", dap.step_into, { desc = "[Debugger] Step into" })
     map("n", "<F2>", dap.step_over, { desc = "[Debugger] Step over" })
     map("n", "<F3>", dap.step_out, { desc = "[Debugger] Step out" })
-    map("n", "<leader>db", dap.toggle_breakpoint, { desc = "[Debugger] Toggle breakpoint" })
-    map("n", "<leader>dB", function()
+    map("n", "<leader>bb", dap.toggle_breakpoint, { desc = "[Debugger] Toggle breakpoint" })
+    map("n", "<leader>bc", function()
       dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
     end, { desc = "[Debugger] Set breakpoint condition" })
 

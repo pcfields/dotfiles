@@ -69,9 +69,9 @@ map({ "n", "v" }, "<leader>dc", clipboard_register .. "dd", { desc = "Delete and
 --------------------------------------------------------------------------------------------
 -- File explorer -----------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
-map({ "n" }, "<leader>fw", "<cmd>Neotree toggle reveal float<cr>", { desc = "Open File explorer [ floating window ] " })
-map({ "n" }, "<leader>ft", "<cmd>Neotree toggle reveal current<cr>", { desc = "Open File explorer  [ tab ]" })
-map({ "n" }, "<leader>fg", "<cmd>Neotree git_status<cr>", { desc = "Open File explorer [ git status ] " })
+map({ "n" }, "<leader>ow", "<cmd>Neotree toggle reveal float<cr>", { desc = "Open Neo-tree floating window" })
+map({ "n" }, "<leader>oe", "<cmd>Neotree toggle reveal current<cr>", { desc = "Open Neo-tree in current window" })
+map({ "n" }, "<leader>og", "<cmd>Neotree git_status<cr>", { desc = "Open Neo-tree Git status" })
 
 --------------------------------------------------------------------------------------------
 -- Buffers ----------------------------------------------------------------------------------
@@ -83,8 +83,7 @@ map({ "n", "v", "s" }, "<leader>ha", "<cmd>wa<cr><esc>", { desc = "Save all buff
 map({ "n" }, "<leader>hn", "<cmd>enew<cr>", { desc = "New buffer(file)" })
 map({ "n" }, "<leader>hq", close_buffer_and_keep_split, { desc = "Close buffer and keep split" })
 map({ "n" }, "<leader>ho", [[:%bdelete|edit #|bdelete #<CR>]], { desc = "Close all buffers except current one" })
-map({ "n" }, "<leader>hx", "<cmd>:close<cr>", { desc = "Close split window" })
-
+map({ "n" }, "<leader>hx", "<cmd>close<cr>", { desc = "Close current split" })
 map({ "n" }, "<leader>hy", ":%y+<CR>", { desc = "Copy all text in buffer to clipboard" })
 map({ "n" }, "<leader>hb", "gg<S-v>G", { desc = "Select all text in buffer" })
 
@@ -120,7 +119,7 @@ map({ "n" }, "<C-Left>", "<cmd>vertical resize +4<cr>", { desc = "Increase windo
 map({ "n" }, "<C-Right>", "<cmd>vertical resize -4<cr>", { desc = "Decrease window width" })
 
 --------------------------------------------------------------------------------------------
-map({ "n" }, "<leader>qw", "<cmd>qa<cr>", { desc = "Quit all, Close Neovim" })
+map({ "n" }, "<leader>qa", "<cmd>qa<cr>", { desc = "Quit all and close Neovim" })
 map({ "n" }, "<leader>qq", "<cmd>q<cr>", { desc = "Quit" })
 
 --------------------------------------------------------------------------------------------
@@ -191,14 +190,14 @@ map({ "n" }, "<leader>gx", "<cmd>::DiffviewClose<cr>", { desc = "Close Git diff 
 -- Diagnostics (Errors)  --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 -- Go to next diagnostic
-map({ "n" }, "<leader>ej", function()
+map({ "n" }, "<leader>jn", function()
   vim.diagnostic.jump({ count = 1, float = true })
-end, { desc = "Go to next diagnostic message" })
+end, { desc = "Jump to next diagnostic message" })
 
 -- Go to previous diagnostic
-map({ "n" }, "<leader>ek", function()
+map({ "n" }, "<leader>jp", function()
   vim.diagnostic.jump({ count = -1, float = true })
-end, { desc = "Go to previous diagnostic message" })
+end, { desc = "Jump to previous diagnostic message" })
 
 map({ "n" }, "<leader>ei", vim.diagnostic.open_float, { desc = "Open floating diagnostic info message" })
 
@@ -208,13 +207,13 @@ map("n", "<leader>es", function()
   vim.diagnostic.config({ virtual_text = toggled_value })
 end, { desc = "Toggle diagnostic virtual_text ([s]how)" })
 
-map({ "n" }, "<leader>oef", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Trouble: File/buffer issues" })
-map({ "n" }, "<leader>oea", "<cmd>Trouble diagnostics toggle<cr>", { desc = "Trouble: All open File/buffer issues" })
+map({ "n" }, "<leader>et", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Trouble: Buffer diagnostics" })
+map({ "n" }, "<leader>eT", "<cmd>Trouble diagnostics toggle<cr>", { desc = "Trouble: All diagnostics" })
 
 --------------------------------------------------------------------------------------------
 -- Folding ----------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
-map({ "n" }, "<leader>kf", "za", { desc = "Toggle fold under cursor" })
+map({ "n" }, "<leader>ft", "za", { desc = "Toggle fold under cursor" })
 
 --------------------------------------------------------------------------------------------
 -- Yank keymaps
@@ -285,5 +284,5 @@ end, { desc = "Change around " .. brackets_or_strings_text })
 -- Macros  --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-map({ "n" }, "<leader>pm", play_macro, { desc = "Play a macro from a specified register" })
-map({ "n" }, "<leader>rm", record_macro, { desc = "Record a macro in a specified register" })
+map({ "n" }, "<leader>mp", play_macro, { desc = "Play a macro from a specified register" })
+map({ "n" }, "<leader>mr", record_macro, { desc = "Record a macro in a specified register" })

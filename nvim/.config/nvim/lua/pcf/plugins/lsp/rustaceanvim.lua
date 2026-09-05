@@ -30,11 +30,7 @@ return {
         on_attach = function(client, bufnr)
           local map = require("pcf.utils").map
 
-          map("n", "<leader>ra", function()
-            vim.cmd.RustLsp("codeAction")
-          end, { desc = "[Rust] Code action", buffer = bufnr })
-
-          map("n", "<leader>rr", function()
+          map("n", "<leader>ru", function()
             vim.cmd.RustLsp("runnables")
           end, { desc = "[Rust] Runnables", buffer = bufnr })
 
@@ -50,7 +46,7 @@ return {
             vim.cmd.RustLsp("openCargo")
           end, { desc = "[Rust] Open Cargo.toml", buffer = bufnr })
 
-          map("n", "<leader>re", function()
+          map("n", "<leader>rx", function()
             vim.cmd.RustLsp("explainError")
           end, { desc = "[Rust] Explain error", buffer = bufnr })
         end,

@@ -62,6 +62,6 @@ return {
     map({ "n", "v" }, "<A-o>", u.ToggleTerminal, { desc = "Toggle Terminal" })
 
     -- NOTE: review Snacks Explorer to see if it can replace neo-tree
-    map({ "n", "v" }, "<leader>fs", u.Explorer, { desc = "Open File Explorer [ Sidebar ]" })
+    map({ "n", "v" }, "<leader>ox", u.Explorer, { desc = "Open Snacks explorer" })
   end,
 }

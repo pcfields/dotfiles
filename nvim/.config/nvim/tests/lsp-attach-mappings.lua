@@ -1,6 +1,6 @@
 local normal_mappings = {
   "<leader>rn",
-  "<leader>ka",
+  "<leader>ra",
   "<leader>jd",
   "<leader>ji",
   "<leader>jt",
