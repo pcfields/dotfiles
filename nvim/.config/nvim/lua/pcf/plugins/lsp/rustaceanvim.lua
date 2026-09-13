@@ -14,7 +14,7 @@
 
 return {
   "mrcjkb/rustaceanvim",
-  version = "^6",
+  version = "^9",
   -- The plugin registers its own filetype handling; lazy-loading it on `ft`
   -- is what upstream explicitly warns against.
   lazy = false,
