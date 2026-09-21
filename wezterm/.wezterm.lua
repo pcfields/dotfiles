@@ -15,7 +15,7 @@ platform.shell = platform.is_windows and "pwsh.exe"
 
 platform.home_dir = wezterm.home_dir
 
-platform.font_size = platform.is_windows and 10.0 or 11.0
+platform.font_size = platform.is_windows and 10.5 or 11.0
 
 -- ============================================================================
 -- KEYMAP BUILDERS MODULE
@@ -72,10 +72,10 @@ end
 -- ============================================================================
 
 local ui_config = {
-	color_scheme = "Abernathy",
+	color_scheme = "rose-pine-moon",
 	font_size = platform.font_size,
 	font_config = {
-		primary = { family = "Monaspace Neon", weight = "Light" },
+		primary = { family = "Monaspace Neon", weight = "Regular" },
 		fallback = { family = "JetBrains Mono", weight = "Regular" },
 		disable_ligatures = { "calt=0", "clig=0", "liga=0" },
 	},
@@ -400,11 +400,11 @@ config.keys = {
 			child_window:perform_action(display_project_list(), child_pane)
 		end),
 	},
-	{ mods = "LEADER",     key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
-	{ mods = "LEADER",     key = ";", action = command_spawners.spawn_tool("OpenCode", "opencode") },
-	{ mods = "LEADER",     key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "LEADER",     key = "n", action = wezterm.action.SwitchWorkspaceRelative(1) },
-	{ mods = "LEADER",     key = "b", action = wezterm.action.SwitchWorkspaceRelative(-1) },
+	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
+	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("OpenCode", "opencode") },
+	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+	{ mods = "LEADER", key = "n", action = wezterm.action.SwitchWorkspaceRelative(1) },
+	{ mods = "LEADER", key = "b", action = wezterm.action.SwitchWorkspaceRelative(-1) },
 
 	-- Pane Management
 	{ -- [s]plit pane
