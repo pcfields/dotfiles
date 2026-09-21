@@ -8,7 +8,7 @@
 -- oldworld    >>  oldworld (variants: default | oled | cooler)
 --------------------------------------------------------------
 
-local active_theme = "oldworld"
+local active_theme = "rosepine"
 
 local themes = {
   nightfox = require("pcf.plugins.themes.nightfox"),

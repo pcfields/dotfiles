@@ -15,7 +15,9 @@ function M.spec(active)
     lazy = not active,
     priority = active and 1000 or nil,
     config = function()
-      require("rose-pine").setup({})
+      require("rose-pine").setup({
+        variant = "moon", -- auto | main | moon | dawn
+      })
 
       if active then
         local status_ok, _ = pcall(vim.cmd, "colorscheme " .. M.colorscheme)
