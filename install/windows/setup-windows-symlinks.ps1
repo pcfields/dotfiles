@@ -71,10 +71,6 @@ $Links = @(
         Target = Join-Path $realUserProfile ".claude\settings.json"
     },
     @{
-        Source = Join-Path $DotfilesRoot "claude\.claude\agents"
-        Target = Join-Path $realUserProfile ".claude\agents"
-    },
-    @{
         Source = Join-Path $DotfilesRoot "claude\.claude\skills"
         Target = Join-Path $realUserProfile ".claude\skills"
     },
