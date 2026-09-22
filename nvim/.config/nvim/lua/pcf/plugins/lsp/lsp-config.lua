@@ -95,7 +95,14 @@ return {
       },
       -- vtsls replaces ts_ls: better behaviour on monorepos and project
       -- references. Do not enable both, or every buffer gets two clients.
-      vtsls = {},
+      vtsls = {
+        settings = {
+          -- Update imports without asking when a file is renamed or moved in
+          -- mini.files/neo-tree (wired up through Snacks.rename)
+          typescript = { updateImportsOnFileMove = { enabled = "always" } },
+          javascript = { updateImportsOnFileMove = { enabled = "always" } },
+        },
+      },
 
       -- Infrastructure and config
       bashls = {},

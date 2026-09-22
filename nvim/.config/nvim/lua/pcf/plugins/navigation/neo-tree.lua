@@ -10,7 +10,19 @@ return { -- File explorer
     -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
   },
   config = function()
+    local events = require("neo-tree.events")
+
+    -- Tell the language servers about renamed/moved files so they update the
+    -- imports that point at them (e.g. vtsls in TS/JS projects)
+    local function on_move(data)
+      require("snacks").rename.on_rename_file(data.source, data.destination)
+    end
+
     require("neo-tree").setup({
+      event_handlers = {
+        { event = events.FILE_MOVED, handler = on_move },
+        { event = events.FILE_RENAMED, handler = on_move },
+      },
       reveal = true,
       filesystem = {
         follow_current_file = {
