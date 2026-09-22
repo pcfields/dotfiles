@@ -2,7 +2,6 @@ local icons = require("pcf.utils.icons")
 
 vim.diagnostic.config({
   signs = {
-    active = true,
     text = {
       [vim.diagnostic.severity.ERROR] = icons.diagnostics.BoldError,
       [vim.diagnostic.severity.WARN] = icons.diagnostics.BoldWarning,
