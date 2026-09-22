@@ -64,8 +64,5 @@ return {
     map({ "n" }, "<leader>jW", u.JumpToPreviousReference, { desc = "Jump to previous reference of word" })
 
     map({ "n", "v" }, "<A-o>", u.ToggleTerminal, { desc = "Toggle Terminal" })
-
-    -- NOTE: review Snacks Explorer to see if it can replace neo-tree
-    map({ "n", "v" }, "<leader>ox", u.Explorer, { desc = "Open Snacks explorer" })
   end,
 }

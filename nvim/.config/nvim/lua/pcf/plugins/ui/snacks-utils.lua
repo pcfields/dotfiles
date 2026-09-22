@@ -103,10 +103,6 @@ M.DisplayRegisters = function()
   Snacks.picker.registers()
 end
 
-M.Explorer = function()
-  Snacks.explorer()
-end
-
 M.ToggleTerminal = function()
   Snacks.terminal.toggle()
 end
