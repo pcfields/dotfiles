@@ -11,10 +11,15 @@ local execute_command_on_enclosing_node = utils_treesitter.execute_command_on_en
 local play_macro = utils_macros.play_macro
 local record_macro = utils_macros.record_macro
 
--- NOTE: I am using 'z' register for yanking and pasting
-local yank_register = '"z'
+-- How copy, delete and paste work in this config:
+--   * y, d, c, x and p are left as Neovim's defaults. They use Neovim's own
+--     internal register, never the system clipboard, because the 'clipboard'
+--     option is deliberately left unset. Deleting text in Neovim therefore
+--     cannot overwrite something copied in another app.
+--   * The system clipboard is only read or written through the explicit
+--     <leader>yc / <leader>dc / <leader>pc mappings below.
+--   * '"+' is Neovim's name for the system clipboard register.
 local clipboard_register = '"+'
-local delete_register = '"x'
 
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 map({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -46,25 +51,33 @@ map({ "n" }, "<leader>cfn", copy_file_name_to_clipboard, { desc = "Copy filename
 map({ "n" }, "<leader>cfp", copy_file_path_to_clipboard, { desc = "Copy file path to clipboard" })
 
 --------------------------------------------------------------------------------------------
--- Overwrite default yank and paste to use z register
+-- Delete and paste
 --------------------------------------------------------------------------------------------
-map({ "n", "v" }, "y", yank_register .. "y", { desc = "Yank to [" .. yank_register .. "] register" })
-map({ "n", "v" }, "p", yank_register .. "p", { desc = "Paste from [" .. yank_register .. "] register" })
-map({ "n", "v" }, "d", delete_register .. "d", { desc = "Delete and copy to [" .. delete_register .. "] register" })
+map({ "n" }, "<leader>de", "d$", { desc = "Delete to end of line" })
 
---------------------------------------------------------------------------------------------
--- Copy, delete and paste
---------------------------------------------------------------------------------------------
-map({ "n", "v" }, "<leader>dy", yank_register .. "dd", { desc = "Delete and copy to [" .. yank_register .. "] register" })
-map({ "n", "v" }, "<leader>de", delete_register .. "d$", { desc = "Delete to end of line" })
-map({ "n", "v" }, "<leader>pd", delete_register .. "p", { desc = "Paste from [" .. delete_register .. "] register" })
+-- After a delete, plain `p` pastes the deleted text (Neovim default).
+-- Register 0 always holds the last *yank* and deletes never overwrite it, so
+-- this pastes what you copied even if you deleted something since.
+map({ "n", "v" }, "<leader>py", '"0p', { desc = "Paste last yank (ignores deletes)" })
 
 --------------------------------------------------------------------------------------------
 -- Clipboard copy, delete and paste
 --------------------------------------------------------------------------------------------
-map({ "n", "v" }, "<leader>yc", clipboard_register .. "yy", { desc = "Copy to clipboard" })
+-- Normal and visual mode need separate mappings: in normal mode the command is
+-- doubled to act on the whole line (yy, dd), while in visual mode a single y/d
+-- acts on the selection. A doubled command in visual mode would act on the
+-- selection and then leave a second operator waiting for a motion.
+
+-- Copy to the clipboard, e.g. to paste into another app
+map({ "n" }, "<leader>yc", clipboard_register .. "yy", { desc = "Copy line to clipboard" })
+map({ "v" }, "<leader>yc", clipboard_register .. "y", { desc = "Copy selection to clipboard" })
+
+-- Paste from the clipboard, e.g. text copied in another app
 map({ "n", "v" }, "<leader>pc", clipboard_register .. "p", { desc = "Paste from clipboard" })
-map({ "n", "v" }, "<leader>dc", clipboard_register .. "dd", { desc = "Delete and copy to clipboard" })
+
+-- Cut: delete the text and put it on the clipboard
+map({ "n" }, "<leader>dc", clipboard_register .. "dd", { desc = "Cut line to clipboard" })
+map({ "v" }, "<leader>dc", clipboard_register .. "d", { desc = "Cut selection to clipboard" })
 
 --------------------------------------------------------------------------------------------
 -- File explorer -----------------------------------------------------------------------------------
@@ -218,66 +231,53 @@ map({ "n" }, "<leader>ft", "za", { desc = "Toggle fold under cursor" })
 --------------------------------------------------------------------------------------------
 -- Yank keymaps
 --------------------------------------------------------------------------------------------
---
-map({ "n", "v" }, "<leader>ye", yank_register .. "y$", { desc = "Yank till end of line" })
+map({ "n" }, "<leader>ye", "y$", { desc = "Yank till end of line" })
 
+-- The inside/around mappings below (yank, delete, select, change) find the
+-- nearest enclosing brackets or quotes with treesitter, so you don't have to
+-- type which one: <leader>di on `f(a, b)` runs `di(`, inside "text" it runs
+-- `di"`. They use the default register like plain y/d/c.
 local brackets_or_strings_text = " (...) or [...] or {...} or strings"
 
 map({ "n", "v" }, "<leader>yi", function()
-  local command_yank_inside_to_register_z = yank_register .. "yi"
-
-  execute_command_on_enclosing_node(command_yank_inside_to_register_z)
+  execute_command_on_enclosing_node("yi")
 end, { desc = "Yank inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>ya", function()
-  local command_yank_around_to_register_z = yank_register .. "ya"
-
-  execute_command_on_enclosing_node(command_yank_around_to_register_z)
+  execute_command_on_enclosing_node("ya")
 end, { desc = "Yank around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Delete Inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>di", function()
-  local command_delete_inside_save_to_delete_register = delete_register .. "di"
-
-  execute_command_on_enclosing_node(command_delete_inside_save_to_delete_register)
+  execute_command_on_enclosing_node("di")
 end, { desc = "Delete inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>da", function()
-  local command_delete_around_save_to_delete_register = delete_register .. "da"
-
-  execute_command_on_enclosing_node(command_delete_around_save_to_delete_register)
+  execute_command_on_enclosing_node("da")
 end, { desc = "Delete around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Select inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>vi", function()
-  local command_select_inside = "vi"
-
-  execute_command_on_enclosing_node(command_select_inside)
+  execute_command_on_enclosing_node("vi")
 end, { desc = "Select inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>va", function()
-  local command_select_around = "va"
-
-  execute_command_on_enclosing_node(command_select_around)
+  execute_command_on_enclosing_node("va")
 end, { desc = "Select around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Change inside and around keymaps
 --------------------------------------------------------------------------------------------
 map({ "n", "v" }, "<leader>ci", function()
-  local command_change_inside_save_to_delete_register = delete_register .. "ci"
-
-  execute_command_on_enclosing_node(command_change_inside_save_to_delete_register)
+  execute_command_on_enclosing_node("ci")
 end, { desc = "Change inside " .. brackets_or_strings_text })
 
 map({ "n", "v" }, "<leader>ca", function()
-  local command_change_around_save_to_delete_register = delete_register .. "ca"
-
-  execute_command_on_enclosing_node(command_change_around_save_to_delete_register)
+  execute_command_on_enclosing_node("ca")
 end, { desc = "Change around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
