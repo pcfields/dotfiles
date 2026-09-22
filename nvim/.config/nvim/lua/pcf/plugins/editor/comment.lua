@@ -19,12 +19,11 @@ return {
       return option == "commentstring" and require("ts_context_commentstring.internal").calculate_commentstring() or get_option(filetype, option)
     end
 
-    -- Custom keymaps for line and block comments
+    -- Custom keymaps for line comments. Native commenting has no block-comment
+    -- operator (`gb`/`gbc` came from Comment.nvim), so there is no block variant.
     local map = require("pcf.utils").map
 
     map({ "n" }, "<leader>cl", "gcc", { desc = "Toggle line comment", remap = true })
     map({ "v" }, "<leader>cl", "gc", { desc = "Toggle line comment", remap = true })
-    map({ "n" }, "<leader>cb", "gbc", { desc = "Toggle block comment", remap = true })
-    map({ "v" }, "<leader>cb", "gb", { desc = "Toggle block comment", remap = true })
   end,
 }
