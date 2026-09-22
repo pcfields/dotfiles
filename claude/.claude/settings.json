@@ -1,17 +1,48 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "opus",
+  "theme": "auto",
+  "autoUpdatesChannel": "latest",
+  "agentPushNotifEnabled": true,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "sandbox": {
+    "enabled": true
+  },
   "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch --show-current)",
+      "Bash(rg:*)",
+      "Bash(ls:*)",
+      "Bash(jq:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
+    ],
     "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/credentials)",
+      "Read(~/.config/gh/hosts.yml)",
       "Bash(rm -rf /*)",
       "Bash(rm -rf ~)",
       "Bash(mkfs*)",
       "Bash(dd if=* of=/dev/*)"
     ]
   },
-  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Read|Edit|Write",
         "hooks": [
           {
             "type": "command",
@@ -29,7 +60,5 @@
         ]
       }
     ]
-  },
-  "autoUpdatesChannel": "latest",
-  "theme": "auto"
+  }
 }
