@@ -19,6 +19,22 @@ return { -- File explorer
     end
 
     require("neo-tree").setup({
+      -- Navigate like mini.files: l goes in, h goes out, L opens and closes the
+      -- tree. <cr> still opens, <bs> moves the root up, H toggles hidden files.
+      window = {
+        mappings = {
+          ["l"] = "open", -- expand a folder / open a file (replaces focus_preview; P still toggles preview)
+          ["h"] = "close_node", -- collapse the folder, or jump to and collapse the parent
+          ["L"] = function(state)
+            local node = state.tree:get_node()
+            state.commands.open(state)
+            if node.type == "file" then
+              require("neo-tree.command").execute({ action = "close" })
+            end
+          end,
+          ["g?"] = "show_help",
+        },
+      },
       event_handlers = {
         { event = events.FILE_MOVED, handler = on_move },
         { event = events.FILE_RENAMED, handler = on_move },
