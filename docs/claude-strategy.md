@@ -25,9 +25,7 @@ claude/.claude/
 │   ├── protect-secrets.sh           # PreToolUse(Edit|Write) — blocks secret-shaped paths
 │   └── block-catastrophic-bash.sh   # PreToolUse(Bash) — blocks destructive commands
 └── skills/
-    ├── bug-debugging/SKILL.md       # reproduce → hypothesize → isolate → fix → verify
-    ├── commit-message/SKILL.md      # Haiku, forked, explicit-invoke only
-    └── explain-code/SKILL.md        # structured explanation for a human reader
+    └── commit-message/SKILL.md      # Haiku, forked, explicit-invoke only
 ```
 
 `CLAUDE.md` also routes to skills that live outside this package but ship
@@ -51,8 +49,6 @@ with Claude Code: `code-review`, `security-review`, and `simplify`.
   delegation map, definition-of-done, cost-efficiency rules) loads into
   every session automatically — these are prompt-level defaults, not
   tool-enforced, but they apply without you invoking anything.
-- `bug-debugging` and `explain-code` are model-invocable: Claude can reach
-  for them on its own when a task matches, without you naming them.
 - Sonnet is the default model for the main loop unless you switch it.
 
 **Manual — requires a deliberate invocation:**
@@ -121,10 +117,8 @@ goal, not an afterthought:
   edits): run `code-review` at medium effort on the diff before handing
   back, noting what was addressed vs. deliberately left.
 
-This, plus `test-writer`'s escalation rule (§3) and the `bug-debugging`
-skill's reproduce → hypothesize → isolate → smallest-fix → verify
-discipline, is what makes "well-tested" an enforced step rather than a
-value statement.
+This, plus `test-writer`'s escalation rule (§3), is what makes
+"well-tested" an enforced step rather than a value statement.
 
 ## 6. Delegation & Skills Map
 
@@ -140,8 +134,6 @@ job":
 | Generate tests for existing code | `test-writer` (Haiku, escalates when needed) |
 | Hard architecture/root-cause/security review | `deep-review` (Opus, use sparingly) |
 | Draft a commit message from staged changes | `commit-message` skill |
-| Investigate a bug | `bug-debugging` skill |
-| Explain unfamiliar code to a human | `explain-code` skill |
 | Review a diff for correctness/cleanup | `code-review` / `simplify` skills |
 | Check a diff for security issues | `security-review` skill |
 

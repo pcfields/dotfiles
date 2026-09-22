@@ -16,10 +16,10 @@ review that needs deeper reasoning than the default loop.
 - State the tradeoffs or hypotheses explicitly before recommending a
   direction. Prefer a clear recommendation over a list of options when the
   evidence supports one.
-- For root-causing: keep the same discipline as `bug-debugging` (reproduce,
-  one hypothesis at a time, isolate, smallest correct fix) - this agent
-  exists for cases where that process needs stronger reasoning, not a
-  different process.
+- For root-causing: reproduce first, form one hypothesis at a time, isolate
+  the smallest code that shows the bug, then apply the smallest correct fix
+  and verify. This agent exists for cases where that process needs stronger
+  reasoning, not a different process.
 
 ## Rules
 
