@@ -1,8 +1,8 @@
 # Global instructions
 
 Personal defaults for every project, on any machine. Project-level CLAUDE.md
-adds detail on top of this — keep this file short since it loads into every
-session's context.
+adds detail on top of this. Keep this file short: it loads into every session.
+Anything a setting or hook can enforce belongs in `settings.json`, not here.
 
 ## Communication
 
@@ -17,6 +17,8 @@ session's context.
 
 - Understand the current behavior and constraints before editing.
 - Prefer small, reversible changes over big rewrites. Match existing style.
+- For bug fixes, reproduce the bug with a failing test first when the project
+  has a test suite, then make it pass.
 - If confidence is low, say so and propose a safe next step instead of
   guessing.
 
@@ -27,61 +29,18 @@ session's context.
 - Explicit data flow: pass data as arguments, return results. Avoid hidden
   state and implicit mutation.
 - Small functions that each do one thing. Extract only when a pattern
-  actually repeats — no speculative abstraction.
+  actually repeats. No speculative abstraction.
 
 ## Commits
 
-- Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`,
-  `chore:`, `perf:`, `style:`, `build:`, `ci:`.
-- Small, focused commits — one logical change each.
-- Split by type of work, not just by file: feature work, bug fixes, refactors,
-  chores, and docs each get their own commit, even when they touch the same
-  file (e.g. `package.json`). If unrelated pre-existing bugs are fixed while
-  doing the main task, commit those separately from the primary change.
-- Propose this split proactively when preparing a commit — don't wait to be
-  asked to break work into multiple commits.
-- When one file has changes for multiple logical commits, stage and commit
-  incrementally (edit the file back to an intermediate state, stage, commit,
-  repeat) rather than committing everything together.
-- Do not include `Co-Authored-By: Claude ...` trailers in commit messages.
-
-## Delegation map
-
-Prefer the cheapest tool that can correctly do the job.
-
-| Need | Use |
-|---|---|
-| Find files, search code, map a codebase before planning | built-in `Explore` agent |
-| Multi-step research/execution that isn't code search | built-in `general-purpose` agent |
-| Single-file mechanical edit (rename, config tweak, constant, typo) | `small-edits` subagent (Haiku) |
-| README / comments / changelog only | `docs` subagent (Haiku) |
-| Generate tests for existing code | `test-writer` subagent (Haiku) |
-| Hard architecture tradeoffs, gnarly root-causing, security-sensitive design review | `deep-review` subagent (Opus) — use sparingly, this is the expensive tier |
-
-## Skills map
-
-| Task | Skill |
-|---|---|
-| Draft a commit message from staged changes | `commit-message` |
-| Review a diff for correctness/cleanup | `code-review` / `simplify` skills |
-| Check a diff for security issues | `security-review` skill |
+- Conventional commits, one logical change each. Use the `commit` skill when
+  preparing commits.
 
 ## Definition of done
 
-- Before calling a task complete: run the project's test suite and any
-  linter/type-checker; fix failures or report them explicitly — never
-  declare done with red tests.
-- For non-trivial changes (new logic, bug fixes — not docs or mechanical
-  edits), run the `code-review` skill (medium effort) on the diff before
-  handing back, and note what was addressed vs. deliberately left.
-
-## Cost efficiency
-
-- Default to low/medium reasoning effort; reserve high effort for genuinely
-  hard architectural or correctness questions.
-- Prefer Grep/Glob over reading whole files; read only the slice you need.
-- Batch independent reads/searches in parallel instead of sequentially.
-- Delegate search, exploration, and mechanical edits per the table above
-  instead of doing them in the main loop.
-- Use `/clear` between unrelated tasks rather than letting context grow
-  across topics.
+- Run the project's tests and any linter/type-checker before calling a task
+  complete. Fix failures or report them explicitly. Never declare done with
+  red tests.
+- For non-trivial changes (new logic, bug fixes; not docs or mechanical
+  edits), run `/code-review low` on the diff before handing back, and note
+  what was addressed vs. deliberately left.
