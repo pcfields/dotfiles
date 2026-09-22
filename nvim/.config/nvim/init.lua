@@ -31,7 +31,6 @@ plugin_manager.setup({
   plugin("editor.flash"),
   plugin("editor.local-highlight"),
   plugin("editor.nvim-surround"),
-  plugin("editor.refactoring"),
   plugin("editor.todo-comments"),
   plugin("editor.treesitter"),
   plugin("editor.trouble"),
