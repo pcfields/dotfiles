@@ -31,11 +31,10 @@ function M.copy_file_name_to_clipboard()
   vim.fn.setreg("+", filename)
 end
 
+-- Snacks.bufdelete keeps the window open (showing another buffer) and asks
+-- whether to save when the buffer has unsaved changes.
 function M.close_buffer_and_keep_split()
-  local current_buffer = vim.api.nvim_get_current_buf()
-
-  vim.cmd("bnext")
-  vim.api.nvim_buf_delete(current_buffer, { force = false })
+  require("snacks").bufdelete()
 end
 
 function M.is_windows_platform()

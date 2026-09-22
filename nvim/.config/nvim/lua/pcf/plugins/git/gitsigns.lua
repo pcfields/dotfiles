@@ -25,8 +25,8 @@ return {
         changedelete = { text = "~" },
         untracked = { text = "┆" },
       },
-      on_attach = function()
-        map("n", "<leader>go", gitsigns.toggle_current_line_blame, { desc = "Git toggle blame line" })
+      on_attach = function(bufnr)
+        map("n", "<leader>go", gitsigns.toggle_current_line_blame, { desc = "Git toggle blame line", buffer = bufnr })
       end,
     })
   end,

@@ -6,6 +6,10 @@ return { -- Pretty cmdline, messages, and search UI
   },
   config = function()
     require("noice").setup({
+      lsp = {
+        -- blink.cmp already shows signature help (signature.enabled in blink.lua)
+        signature = { enabled = false },
+      },
       views = {
         cmdline_popup = {
           position = {
