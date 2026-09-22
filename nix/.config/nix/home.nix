@@ -77,6 +77,7 @@
     ripgrep             # rg  — fast grep replacement
     fd                  # fast find replacement
     fzf                 # fuzzy finder
+    jq                  # JSON parser; required by Claude Code hooks
     bat                 # cat with syntax highlighting
     eza                 # modern ls replacement
     yazi                # fast file navigator

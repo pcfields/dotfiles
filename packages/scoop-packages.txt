@@ -13,6 +13,7 @@ lazygit
 wezterm
 zoxide
 fzf
+jq                      # JSON parser; required by Claude Code hooks
 ripgrep
 delta
 
