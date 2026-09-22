@@ -9,6 +9,8 @@ end
 local snippet = luasnip.snippet
 local insert_node = luasnip.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
+-- rep(n) repeats whatever was typed into insert node n
+local rep = require("luasnip.extras").rep
 
 -- Basic React component snippets (JavaScript)
 local react_js_snippets = {
@@ -72,10 +74,10 @@ export function {}({{ {} }}: {}Props) {{
       {
         insert_node(1, "ComponentName"),
         insert_node(2, ""),
-        insert_node(3, "ComponentName"),
+        rep(1),
+        insert_node(3, ""),
+        rep(1),
         insert_node(4, ""),
-        insert_node(5, "ComponentName"),
-        insert_node(6, ""),
       }
     )
   ),
@@ -100,10 +102,10 @@ export function {}({{ {} }}: {}Props) {{
       {
         insert_node(1, "ComponentName"),
         insert_node(2, ""),
-        insert_node(3, "ComponentName"),
+        rep(1),
+        insert_node(3, ""),
+        rep(1),
         insert_node(4, ""),
-        insert_node(5, "ComponentName"),
-        insert_node(6, ""),
       }
     )
   ),
