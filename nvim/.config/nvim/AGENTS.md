@@ -17,7 +17,7 @@
 - Auto-format on save via conform.nvim
 - JS/TS: biome (preferred), prettier fallback
 - Lua: stylua
-- Linters: biomejs, eslint_d for JS/TS
+- Linting: the biome and eslint language servers for JS/TS (no nvim-lint)
 
 ## Code Style
 - **Indentation**: 2 spaces for Lua/JS/TS/JSON

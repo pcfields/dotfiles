@@ -85,7 +85,7 @@ mise install                                                            # runtim
 
 ## Neovim config
 
-`nvim/.config/nvim/` is a self-contained Lua config under the `pcf` namespace (`lua/pcf/`), plugin-per-file under `lua/pcf/plugins/<category>/`, managed by lazy.nvim (`lazy-lock.json`). It has its **own `nvim/.config/nvim/AGENTS.md`** with test/format/style conventions — read it before touching nvim code. Key points: tabs (width 4) for Lua / 2 spaces for JS-TS, stylua for Lua formatting, biome preferred for JS/TS, tests via neotest, and `require("pcf.utils").map()` for keymaps.
+`nvim/.config/nvim/` is a self-contained Lua config under the `pcf` namespace (`lua/pcf/`), plugin-per-file under `lua/pcf/plugins/<category>/`, managed by lazy.nvim (`lazy-lock.json`). It has its **own `nvim/.config/nvim/AGENTS.md`** with test/format/style conventions — read it before touching nvim code. Key points: 2-space indentation for Lua and JS/TS, stylua for Lua formatting, biome preferred for JS/TS, tests via neotest, and `require("pcf.utils").map()` for keymaps.
 
 ## Conventions
 
