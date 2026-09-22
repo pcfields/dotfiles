@@ -115,6 +115,17 @@ M.TodoComments = function()
   Snacks.picker.todo_comments()
 end
 
+-- Jump to the next reference highlighted by snacks.words, wrapping around
+-- to the first one after the last
+M.JumpToNextReference = function()
+  Snacks.words.jump(1, true)
+end
+
+-- Same, backwards: wraps to the last reference from the first
+M.JumpToPreviousReference = function()
+  Snacks.words.jump(-1, true)
+end
+
 M.Notifications = function()
   Snacks.picker.notifications()
 end

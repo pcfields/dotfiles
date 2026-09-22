@@ -59,6 +59,10 @@ return {
     map({ "n", "v" }, "<leader>ot", u.TodoComments, { desc = "Open Todo Comments" })
     map({ "n", "v" }, "<leader>on", u.Notifications, { desc = "Open Notification History" })
 
+    -- Jump
+    map({ "n" }, "<leader>jw", u.JumpToNextReference, { desc = "Jump to next reference of word" })
+    map({ "n" }, "<leader>jW", u.JumpToPreviousReference, { desc = "Jump to previous reference of word" })
+
     map({ "n", "v" }, "<A-o>", u.ToggleTerminal, { desc = "Toggle Terminal" })
 
     -- NOTE: review Snacks Explorer to see if it can replace neo-tree
