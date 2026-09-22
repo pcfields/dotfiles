@@ -4,44 +4,53 @@ mode: primary
 model: github-copilot/claude-sonnet-5
 temperature: 0.1
 permission:
-  edit: ask
+  edit:
+    "*": allow
+    "*.env": ask
+    "*.env.*": ask
+    "*package-lock.json": ask
+    "*pnpm-lock.yaml": ask
+    "*yarn.lock": ask
+    "*Cargo.lock": ask
+    "*flake.lock": ask
+    "*.github/workflows/*": ask
   bash:
-    "*": ask
-    "git status": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git rev-parse*": allow
-    "git branch*": allow
-    "git switch*": allow
-    "git checkout*": allow
-    "git stash*": allow
     "git add*": allow
-    "ls*": allow
-    "cat*": allow
-    "rg*": allow
-    "fd*": allow
-    "find*": allow
-    "tree*": allow
-    "wc*": allow
-    "stat*": allow
+    "git switch*": allow
+    "git stash": allow
+    "git stash push*": allow
+    "git restore --staged*": allow
     "npm test*": allow
-    "npm run*": allow
-    "npx*": allow
-    "node*": allow
-    "pnpm*": allow
-    "yarn*": allow
-    "bun*": allow
-    "jest*": allow
+    "npm run test*": allow
+    "npm run lint*": allow
+    "npm run typecheck*": allow
+    "npm run build*": allow
+    "pnpm test*": allow
+    "pnpm lint*": allow
+    "pnpm typecheck*": allow
+    "pnpm build*": allow
+    "yarn test*": allow
+    "bun test*": allow
+    "npx vitest*": allow
+    "npx jest*": allow
+    "npx tsc*": allow
+    "npx biome check*": allow
     "vitest*": allow
+    "jest*": allow
     "cargo test*": allow
     "cargo check*": allow
+    "cargo clippy*": allow
+    "cargo build*": allow
+    "cargo fmt*": allow
     "go test*": allow
     "go build*": allow
-    "python*": allow
-    "python3*": allow
+    "go vet*": allow
     "pytest*": allow
-    "make*": allow
+    "make test*": allow
+    "make check*": allow
+    "make lint*": allow
+    "stylua*": allow
+    "biome*": allow
   task:
     "*": deny
     explore: allow
@@ -55,8 +64,9 @@ by the permissions above and the safety invariants in the global
 
 If the user references a plan file (`docs/plans/...`), read only that
 file — not any planning conversation that produced it — and work from it.
-If no plan file is given, treat the task as low risk: implement, verify,
-done.
+If no plan file is given, classify the risk yourself first (see the global
+`AGENTS.md`). Low risk: implement, verify, done. Medium/high risk: stop
+and suggest planning in the `plan` agent first.
 
 ## TDD as a technique (medium/high-risk work)
 

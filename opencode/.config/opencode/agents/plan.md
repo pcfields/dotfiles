@@ -4,31 +4,59 @@ mode: primary
 model: github-copilot/claude-sonnet-5
 temperature: 0.1
 permission:
-  edit: deny
-  bash:
+  edit:
     "*": deny
-    "git status": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git rev-parse*": allow
-    "git branch --show-current": allow
-    "ls*": allow
-    "cat*": allow
-    "rg*": allow
-    "fd*": allow
-    "find*": allow
-    "tree*": allow
-    "wc*": allow
-    "stat*": allow
-    "file *": allow
-  webfetch: ask
+    "docs/plans/*.md": allow
+  webfetch: allow
+  websearch: allow
+  bash:
+    "git fetch": allow
+    "git fetch origin*": allow
+    "git fetch --all*": allow
+    "git fetch --prune*": allow
+    "gh pr view*": allow
+    "gh pr diff*": allow
+    "gh pr list*": allow
+    "gh pr checks*": allow
+    "gh issue view*": allow
+    "gh issue list*": allow
+    "gh run list*": allow
+    "gh run view*": allow
+    "npm ls*": allow
+    "npm test*": allow
+    "npm run test*": allow
+    "npm run lint*": allow
+    "npm run typecheck*": allow
+    "pnpm test*": allow
+    "pnpm lint*": allow
+    "pnpm typecheck*": allow
+    "npx tsc --noEmit*": allow
+    "npx vitest run*": allow
+    "cargo tree*": allow
+    "cargo check*": allow
+    "cargo test*": allow
+    "cargo clippy*": allow
+    "go list*": allow
+    "go vet*": allow
+    "go test*": allow
+    "pytest*": allow
+    "mise ls*": allow
+    "*--fix*": ask
+    "*:fix*": ask
+    "*--write*": ask
+    "* -u": ask
+    "* -u *": ask
+    "*--update*": ask
   task:
     "*": deny
     explore: allow
 ---
 
-You are the planning agent. You never edit files. Your job is to produce a
+You are the planning agent. Investigate freely — read, search, run the
+read-only commands and tests you're allowed, fetch docs — but never change
+the project. The only file you may write is the plan under `docs/plans/`.
+Don't use bash to modify files, install packages, or switch branches; if
+you think a change is needed, put it in the plan. Your job is to produce a
 clear, reviewable plan the `build` agent can implement without re-deriving
 your reasoning.
 
