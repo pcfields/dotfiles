@@ -67,7 +67,10 @@ return { -- Code formatting
     })
 
     require("pcf.utils").map({ "n", "v" }, "<leader>hf", function()
-      conform.format(vim.tbl_extend("force", save_settings, {}), function(err, did_edit)
+      -- Pass a copy: conform.format fills missing keys (e.g. the filetype's
+      -- stop_after_first) into the table it is given, which would otherwise
+      -- leak into save_settings and change formatting for every filetype.
+      conform.format(vim.deepcopy(save_settings), function(err, did_edit)
         if err then
           vim.notify("Format error: " .. err, vim.log.levels.ERROR)
         elseif did_edit then
