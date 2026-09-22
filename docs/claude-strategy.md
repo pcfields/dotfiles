@@ -50,7 +50,12 @@ Linux, scoop on Windows) because the hooks parse their input with it.
 
 **Enforced by the harness (`settings.json`):**
 
-- `model: opus` for the main loop.
+- `model: opusplan`: Opus in plan mode, Sonnet once a plan is approved. The
+  model switch at approval breaks the prompt cache, but that is also the
+  point to clear context, so it costs little. `showClearContextOnPlanAccept`
+  adds a "clear context" choice to the approval dialog so both happen in one
+  step. Override per machine with the
+  `ANTHROPIC_MODEL` environment variable, set outside the repo (see §6).
 - `attribution` set to empty strings, so commits and PRs carry no
   Co-Authored-By trailer or generated-by line.
 - `sandbox.enabled`: on Linux, Bash runs under bubblewrap with filesystem
@@ -103,6 +108,18 @@ diff before committing. It never pushes or rewrites history unless asked.
 - Skills load only when used.
 - Reasoning effort is a session control (`/effort`), not a prose rule.
 - No custom subagents: see principle 4.
+- Choose the model at the start of a session. Switching mid-session throws
+  away the prompt cache, so the next turn re-reads everything at full price.
+- Accounts differ: work (Windows) is an enterprise plan billed per token under
+  a cost limit; personal (Linux) is a Pro subscription limited by a usage
+  allowance. `opusplan` suits both. To override on one machine only:
+  - Windows: `$env:ANTHROPIC_MODEL = "sonnet"` in `powershell/local-private.ps1`
+    (untracked).
+  - Linux: `set -Ux ANTHROPIC_MODEL sonnet` (stored in the gitignored
+    `fish_variables`).
+
+  Confirm the model in effect with `/status`; enterprise managed settings can
+  override both.
 
 ## 7. Solo vs. team
 
