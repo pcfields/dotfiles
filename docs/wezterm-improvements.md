@@ -83,7 +83,7 @@ under a scanned root, press `LEADER+p` without reloading, confirm it appears.
 
 The comment is wrong: this matches against `label`, not the path. For globbed
 entries the label is already a bare folder name, so the match is a no-op; for
-manual entries it yields display text with spaces (`GliderBim WebApp`) as a
+manual entries it yields display text with spaces (`My Project`) as a
 workspace name. The real bug is that two projects sharing a folder name under
 different roots produce the *same* workspace name, so opening the second one
 silently switches to the first one's workspace instead of opening it.
@@ -418,9 +418,10 @@ each needs its own discussion first.
 - **`hyperlink_rules`** for clickable ticket and PR references. Blocked on the
   local-private extraction below, since the URLs are employer-specific.
 - **`wezterm/local-private.lua`** (untracked, mirroring the existing
-  `powershell/local-private.ps1` pattern) to hold project profiles and work paths.
-  Note that `project_profiles.work` currently commits employer and client path
-  names (lines 111, 125), which sits awkwardly with `docs/secrets.md`.
+  `powershell/local-private.ps1` pattern) for employer-specific config such as
+  the hyperlink rules above. The work profile no longer pins individual
+  projects, so no employer project paths are committed; it only scans the
+  `C:/Projects` root.
 - **Splitting the file into modules** under `wezterm/.config/wezterm/`, mirroring
   the Neovim `lua/pcf/` layout. The eight `=====` banner comments are doing the job
   real files should. Requires a change to the Windows symlink script.

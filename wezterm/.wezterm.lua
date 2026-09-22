@@ -108,16 +108,6 @@ local performance_config = {
 local project_profiles = {
 	work = {
 		root = "C:/Projects",
-		manual = {
-			{
-				path = "C:/Projects/gliderbim.webapp/GliderBim.WebApp",
-				label = "GliderBim WebApp",
-			},
-			-- Additional work projects can be added here
-		},
-		exclude = {
-			"C:/Projects/gliderbim.webapp", -- Exclude parent folder since we use the inner path
-		},
 	},
 	personal = {
 		root = platform.home_dir .. "/ws",
