@@ -29,7 +29,6 @@ plugin_manager.setup({
   plugin("editor.code-indentation"),
   plugin("editor.comment"),
   plugin("editor.flash"),
-  plugin("editor.local-highlight"),
   plugin("editor.nvim-surround"),
   plugin("editor.todo-comments"),
   plugin("editor.treesitter"),
