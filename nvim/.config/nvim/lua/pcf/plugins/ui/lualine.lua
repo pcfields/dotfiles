@@ -12,7 +12,9 @@ return { -- Neovim statusline plugin
     require("lualine").setup({
       options = {
         icons_enabled = true,
-        theme = "palenight", -- auto | palenight | ayu_dark | ayu_mirage | codedark
+        -- auto uses the active colorscheme's own lualine theme when it ships one
+        -- (rose-pine, nightfox and oldworld all do), so it follows active_theme in themes/init.lua
+        theme = "auto", -- auto | palenight | ayu_dark | ayu_mirage | codedark
         component_separators = "",
         section_separators = "",
         disabled_filetypes = {
