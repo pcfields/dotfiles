@@ -13,7 +13,7 @@ add config files to. A project's own `CLAUDE.md` layers on top.
    it goes in `settings.json`, not `CLAUDE.md`. Prose instructions compete
    with harness defaults and the model's own judgment; settings don't.
 2. **`CLAUDE.md` holds only what is relevant in every session.** Occasional
-   procedures (committing) live in skills, which load only when used.
+   procedures (committing, TDD) live in skills, which load only when used.
 3. **The sandbox is the safety boundary.** Hooks and deny rules are defense
    in depth. They must parse their input correctly, but nothing relies on
    them alone.
@@ -35,7 +35,8 @@ claude/.claude/
 │   ├── block-catastrophic-bash.sh   # PreToolUse(Bash): blocks destructive commands
 │   └── test-hooks.sh                # regression fixtures for both hooks
 └── skills/
-    └── commit/SKILL.md              # plan + create commits split by concern
+    ├── commit/SKILL.md              # plan + create commits split by concern
+    └── tdd/SKILL.md                 # Canon TDD: test list, one test at a time, refactor while green
 ```
 
 `CLAUDE.md` also routes to skills that ship with Claude Code:
@@ -82,19 +83,32 @@ Linux, scoop on Windows) because the hooks parse their input with it.
   (`bash -c "rm -rf /"`); `test-hooks.sh` pins that case.
 
 **Guidance (`CLAUDE.md`, prompt-level):** communication style, working
-discipline, coding principles, a one-line commit rule pointing at the
-`commit` skill, and the definition of done.
+discipline, coding principles, one-line commit and TDD rules pointing at
+the `commit` and `tdd` skills, and the definition of done.
 
 ## 4. Definition of done
 
 - Run the project's tests and any linter/type-checker before calling a task
   complete. Red tests never mean "done."
-- Bug fixes start with a failing test that reproduces the bug, when the
-  project has a test suite.
+- New logic and bug fixes go through the `tdd` skill's procedure (§5) when
+  the project has a test suite.
 - Non-trivial changes get `/code-review low` on the diff before handing
   back. Low effort keeps the gate cheap enough to run every time.
 
-## 5. Commits
+## 5. Test-driven development
+
+Canon TDD (Kent Beck,
+[newsletter.kentbeck.com/p/canon-tdd](https://newsletter.kentbeck.com/p/canon-tdd))
+is the default technique for new logic and bug fixes, when the project has
+a test suite — not a mandate for docs, pure config, or mechanical renames.
+The `tdd` skill holds the full procedure so it isn't loaded into every
+session: build a test list of behavior variants, convert one item into a
+runnable test at a time, make it pass for real (faking the implementation
+is fine as a first step — a later test forces a general solution via
+triangulation; faking the assertion itself never is), and refactor only
+while green. Bug fixes always start with a failing regression test.
+
+## 6. Commits
 
 The `commit` skill holds the full procedure so it isn't loaded into every
 session: it proposes a split by concern, **waits for confirmation**, stages
@@ -102,7 +116,7 @@ partial files with `git apply --cached` on a hunk patch (never by editing
 the working tree back to an intermediate state), and verifies each staged
 diff before committing. It never pushes or rewrites history unless asked.
 
-## 6. Cost
+## 7. Cost
 
 - `CLAUDE.md` is short on purpose: every line is billed on every turn.
 - Skills load only when used.
@@ -121,14 +135,14 @@ diff before committing. It never pushes or rewrites history unless asked.
   Confirm the model in effect with `/status`; enterprise managed settings can
   override both.
 
-## 7. Solo vs. team
+## 8. Solo vs. team
 
 Nothing here forks behavior by context. A project's own `CLAUDE.md` adds
 team rules (PR templates, code owners, stricter review) on top, and the
 sandbox, permissions, hooks and definition of done apply regardless of
 whose repo it is.
 
-## 8. Verifying changes
+## 9. Verifying changes
 
 ```bash
 bash claude/.claude/hooks/test-hooks.sh     # hook regression fixtures

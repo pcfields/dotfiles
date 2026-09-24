@@ -17,9 +17,6 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
 
 - Understand the current behavior and constraints before editing.
 - Prefer small, reversible changes over big rewrites. Match existing style.
-- Before writing new logic or fixing a bug, write a failing test for the
-  behavior first when the project has a test suite, then implement to make
-  it pass.
 - If confidence is low, say so and propose a safe next step instead of
   guessing.
 
@@ -31,6 +28,12 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
   state and implicit mutation.
 - Small functions that each do one thing. Extract only when a pattern
   actually repeats. No speculative abstraction.
+
+## Test-driven development
+
+- Default technique for new logic and bug fixes, when the project has a test
+  suite: build a test list, take one test at a time, make it pass for real,
+  refactor only while green. Use the `tdd` skill for the full procedure.
 
 ## Commits
 
