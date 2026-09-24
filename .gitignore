@@ -3,3 +3,5 @@ plugin
 powershell/local-private.ps1
 .install-state
 fish/.config/fish/fish_variables
+claude/.claude/skills/.trash/
+claude/.claude/skills/synced/
