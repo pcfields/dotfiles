@@ -17,8 +17,9 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
 
 - Understand the current behavior and constraints before editing.
 - Prefer small, reversible changes over big rewrites. Match existing style.
-- For bug fixes, reproduce the bug with a failing test first when the project
-  has a test suite, then make it pass.
+- Before writing new logic or fixing a bug, write a failing test for the
+  behavior first when the project has a test suite, then implement to make
+  it pass.
 - If confidence is low, say so and propose a safe next step instead of
   guessing.
 
