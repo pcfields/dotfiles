@@ -42,26 +42,35 @@ add ceremony for its own sake.
 ## 3. TDD as a Technique, Not a Mandate
 
 TDD is the default implementation technique inside **medium and high-risk**
-work. It is not required for low-risk changes.
+work. It is not required for low-risk changes. The technique is Canon TDD
+(Kent Beck, https://newsletter.kentbeck.com/p/canon-tdd):
 
-**Red → Green → Refactor:**
-
-1. Agree the test seam (the public interface being tested) before writing
-   any test.
-2. **RED** — write one test for one behavior. Run it. Confirm it fails for
-   the expected reason (missing behavior), not a typo or setup error.
-3. **GREEN** — write the minimal code to pass. No speculative generality.
-4. **REFACTOR** — clean up only while green.
-5. **VERIFY** — run the targeted test, then the relevant suite, typecheck,
-   lint, and build before claiming done.
+1. **Test list** — before writing any test, list the behavior variants
+   expected: normal cases, edges, errors. Keep it visible and add newly
+   discovered cases to it as you learn more.
+2. **RED** — agree the test seam (the public interface being tested), then
+   convert exactly one list item into one concrete, runnable test. Run it.
+   Confirm it fails for the expected reason (missing behavior), not a typo
+   or setup error. Picking order matters — prefer the case that teaches
+   the most about the design over the hardest one first; this is a skill,
+   not a formula.
+3. **GREEN** — make it pass for real: "make it run, then make it right."
+   Faking the implementation (hardcoding a return value) to get to green
+   fast is fine as a first step; a later test should force a more general
+   solution (triangulation). Never fake it by weakening the assertion or
+   copying the computed output into the expected value — both destroy what
+   the test is for.
+4. **REFACTOR** — clean up only while green, and only optionally.
+5. **VERIFY**, then repeat from step 2 until the list is empty.
 
 **Bug fixes** always start with a failing regression test that reproduces
 the reported symptom, regardless of risk tier.
 
 **Anti-patterns to reject:** tests written after the implementation,
 tautological assertions that recompute the code's own logic, mocking
-internals instead of testing through the public seam, writing all tests
-before any implementation.
+internals instead of testing through the public seam, writing every test
+on the list before making any of them pass (horizontal slicing instead of
+one item at a time).
 
 **Exceptions:** documentation, pure config with no branching logic,
 generated code, throwaway prototypes, mechanical renames verified by

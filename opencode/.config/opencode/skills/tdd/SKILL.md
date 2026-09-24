@@ -1,13 +1,26 @@
 ---
 name: tdd
-description: Use when implementing a feature or bugfix for medium/high-risk work, before writing implementation code. Covers seam discipline, the red-green-refactor loop, and anti-patterns to reject.
+description: Use when implementing a feature or bugfix for medium/high-risk work, before writing implementation code. Covers the test list, seam discipline, the red-green-refactor loop (including fake-it/triangulate), and anti-patterns to reject.
 ---
 
 # Test-Driven Development
 
 Write the test first. Watch it fail. Write minimal code to pass. This is
 the technique used inside medium and high-risk work (see the core rule in
-the global `AGENTS.md`) — not a mandate for every change.
+the global `AGENTS.md`) — not a mandate for every change. Based on Kent
+Beck's Canon TDD (https://newsletter.kentbeck.com/p/canon-tdd).
+
+## Test list
+
+Before writing the first test, list the behavior variants expected —
+normal cases, edges, errors. Keep it visible: a comment, a scratch note,
+or the plan file. Convert exactly one item to a test at a time; don't
+convert the whole list to tests before making any of them pass, and add
+newly discovered cases back to the list instead of chasing them mid-test.
+
+Picking order matters — prefer the case that teaches the most about the
+design over the hardest one first. This is a skill that improves with
+practice, not a fixed formula.
 
 ## Seams — where tests go
 
@@ -46,8 +59,14 @@ behavior, not the change you're making.
 
 ### GREEN
 
-Write the simplest code that passes. No speculative generality, no
-unrelated refactors, no parameters or options the test doesn't ask for.
+Make it pass for real — "make it run, then make it right." Hardcoding a
+return value to get to green fast is fine as a first step; a later test on
+the list should force a more general solution (triangulation). What's
+never allowed: faking it by deleting or weakening the assertion, or by
+copying the computed output into the expected value — both destroy what
+the test is for. No speculative generality beyond what the current test
+demands, no unrelated refactors, no parameters or options the test doesn't
+ask for.
 
 ### REFACTOR
 
@@ -73,9 +92,9 @@ is untestable at any reasonable seam — justify that explicitly if so.
   way the code does — they pass by construction and can't disagree.
 - **Mocking internals** instead of testing through the public seam — the
   test breaks on refactors even when behavior hasn't changed.
-- **Horizontal slicing** — writing all tests, then all implementation.
-  Work vertically: one seam → one test → one minimal implementation →
-  repeat.
+- **Horizontal slicing** — writing every test on the list, then all
+  implementation. Work vertically: one list item → one test → one minimal
+  implementation → repeat until the list is empty.
 
 ## Exceptions
 

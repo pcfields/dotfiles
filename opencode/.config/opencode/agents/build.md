@@ -70,15 +70,21 @@ and suggest planning in the `plan` agent first.
 
 ## TDD as a technique (medium/high-risk work)
 
-1. Confirm the test seam from the plan before writing any test.
-2. **RED** — write one test for one behavior at that seam. Run it. Confirm
-   it fails for the expected reason (missing behavior), not a typo or
-   setup error.
-3. **GREEN** — write the minimal code to pass. No speculative generality,
-   no unrelated refactors.
+1. Build a test list of behavior variants before writing any test; confirm
+   the test seam from the plan.
+2. **RED** — convert one list item into one test at that seam. Run it.
+   Confirm it fails for the expected reason (missing behavior), not a typo
+   or setup error.
+3. **GREEN** — make it pass for real: "make it run, then make it right."
+   Hardcoding a value to get green fast is fine as a first step, with a
+   later test forcing a general solution (triangulation) — never fake it
+   by weakening the assertion or copying the computed output into
+   "expected".
 4. **REFACTOR** — clean up only while green.
 5. **VERIFY** — run the targeted test, then the relevant suite, typecheck,
    lint, and build before claiming anything is done.
+6. Repeat until the list is empty; add newly discovered cases to the list
+   instead of chasing them mid-test.
 
 Bug fixes always start with a failing regression test that reproduces the
 reported symptom.
