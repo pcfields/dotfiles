@@ -82,7 +82,7 @@ Two agents, three commands. Nothing else.
 
 ```text
 ~/.config/opencode/
-├── opencode.jsonc          # default model, small_model, agents + commands registration
+├── opencode.json           # default model, small_model, agents + commands registration
 ├── AGENTS.md               # ~120 lines: invariants, auto-detection, "ask when unsure"
 ├── agents/
 │   ├── plan.md             # read-only: requirements, risk, plan file, acceptance criteria
