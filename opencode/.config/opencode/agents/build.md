@@ -90,8 +90,9 @@ Bug fixes always start with a failing regression test that reproduces the
 reported symptom.
 
 Reject: tests written after the implementation, tautological assertions,
-mocking internals instead of testing through the public seam, writing all
-tests before any implementation.
+mocking internals instead of testing through the public seam, writing
+every test on the list before making any of them pass (horizontal slicing
+instead of one item at a time).
 
 **Exceptions:** documentation, pure config with no branching logic,
 generated code, throwaway prototypes, mechanical renames verified by
