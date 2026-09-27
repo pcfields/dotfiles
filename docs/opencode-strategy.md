@@ -124,8 +124,9 @@ Two agents, three commands. Nothing else.
 
 ### Commands
 
-- **`/commit`** — runs on the current agent's model (Sonnet 5 by default),
-  as an isolated subtask so it doesn't pollute the main session's context.
+- **`/commit`** — runs on the current agent's model (Kimi K2.7 Code by
+  default), as an isolated subtask so it doesn't pollute the main
+  session's context.
   Reads the full working tree (staged and unstaged), splits it into one
   commit per logical concern, runs a secrets scan on each group, and
   drafts a Conventional Commits message per commit. Never stages or
@@ -243,25 +244,27 @@ starts.
 
 ## 9. Model Palette
 
-One default model, two automatic cheap paths (scoped to commands), manual
-escalation for hard problems.
+One cheap default model, one automatic housekeeping path, one pinned
+strong path for review, manual escalation for hard problems. All routed
+through OpenCode Zen — no GitHub Copilot access as of this update.
 
 | Role | Model | Notes |
 |---|---|---|
-| `plan`, `build` (default) | Claude Sonnet 5 (Copilot) | Predictable cost, handles the large majority of real work well. |
+| `plan`, `build` (default) | Kimi K2.7 Code (OpenCode Zen) | Cheapest capable option on hand, with a live data point from `/test` that it handles real coding work well. Replaces Copilot's Claude Sonnet 5 after that subscription was cancelled. |
 | `small_model` | GPT-5.6 Luna | Automatic housekeeping only — session titles, compaction summaries. Set once, saves forever. |
-| `/commit` | Claude Sonnet 5 (current agent's model) | Runs as an isolated subtask regardless of model, so there's no shared-cache cost either way; drafting/grouping commit messages is judgment work worth keeping on the default model. |
-| `/test` | Kimi (OpenCode Zen) | Cheap and capable enough for writing one test from a clear spec. |
-| `/review` | Claude Sonnet 5 | Review is judgment work — worth the stronger model. |
-| Manual escalation | Claude Opus (via `/model`) | For problems that have already stalled on Sonnet. Short bursts only — switch back to Sonnet once the hard part is solved. |
+| `/commit` | Kimi K2.7 Code (current agent's model) | Runs as an isolated subtask regardless of model, so there's no shared-cache cost either way; drafting/grouping commit messages is judgment work worth keeping in sync with the default model. |
+| `/test` | Kimi K2.7 Code (OpenCode Zen) | Cheap and capable enough for writing one test from a clear spec. Now the same model as the default — kept as its own explicit pin so it stays stable if the default ever changes. |
+| `/review` | Claude Sonnet 5 (OpenCode Zen) | Review is judgment work — worth the stronger model, so it stays pinned above the cheap default. |
+| Manual escalation | Claude Opus (via `/model`, OpenCode Zen) | For problems that have already stalled on the default. Short bursts only — switch back to Kimi once the hard part is solved. |
 
 **Explicitly excluded:**
 
 - **GPT-5.6 Sol** — excluded. High-effort Sol burns heavy hidden reasoning
   tokens on every response; this was the direct cause of a prior cost
-  overrun and nothing about the model has changed. Sonnet 5 handles
-  planning and review well enough at a fraction of the cost; when Sonnet
-  truly isn't enough, escalate straight to Opus.
+  overrun and nothing about the model has changed. Kimi and Sonnet 5
+  already handle planning/build and review respectively at a fraction of
+  the cost; when the default truly isn't enough, escalate straight to
+  Opus.
 - **Claude Fable 5** — not included as a named escalation path. Opus alone
   is simpler to reason about and cheaper per unit; Fable's advantages
   mainly matter for multi-hour autonomous runs, which cuts against a
@@ -299,8 +302,8 @@ behavior at the named seam, and does it fail RED for the right reason.
 - `AGENTS.md` capped at ~120 lines — every line is billed on every turn.
 - Skill content loads only when a skill is invoked, never kept permanently
   resident in the core prompt.
-- Reasoning/thinking effort kept low or off by default on Sonnet; raised
-  manually only for tasks that need it.
+- Reasoning/thinking effort kept low or off by default; raised manually
+  only for tasks that need it.
 
 **Session-side (habits):**
 
@@ -315,16 +318,18 @@ behavior at the named seam, and does it fail RED for the right reason.
 
 **Model-side (deliberate, manual):**
 
-- Default to Sonnet 5; don't reach for a frontier model preemptively.
-- Use `/test` for the cheap, bounded work it's built for.
-- Escalate to Opus only after Sonnet has genuinely stalled on a task, and
-  drop back to Sonnet once the hard part is resolved.
+- Default to Kimi K2.7 Code; don't reach for a frontier model
+  preemptively.
+- Use `/review` when judgment work justifies the stronger, pricier model.
+- Escalate to Opus only after the default has genuinely stalled on a task,
+  and drop back to Kimi once the hard part is resolved.
 
 ## 11. Summary
 
 Two agents (`plan`, `build`), three commands (`/commit`, `/test`,
-`/review`), one default model (Sonnet 5), two scoped cheap paths (Luna for
-housekeeping, Kimi for tests), and one manual escalation path (Opus). Risk
+`/review`), one cheap default model (Kimi K2.7 Code), one automatic
+housekeeping path (Luna), one pinned strong path for review (Sonnet 5),
+and one manual escalation path (Opus) — all via OpenCode Zen. Risk
 determines how much process a change gets — plan files for medium/high
 risk, direct implementation for low risk. Project conventions are detected
 at runtime instead of configured per repo, so this setup works unmodified

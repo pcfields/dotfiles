@@ -1,7 +1,7 @@
 ---
 description: Read-only planning and requirements analysis. Detects project conventions, classifies risk, defines test seams and acceptance criteria, and writes plan files for medium/high-risk work.
 mode: primary
-model: github-copilot/claude-sonnet-5
+model: opencode/kimi-k2.7-code
 temperature: 0.1
 permission:
   edit:

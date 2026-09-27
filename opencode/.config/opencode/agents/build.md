@@ -1,7 +1,7 @@
 ---
 description: Implementation agent. Runs TDD for medium/high-risk work, self-reviews before proposing a commit, and stops at named risk boundaries.
 mode: primary
-model: github-copilot/claude-sonnet-5
+model: opencode/kimi-k2.7-code
 temperature: 0.1
 permission:
   edit:

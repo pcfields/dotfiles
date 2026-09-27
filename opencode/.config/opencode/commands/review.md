@@ -1,7 +1,7 @@
 ---
 description: Two-axis review (spec compliance + engineering quality) of the diff since a fixed point, using the production-review skill. Read-only.
 agent: plan
-model: github-copilot/claude-sonnet-5
+model: opencode/claude-sonnet-5
 subtask: true
 ---
 
