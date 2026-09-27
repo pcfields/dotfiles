@@ -1,30 +1,36 @@
 ---
-description: Draft a Conventional Commits message from the staged diff on a cheap model. Never commits automatically.
+description: Split the working tree into logical commits and draft a Conventional Commits message for each. Never stages or commits automatically.
 agent: build
-model: opencode/kimi-k2.7-code
 subtask: true
 ---
+
+Working tree status:
+
+!`git status --short`
 
 Staged diff:
 
 !`git diff --cached`
 
-Staged files:
+Unstaged diff:
 
-!`git diff --cached --stat`
+!`git diff`
 
-Using the `verification-delivery` skill's staged-file review and secrets
-scan:
+Using the `verification-delivery` skill's secrets scan:
 
-1. Confirm the staged diff matches what the task intended. Flag anything
-   that looks unrelated.
-2. Scan the staged content for anything that looks like a secret (API
+1. Read the full diff, staged and unstaged. Split it by logical concern,
+   not by file: a feature, an unrelated fix, a refactor, a dependency
+   bump, and docs each get their own commit, even when they touch the
+   same file. Fixes to pre-existing bugs found along the way are split
+   out from the primary change. If everything is genuinely one concern,
+   propose a single commit.
+2. Scan each group's content for anything that looks like a secret (API
    keys, tokens, credentials, `.env` values). Stop and flag it instead of
    drafting a message if you find one.
-3. Draft a Conventional Commits message (`type(scope): summary`, with a
-   short body if the change isn't self-explanatory from the summary
-   alone).
-4. Present the message to the user for approval.
+3. For each group, draft a Conventional Commits message (`type(scope):
+   summary`, with a short body only if the summary can't carry the "why").
+4. Present the full split — files/hunks per commit and its drafted
+   message — for approval.
 
-Do not run `git commit`. Present the drafted message and stop — the user
-commits it themselves.
+Do not run `git add` or `git commit`. Present the plan and stop — the user
+stages and commits (or asks `build` to) themselves.

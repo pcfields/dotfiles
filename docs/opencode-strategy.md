@@ -93,7 +93,7 @@ Two agents, three commands. Nothing else.
 │   ├── production-review/SKILL.md
 │   └── verification-delivery/SKILL.md
 └── commands/
-    ├── commit.md           # Kimi: draft commit message from staged diff
+    ├── commit.md           # split working tree into logical commits, draft each message
     ├── test.md             # Kimi: write one test at a named seam
     └── review.md           # Sonnet 5: two-axis review of the current diff
 ```
@@ -124,10 +124,12 @@ Two agents, three commands. Nothing else.
 
 ### Commands
 
-- **`/commit`** — Kimi. Reads the staged diff, runs a secrets scan on
-  staged files, drafts a Conventional Commits message, and presents it for
-  your approval. Never commits without you confirming. Falls back to the
-  current agent's model if Kimi/Zen is unavailable.
+- **`/commit`** — runs on the current agent's model (Sonnet 5 by default),
+  as an isolated subtask so it doesn't pollute the main session's context.
+  Reads the full working tree (staged and unstaged), splits it into one
+  commit per logical concern, runs a secrets scan on each group, and
+  drafts a Conventional Commits message per commit. Never stages or
+  commits without you confirming.
 - **`/test`** — Kimi. Given a spec and a named seam (from a plan file, or
   described inline), writes one behavioral test, runs it, and confirms it
   fails for the expected reason. Does not write implementation code.
@@ -248,7 +250,8 @@ escalation for hard problems.
 |---|---|---|
 | `plan`, `build` (default) | Claude Sonnet 5 (Copilot) | Predictable cost, handles the large majority of real work well. |
 | `small_model` | GPT-5.6 Luna | Automatic housekeeping only — session titles, compaction summaries. Set once, saves forever. |
-| `/commit`, `/test` | Kimi (OpenCode Zen) | Cheap and capable enough for drafting commit messages and writing individual tests from a clear spec. |
+| `/commit` | Claude Sonnet 5 (current agent's model) | Runs as an isolated subtask regardless of model, so there's no shared-cache cost either way; drafting/grouping commit messages is judgment work worth keeping on the default model. |
+| `/test` | Kimi (OpenCode Zen) | Cheap and capable enough for writing one test from a clear spec. |
 | `/review` | Claude Sonnet 5 | Review is judgment work — worth the stronger model. |
 | Manual escalation | Claude Opus (via `/model`) | For problems that have already stalled on Sonnet. Short bursts only — switch back to Sonnet once the hard part is solved. |
 
@@ -273,9 +276,8 @@ about than an automatic router, and it keeps you in control of spend.
 
 ### Evaluating OpenCode Zen's open-weight models
 
-Kimi is the starting recommendation for `/commit` and `/test`, chosen for
-its long-context handling. It is a starting point, not a permanent
-commitment:
+Kimi is the starting recommendation for `/test`, chosen for its
+long-context handling. It is a starting point, not a permanent commitment:
 
 - **Kimi (Moonshot AI)** — strong at long context and structured coding
   tasks. Start here.
@@ -286,10 +288,9 @@ commitment:
 - **Grok Code (xAI)** — capable but less predictable behaviorally; lower
   priority to evaluate.
 
-Trial each candidate for `/commit` and `/test` for about a week of normal
-use before switching. Judge on: does the commit message actually reflect
-the diff, does the test it writes actually test the right behavior at the
-named seam, and does it fail RED for the right reason.
+Trial each candidate for `/test` for about a week of normal use before
+switching. Judge on: does the test it writes actually test the right
+behavior at the named seam, and does it fail RED for the right reason.
 
 ## 10. Cost-Reduction Techniques
 
@@ -315,7 +316,7 @@ named seam, and does it fail RED for the right reason.
 **Model-side (deliberate, manual):**
 
 - Default to Sonnet 5; don't reach for a frontier model preemptively.
-- Use `/commit` and `/test` for the cheap, bounded work they're built for.
+- Use `/test` for the cheap, bounded work it's built for.
 - Escalate to Opus only after Sonnet has genuinely stalled on a task, and
   drop back to Sonnet once the hard part is resolved.
 
@@ -323,8 +324,8 @@ named seam, and does it fail RED for the right reason.
 
 Two agents (`plan`, `build`), three commands (`/commit`, `/test`,
 `/review`), one default model (Sonnet 5), two scoped cheap paths (Luna for
-housekeeping, Kimi for commits/tests), and one manual escalation path
-(Opus). Risk determines how much process a change gets — plan files for
-medium/high risk, direct implementation for low risk. Project conventions
-are detected at runtime instead of configured per repo, so this setup
-works unmodified in every project, solo or on a team.
+housekeeping, Kimi for tests), and one manual escalation path (Opus). Risk
+determines how much process a change gets — plan files for medium/high
+risk, direct implementation for low risk. Project conventions are detected
+at runtime instead of configured per repo, so this setup works unmodified
+in every project, solo or on a team.
