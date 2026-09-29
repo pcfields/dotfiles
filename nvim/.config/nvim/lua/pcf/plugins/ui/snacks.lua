@@ -25,7 +25,16 @@ return {
       statuscolumn = { enabled = true },
       terminal = { enabled = true },
       words = { enabled = true },
-      picker = {},
+      -- Include dotfiles/dot-dirs (e.g. nvim/.config/) in file and grep
+      -- pickers; .gitignore still applies. Each source needs its own flag.
+      picker = {
+        sources = {
+          files = { hidden = true },
+          grep = { hidden = true },
+          grep_word = { hidden = true },
+          todo_comments = { hidden = true },
+        },
+      },
       scope = { enabled = true },
     })
 
