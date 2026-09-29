@@ -71,9 +71,23 @@ end
 -- UI CONFIGURATION MODULE
 -- ============================================================================
 
+-- Rosé Pine Moon palette (https://rosepinetheme.com/palette), named so the
+-- tab bar and status bar can match the terminal's color scheme.
+local palette = {
+	base = "#232136",
+	surface = "#2a273f",
+	overlay = "#393552",
+	muted = "#6e6a86",
+	subtle = "#908caa",
+	text = "#e0def4",
+	gold = "#f6c177",
+	iris = "#c4a7e7",
+}
+
 local ui_config = {
 	color_scheme = "rose-pine-moon",
 	font_size = platform.font_size,
+	tab_bar_font = { family = "Monaspace Neon", weight = "DemiBold", size = 12.0 },
 	font_config = {
 		primary = { family = "Monaspace Neon", weight = "Regular" },
 		fallback = { family = "JetBrains Mono", weight = "Regular" },
@@ -299,7 +313,32 @@ config.default_cwd = platform.home_dir
 config.default_prog = { platform.shell }
 
 -- UI Settings
-config.color_scheme = ui_config.color_scheme
+-- The built-in scheme leaves the tab bar in WezTerm's default greys, so
+-- register a copy of it with tab colors taken from the same palette.
+local scheme = wezterm.color.get_builtin_schemes()[ui_config.color_scheme]
+scheme.tab_bar = {
+	inactive_tab_edge = palette.overlay,
+	active_tab = { bg_color = palette.overlay, fg_color = palette.text },
+	inactive_tab = { bg_color = palette.base, fg_color = palette.muted },
+	inactive_tab_hover = { bg_color = palette.surface, fg_color = palette.subtle },
+	new_tab = { bg_color = palette.base, fg_color = palette.muted },
+	new_tab_hover = { bg_color = palette.surface, fg_color = palette.text },
+}
+config.color_schemes = { [ui_config.color_scheme .. "-tabs"] = scheme }
+config.color_scheme = ui_config.color_scheme .. "-tabs"
+
+-- Tab bar font and background (the fancy tab bar draws these separately
+-- from the terminal font)
+config.window_frame = {
+	font = wezterm.font({ family = ui_config.tab_bar_font.family, weight = ui_config.tab_bar_font.weight }),
+	font_size = ui_config.tab_bar_font.size,
+	active_titlebar_bg = palette.base,
+	inactive_titlebar_bg = palette.base,
+	button_fg = palette.subtle,
+	button_bg = palette.base,
+	button_hover_fg = palette.text,
+	button_hover_bg = palette.overlay,
+}
 config.font_size = ui_config.font_size
 config.font = wezterm.font_with_fallback({
 	{
