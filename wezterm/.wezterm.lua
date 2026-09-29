@@ -604,7 +604,7 @@ status_bar.format_workspace_section = function(window)
 	return {
 		{ Background = { Color = background } },
 		{ Foreground = { Color = colors.text } },
-		{ Text = "   " .. window:mux_window():get_workspace() .. "  " },
+		{ Text = " " .. wezterm.nerdfonts.cod_layers .. " " .. window:mux_window():get_workspace() .. "  " },
 		"ResetAttributes",
 		{ Foreground = { Color = background } },
 		{ Text = "" },
