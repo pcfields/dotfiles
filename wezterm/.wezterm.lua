@@ -430,6 +430,7 @@ config.keys = {
 	{ mods = "LEADER", key = "x", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "LEADER", key = "o", action = wezterm.action.ActivateTabRelative(1) },
 	{ mods = "LEADER", key = "i", action = wezterm.action.ActivateTabRelative(-1) },
+	{ mods = "LEADER", key = "a", action = wezterm.action.ActivateLastTab }, -- [a]lternate tab
 	keymap_builders.go_to_tab(1),
 	keymap_builders.go_to_tab(2),
 	keymap_builders.go_to_tab(3),
