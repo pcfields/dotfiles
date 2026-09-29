@@ -466,7 +466,7 @@ config.keys = {
 
 	-- Tab Management
 	{ mods = "LEADER", key = "t", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
-	{ mods = "LEADER", key = "q", action = wezterm.action.CloseCurrentTab({ confirm = true }) },
+	{ mods = "LEADER|SHIFT", key = "X", action = wezterm.action.CloseCurrentTab({ confirm = true }) },
 	{ mods = "LEADER", key = "x", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "LEADER", key = "o", action = wezterm.action.ActivateTabRelative(1) },
 	{ mods = "LEADER", key = "i", action = wezterm.action.ActivateTabRelative(-1) },
