@@ -393,8 +393,8 @@ config.keys = {
 	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
 	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("OpenCode", "opencode") },
 	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "LEADER", key = "n", action = wezterm.action.SwitchWorkspaceRelative(1) },
-	{ mods = "LEADER", key = "b", action = wezterm.action.SwitchWorkspaceRelative(-1) },
+	{ mods = "LEADER", key = ".", action = wezterm.action.SwitchWorkspaceRelative(1) },
+	{ mods = "LEADER", key = ",", action = wezterm.action.SwitchWorkspaceRelative(-1) },
 
 	-- Pane Management
 	{ -- [s]plit pane
@@ -407,7 +407,7 @@ config.keys = {
 		}),
 	},
 	{ mods = "LEADER", key = "m", action = wezterm.action.TogglePaneZoomState },
-	{ mods = "LEADER", key = "c", action = wezterm.action.RotatePanes("Clockwise") },
+	{ mods = "LEADER", key = "'", action = wezterm.action.RotatePanes("Clockwise") },
 	{ mods = "LEADER", key = "v", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
 
 	{ mods = "LEADER", key = "h", action = wezterm.action.ActivatePaneDirection("Left") },
@@ -439,7 +439,7 @@ config.keys = {
 
 	-- Copy Mode and Scrolling
 	{ mods = "LEADER", key = "y", action = wezterm.action.ActivateCopyMode },
-	{ mods = "LEADER", key = "f", action = wezterm.action.QuickSelect },
+	{ mods = "LEADER", key = "c", action = wezterm.action.QuickSelect },
 	{ mods = "LEADER", key = "u", action = wezterm.action.ScrollByPage(-1) },
 	{ mods = "LEADER", key = "d", action = wezterm.action.ScrollByPage(1) },
 	{ mods = "LEADER", key = "?", action = wezterm.action.Search("CurrentSelectionOrEmptyString") },
