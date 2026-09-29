@@ -94,7 +94,8 @@ local ui_config = {
 		disable_ligatures = { "calt=0", "clig=0", "liga=0" },
 	},
 	window = {
-		decorations = "RESIZE|TITLE",
+		-- Window buttons live in the tab bar instead of an OS title bar
+		decorations = "INTEGRATED_BUTTONS|RESIZE",
 		padding = { left = 0, right = 0, top = 0, bottom = 0 },
 	},
 	tabs = {
