@@ -583,45 +583,38 @@ tab_title.register()
 local status_bar = {}
 
 status_bar.colors = {
-	text = wezterm.color.parse("#fff"),
-	background = wezterm.color.parse("#7b0849"),
+	text = palette.base,
+	background = palette.iris,
+	-- The workspace badge turns this color while the leader key is active
+	leader_background = palette.gold,
 }
+
+status_bar.badge_background = function(window)
+	if window:leader_is_active() then
+		return status_bar.colors.leader_background
+	end
+
+	return status_bar.colors.background
+end
 
 status_bar.format_workspace_section = function(window)
 	local colors = status_bar.colors
+	local background = status_bar.badge_background(window)
 
 	return {
-		{ Background = { Color = colors.background } },
+		{ Background = { Color = background } },
 		{ Foreground = { Color = colors.text } },
 		{ Text = "   " .. window:mux_window():get_workspace() .. "  " },
 		"ResetAttributes",
-		{ Foreground = { Color = colors.background } },
+		{ Foreground = { Color = background } },
 		{ Text = "" },
-		{ Background = { Color = colors.background } },
+		{ Background = { Color = background } },
 	}
-end
-
-status_bar.leader_prefix = function(window)
-	if window:leader_is_active() then
-		return "🔴🔴🔴⭕⭕⭕"
-	end
-
-	return ""
 end
 
 status_bar.register = function()
 	wezterm.on("update-right-status", function(window)
-		local left_status = {}
-
-		-- Add leader indicator first (leftmost)
-		table.insert(left_status, { Text = status_bar.leader_prefix(window) })
-
-		-- Add workspace section to the right of leader indicator
-		for _, element in ipairs(status_bar.format_workspace_section(window)) do
-			table.insert(left_status, element)
-		end
-
-		window:set_left_status(wezterm.format(left_status))
+		window:set_left_status(wezterm.format(status_bar.format_workspace_section(window)))
 		window:set_right_status("")
 	end)
 end
