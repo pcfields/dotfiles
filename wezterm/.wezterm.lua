@@ -383,16 +383,16 @@ config.keys = {
 	{ mods = "CTRL|SHIFT", key = "v", action = wezterm.action.PasteFrom("Clipboard") },
 
 	-- Projects and Tools
-	{
-		mods = "LEADER",
-		key = "p",
+	{ -- [F]ind project
+		mods = "LEADER|SHIFT",
+		key = "F",
 		action = wezterm.action_callback(function(child_window, child_pane)
 			child_window:perform_action(display_project_list(), child_pane)
 		end),
 	},
 	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
 	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("Claude", "claude") },
-	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+	{ mods = "LEADER", key = "f", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "LEADER", key = ".", action = wezterm.action.SwitchWorkspaceRelative(1) },
 	{ mods = "LEADER", key = ",", action = wezterm.action.SwitchWorkspaceRelative(-1) },
 
