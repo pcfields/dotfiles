@@ -391,7 +391,7 @@ config.keys = {
 		end),
 	},
 	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
-	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("OpenCode", "opencode") },
+	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("Claude", "claude") },
 	{ mods = "LEADER", key = "w", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "LEADER", key = ".", action = wezterm.action.SwitchWorkspaceRelative(1) },
 	{ mods = "LEADER", key = ",", action = wezterm.action.SwitchWorkspaceRelative(-1) },
