@@ -535,7 +535,15 @@ tab_title.looks_like_default_title = function(title, process, cwd_basename)
 
 	local lowered = title:lower()
 
-	if process and lowered == process:lower() then
+	-- A bare path: fish's idle title on Linux (`~/dotfiles`), or the
+	-- executable path Windows consoles fall back to (`C:\...\cmd.exe`).
+	if lowered:match("^[~/]") or lowered:match("^%a:\\") then
+		return true
+	end
+
+	-- fish titles a running command as `<command> <cwd>`.
+	local first_word = lowered:match("^(%S+)")
+	if process and first_word == process:lower() then
 		return true
 	end
 
