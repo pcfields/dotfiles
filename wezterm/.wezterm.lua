@@ -466,9 +466,8 @@ status_bar.format_workspace_section = function(window)
 end
 
 status_bar.register = function()
-	wezterm.on("update-right-status", function(window)
+	wezterm.on("update-status", function(window)
 		window:set_left_status(wezterm.format(status_bar.format_workspace_section(window)))
-		window:set_right_status("")
 	end)
 end
 
