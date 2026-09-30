@@ -116,7 +116,7 @@ local performance_config = {
 }
 
 -- ============================================================================
--- PROJECT PROFILES
+-- PROJECT PICKER
 -- ============================================================================
 
 local project_profiles = {
@@ -125,176 +125,65 @@ local project_profiles = {
 	},
 	personal = {
 		root = platform.home_dir .. "/ws",
-		manual = {
-			-- Specific personal projects can be added here
-		},
 		folders = { "scratchpad", "learn", "personal", "clients" },
 	},
 }
 
--- ============================================================================
--- SHARED CONFIGURATION (Platform-agnostic)
--- ============================================================================
-local shared_config = {
-	dotfiles = function()
-		return platform.home_dir .. "/dotfiles"
-	end,
-}
-
--- ============================================================================
--- PROJECT UTILITIES MODULE
--- ============================================================================
-
-local project_utils = {}
-
-project_utils.is_folder = function(path)
-	-- Use WezTerm's read_dir to check if path is actually a directory
-	local success, _ = pcall(wezterm.read_dir, path)
-	return success
+local function is_folder(path)
+	-- read_dir only succeeds on directories
+	return (pcall(wezterm.read_dir, path))
 end
 
-project_utils.normalize_path = function(path)
-	-- Normalize path separators and case for comparison
-	return path:gsub("\\", "/"):lower()
-end
+-- Lists the directories directly under `directory`. The label is prefixed so
+-- same-named projects in different folders stay distinct (and get distinct
+-- workspace names).
+local function subdirectories(directory, label_prefix)
+	local projects = {}
 
-project_utils.is_excluded = function(path, exclude_list)
-	local normalized = project_utils.normalize_path(path)
-
-	for _, excluded_path in ipairs(exclude_list or {}) do
-		if normalized == project_utils.normalize_path(excluded_path) then
-			return true
+	for _, path in ipairs(wezterm.glob(directory .. "/*")) do
+		if is_folder(path) then
+			table.insert(projects, { id = path, label = label_prefix .. path:match("([^/\\]+)$") })
 		end
 	end
 
-	return false
+	return projects
 end
 
-project_utils.add_paths_to_list = function(projects_list, options)
-	local exclude_list = options.exclude or {}
+local function build_project_list(profile)
+	local projects = { { id = platform.home_dir .. "/dotfiles", label = "dotfiles" } }
 
-	for _, project_directory in ipairs(options.directories) do
-		local folder_name = project_directory:match("([^/\\]+)$") -- Handle both / and \ separators
-
-		-- Only add if it's actually a directory and not excluded
-		if
-			project_utils.is_folder(project_directory)
-			and not project_utils.is_excluded(project_directory, exclude_list)
-		then
-			table.insert(projects_list, { id = project_directory, label = folder_name })
+	local function add_from(directory, label_prefix)
+		for _, project in ipairs(subdirectories(directory, label_prefix)) do
+			table.insert(projects, project)
 		end
 	end
-end
-
--- ============================================================================
--- PROJECT DIRECTORY SCANNER
--- ============================================================================
-
-local function add_subdirectories_for(root_directory)
-	return wezterm.glob(root_directory .. "/*")
-end
-
--- ============================================================================
--- PROJECT LIST BUILDER MODULE
--- ============================================================================
-
-local project_list_builder = {}
-
-project_list_builder.add_shared_entry = function(projects_list)
-	table.insert(projects_list, { id = shared_config.dotfiles(), label = "dotfiles" })
-end
-
-project_list_builder.add_manual_projects = function(projects_list, projects, exclude)
-	if not projects then
-		return
-	end
-
-	local exclude_list = exclude or {}
-
-	for _, project in ipairs(projects) do
-		if not project_utils.is_excluded(project.path, exclude_list) then
-			table.insert(projects_list, { id = project.path, label = project.label })
-		end
-	end
-end
-
-project_list_builder.add_directory_glob = function(projects_list, directories, exclude)
-	if not directories then
-		return
-	end
-
-	project_utils.add_paths_to_list(projects_list, {
-		directories = directories,
-		exclude = exclude,
-	})
-end
-
-project_list_builder.add_project_folders = function(projects_list, root_path, folders, exclude)
-	if not folders or #folders == 0 then
-		return
-	end
-
-	for _, folder_name in ipairs(folders) do
-		local project_path = root_path .. "/" .. folder_name
-		project_utils.add_paths_to_list(projects_list, {
-			directories = add_subdirectories_for(project_path),
-			exclude = exclude,
-		})
-	end
-end
-
-project_list_builder.populate_from_profile = function(projects_list, profile)
-	project_list_builder.add_shared_entry(projects_list)
-	project_list_builder.add_manual_projects(projects_list, profile.manual, profile.exclude)
 
 	if profile.folders then
-		project_list_builder.add_project_folders(projects_list, profile.root, profile.folders, profile.exclude)
+		for _, folder in ipairs(profile.folders) do
+			add_from(profile.root .. "/" .. folder, folder .. "/")
+		end
 	else
-		project_list_builder.add_directory_glob(projects_list, add_subdirectories_for(profile.root), profile.exclude)
-	end
-end
-
--- ============================================================================
--- PROJECT PROFILE SETUP
--- ============================================================================
-
-local function setup_projects(projects_list, profile_key)
-	local profile = project_profiles[profile_key]
-	if not profile then
-		return
+		add_from(profile.root, "")
 	end
 
-	project_list_builder.populate_from_profile(projects_list, profile)
+	return projects
 end
-
--- ============================================================================
--- PROJECT LIST DISPLAY
--- ============================================================================
 
 local function display_project_list()
-	local projects_list = {}
-
-	-- Dispatch to appropriate setup function based on platform
-	if platform.is_windows then
-		setup_projects(projects_list, "work")
-	else
-		setup_projects(projects_list, "personal")
-	end
+	local profile = platform.is_windows and project_profiles.work or project_profiles.personal
 
 	return wezterm.action.InputSelector({
 		title = "Choose a project",
-		choices = projects_list,
+		choices = build_project_list(profile),
 		fuzzy = true,
 		action = wezterm.action_callback(function(child_window, child_pane, id, label)
 			if not label then
 				return
 			end
 
-			local directory_name = label:match("([^/]+)$") -- get last segment of directory path
-
 			child_window:perform_action(
 				wezterm.action.SwitchToWorkspace({
-					name = directory_name,
+					name = label,
 					spawn = { label = "Workspace: " .. label, cwd = id },
 				}),
 				child_pane
