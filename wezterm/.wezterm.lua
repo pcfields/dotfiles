@@ -1,6 +1,6 @@
 local wezterm = require("wezterm")
 
-local config = {} -- This table will hold the configuration.
+local config = wezterm.config_builder()
 
 -- ============================================================================
 -- PLATFORM MODULE
@@ -81,38 +81,6 @@ local palette = {
 	text = "#e0def4",
 	gold = "#f6c177",
 	iris = "#c4a7e7",
-}
-
-local ui_config = {
-	color_scheme = "rose-pine-moon",
-	font_size = platform.font_size,
-	tab_bar_font = { family = "Monaspace Neon", weight = "DemiBold", size = 12.0 },
-	font_config = {
-		primary = { family = "Monaspace Neon", weight = "Regular" },
-		fallback = { family = "JetBrains Mono", weight = "Regular" },
-		disable_ligatures = { "calt=0", "clig=0", "liga=0" },
-	},
-	window = {
-		-- Window buttons live in the tab bar instead of an OS title bar
-		decorations = "INTEGRATED_BUTTONS|RESIZE",
-		padding = { left = 0, right = 0, top = 0, bottom = 0 },
-	},
-	tabs = {
-		hide_if_only_one = false,
-	},
-	panes = {
-		inactive_hsb = { saturation = 0.5, brightness = 0.4 },
-	},
-}
-
--- ============================================================================
--- PERFORMANCE CONFIGURATION MODULE
--- ============================================================================
-
-local performance_config = {
-	max_fps = 120,
-	animation_fps = 120,
-	front_end = "WebGpu",
 }
 
 -- ============================================================================
@@ -196,10 +164,6 @@ end
 -- APPLY CONFIGURATION
 -- ============================================================================
 
-if wezterm.config_builder then
-	config = wezterm.config_builder()
-end
-
 -- Shell and Working Directory
 config.default_cwd = platform.home_dir
 config.default_prog = { platform.shell }
@@ -207,7 +171,8 @@ config.default_prog = { platform.shell }
 -- UI Settings
 -- The built-in scheme leaves the tab bar in WezTerm's default greys, so
 -- register a copy of it with tab colors taken from the same palette.
-local scheme = wezterm.color.get_builtin_schemes()[ui_config.color_scheme]
+local color_scheme = "rose-pine-moon"
+local scheme = wezterm.color.get_builtin_schemes()[color_scheme]
 scheme.tab_bar = {
 	inactive_tab_edge = palette.overlay,
 	active_tab = { bg_color = palette.overlay, fg_color = palette.text },
@@ -216,14 +181,14 @@ scheme.tab_bar = {
 	new_tab = { bg_color = palette.base, fg_color = palette.muted },
 	new_tab_hover = { bg_color = palette.surface, fg_color = palette.text },
 }
-config.color_schemes = { [ui_config.color_scheme .. "-tabs"] = scheme }
-config.color_scheme = ui_config.color_scheme .. "-tabs"
+config.color_schemes = { [color_scheme .. "-tabs"] = scheme }
+config.color_scheme = color_scheme .. "-tabs"
 
 -- Tab bar font and background (the fancy tab bar draws these separately
 -- from the terminal font)
 config.window_frame = {
-	font = wezterm.font({ family = ui_config.tab_bar_font.family, weight = ui_config.tab_bar_font.weight }),
-	font_size = ui_config.tab_bar_font.size,
+	font = wezterm.font({ family = "Monaspace Neon", weight = "DemiBold" }),
+	font_size = 12.0,
 	active_titlebar_bg = palette.base,
 	inactive_titlebar_bg = palette.base,
 	button_fg = palette.subtle,
@@ -231,29 +196,22 @@ config.window_frame = {
 	button_hover_fg = palette.text,
 	button_hover_bg = palette.overlay,
 }
-config.font_size = ui_config.font_size
+config.font_size = platform.font_size
+local no_ligatures = { "calt=0", "clig=0", "liga=0" }
 config.font = wezterm.font_with_fallback({
-	{
-		family = ui_config.font_config.primary.family,
-		weight = ui_config.font_config.primary.weight,
-		harfbuzz_features = ui_config.font_config.disable_ligatures,
-	},
-	{
-		family = ui_config.font_config.fallback.family,
-		weight = ui_config.font_config.fallback.weight,
-		harfbuzz_features = ui_config.font_config.disable_ligatures,
-	},
+	{ family = "Monaspace Neon", weight = "Regular", harfbuzz_features = no_ligatures },
+	{ family = "JetBrains Mono", weight = "Regular", harfbuzz_features = no_ligatures },
 })
-config.window_decorations = ui_config.window.decorations
-config.window_padding = ui_config.window.padding
-config.hide_tab_bar_if_only_one_tab = ui_config.tabs.hide_if_only_one
+-- Window buttons live in the tab bar instead of an OS title bar
+config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.tab_max_width = 32
-config.inactive_pane_hsb = ui_config.panes.inactive_hsb
+config.inactive_pane_hsb = { saturation = 0.5, brightness = 0.4 }
 
 -- Performance Settings
-config.max_fps = performance_config.max_fps
-config.animation_fps = performance_config.animation_fps
-config.front_end = performance_config.front_end
+config.max_fps = 120
+config.animation_fps = 120
+config.front_end = "WebGpu"
 
 -- Scrollback
 config.scrollback_lines = 50000
