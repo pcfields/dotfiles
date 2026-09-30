@@ -267,10 +267,6 @@ config.leader = {
 
 -- Keybindings
 config.keys = {
-	-- Copy/Paste
-	{ mods = "CTRL|SHIFT", key = "c", action = wezterm.action.CopyTo("ClipboardAndPrimarySelection") },
-	{ mods = "CTRL|SHIFT", key = "v", action = wezterm.action.PasteFrom("Clipboard") },
-
 	-- Projects and Tools
 	{ -- [F]ind project
 		mods = "LEADER|SHIFT",
