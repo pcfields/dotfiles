@@ -7,7 +7,7 @@ local config = {} -- This table will hold the configuration.
 -- ============================================================================
 
 local platform = {
-	is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc",
+	is_windows = wezterm.target_triple:find("windows") ~= nil,
 }
 
 platform.shell = platform.is_windows and "pwsh.exe" or (os.getenv("SHELL") or "/usr/bin/fish")
@@ -53,11 +53,11 @@ local command_spawners = {}
 command_spawners.spawn_tool = function(label, command)
 	local args
 	if platform.is_windows then
-		args = { "pwsh.exe", "-NoExit", "-Command", command }
+		args = { "pwsh.exe", "-Command", command .. "; if (-not $?) { Read-Host 'Press enter to exit...' }" }
 	elseif platform.shell:find("fish") then
 		args = { platform.shell, "-c", command .. "; or read -P 'Press enter to exit...'" }
 	else
-		-- bash, zsh, etc.
+		-- bash
 		args = { platform.shell, "-c", command .. ' || read -p "Press enter to exit..."' }
 	end
 	return wezterm.action.SpawnCommandInNewTab({
