@@ -459,9 +459,11 @@ status_bar.format_workspace_section = function(window)
 		{ Foreground = { Color = colors.text } },
 		{ Text = " " .. wezterm.nerdfonts.cod_layers .. " " .. window:mux_window():get_workspace() .. "  " },
 		"ResetAttributes",
+		-- Gap and glyph sit on the bar color; the default background renders grey
+		{ Background = { Color = palette.base } },
+		{ Text = " " },
 		{ Foreground = { Color = background } },
 		{ Text = " 󰗘 " },
-		{ Background = { Color = background } },
 	}
 end
 
