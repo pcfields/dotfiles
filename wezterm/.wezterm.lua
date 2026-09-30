@@ -10,8 +10,7 @@ local platform = {
 	is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc",
 }
 
-platform.shell = platform.is_windows and "pwsh.exe"
-		or (os.getenv("SHELL") or "/usr/bin/fish")
+platform.shell = platform.is_windows and "pwsh.exe" or (os.getenv("SHELL") or "/usr/bin/fish")
 
 platform.home_dir = wezterm.home_dir
 
@@ -178,7 +177,10 @@ project_utils.add_paths_to_list = function(projects_list, options)
 		local folder_name = project_directory:match("([^/\\]+)$") -- Handle both / and \ separators
 
 		-- Only add if it's actually a directory and not excluded
-		if project_utils.is_folder(project_directory) and not project_utils.is_excluded(project_directory, exclude_list) then
+		if
+			project_utils.is_folder(project_directory)
+			and not project_utils.is_excluded(project_directory, exclude_list)
+		then
 			table.insert(projects_list, { id = project_directory, label = folder_name })
 		end
 	end
@@ -615,7 +617,7 @@ status_bar.format_workspace_section = function(window)
 		{ Text = " " .. wezterm.nerdfonts.cod_layers .. " " .. window:mux_window():get_workspace() .. "  " },
 		"ResetAttributes",
 		{ Foreground = { Color = background } },
-		{ Text = "" },
+		{ Text = " 󰗘 " },
 		{ Background = { Color = background } },
 	}
 end
