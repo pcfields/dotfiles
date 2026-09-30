@@ -211,7 +211,7 @@ config.inactive_pane_hsb = { saturation = 0.5, brightness = 0.4 }
 -- Performance Settings
 config.max_fps = 120
 config.animation_fps = 120
-config.front_end = "WebGpu"
+config.front_end = "OpenGL" -- WebGpu flickers on Linux
 
 -- Scrollback
 config.scrollback_lines = 50000
