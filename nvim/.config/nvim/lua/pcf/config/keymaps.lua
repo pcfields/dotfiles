@@ -199,8 +199,8 @@ vim.api.nvim_create_autocmd("TermOpen", {
 -- Open things -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 map({ "n" }, "<C-p>", "<cmd>:Lazy<cr>", { desc = "Open Lazy Plugin Manager" })
-map({ "n" }, "<leader>gv", "<cmd>::DiffviewOpen<cr>", { desc = "Open Git diff view" })
-map({ "n" }, "<leader>gx", "<cmd>::DiffviewClose<cr>", { desc = "Close Git diff view" })
+map({ "n" }, "<leader>gv", "<cmd>DiffviewOpen<cr>", { desc = "Open Git diff view" })
+map({ "n" }, "<leader>gx", "<cmd>DiffviewClose<cr>", { desc = "Close Git diff view" })
 --------------------------------------------------------------------------------------------
 -- Diagnostics (Errors)  --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
