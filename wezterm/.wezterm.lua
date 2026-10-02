@@ -447,16 +447,61 @@ tab_title.color = function(is_active, hover)
 	return hover and palette.subtle or palette.muted
 end
 
+tab_title.max_pips = 4
+
+-- Pure: one pip per pane, so a count never reads as a second tab number.
+-- Past the cap the rest collapse into a "+".
+tab_title.pips = function(pane_count)
+	local shown = math.min(pane_count, tab_title.max_pips)
+	return ("▪"):rep(shown) .. (pane_count > shown and "+" or "")
+end
+
+-- Pure: small markers after the title, in order: zoom, then one pip per pane
+-- (only when split).
+tab_title.indicators = function(state)
+	local pieces = {}
+
+	if state.zoomed then
+		table.insert(pieces, { text = "ZOOM", color = palette.love, bold = true })
+	end
+
+	if state.pane_count > 1 then
+		table.insert(pieces, { text = tab_title.pips(state.pane_count), color = palette.subtle })
+	end
+
+	return pieces
+end
+
+tab_title.read_state = function(panes)
+	local state = { pane_count = #panes, zoomed = false }
+
+	for _, pane in ipairs(panes) do
+		state.zoomed = state.zoomed or pane.is_zoomed
+	end
+
+	return state
+end
+
 tab_title.register = function()
 	wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
-		-- The number is the key after LEADER, so give it its own color. Only
-		-- the title is truncated, so the number is never cut off.
+		-- The handler's own `panes` argument covers only the active tab, so
+		-- ask the mux for this tab's panes.
+		local mux_tab = wezterm.mux.get_tab(tab.tab_id)
+		local panes = mux_tab and mux_tab:panes_with_info() or {}
+		local indicators = tab_title.indicators(tab_title.read_state(panes))
+
+		-- Reserve room for the number and the indicators; only the title is
+		-- truncated, so neither is ever cut off.
 		local number = " " .. (tab.tab_index + 1) .. ":"
-		local title = wezterm.truncate_right(" " .. tab_title.describe(tab) .. " ", max_width - wezterm.column_width(number))
+		local reserved = wezterm.column_width(number)
+		for _, piece in ipairs(indicators) do
+			reserved = reserved + wezterm.column_width(piece.text) + 1
+		end
+		local title = wezterm.truncate_right(" " .. tab_title.describe(tab) .. " ", math.max(0, max_width - reserved))
 
 		-- ResetAttributes does not restore the tab bar colors here, so the
 		-- title color is set explicitly (these match scheme.tab_bar).
-		return {
+		local items = {
 			{ Foreground = { Color = palette.iris } },
 			{ Attribute = { Intensity = "Bold" } },
 			{ Text = number },
@@ -464,6 +509,14 @@ tab_title.register = function()
 			{ Foreground = { Color = tab_title.color(tab.is_active, hover) } },
 			{ Text = title },
 		}
+
+		for _, piece in ipairs(indicators) do
+			table.insert(items, { Foreground = { Color = piece.color } })
+			table.insert(items, { Attribute = { Intensity = piece.bold and "Bold" or "Normal" } })
+			table.insert(items, { Text = piece.text .. " " })
+		end
+
+		return items
 	end)
 end
 
