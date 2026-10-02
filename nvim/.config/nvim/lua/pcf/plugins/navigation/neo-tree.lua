@@ -39,7 +39,6 @@ return { -- File explorer
         { event = events.FILE_MOVED, handler = on_move },
         { event = events.FILE_RENAMED, handler = on_move },
       },
-      reveal = true,
       filesystem = {
         follow_current_file = {
           enabled = true, -- This will find and focus the file in the active buffer every time

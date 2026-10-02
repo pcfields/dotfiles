@@ -30,8 +30,7 @@ vim.g.maplocalleader = " "
 map({ "i", "n", "v" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
 
 -- Clear search, diff update and redraw
-map({ "n" }, "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>",
-  { desc = "Redraw / clear hlsearch / diff update" })
+map({ "n" }, "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>", { desc = "Redraw / clear hlsearch / diff update" })
 
 -- Search word under cursor
 map({ "n", "x" }, "gw", "*N", { desc = "Search word under cursor" })
@@ -43,8 +42,6 @@ end, { desc = "Dismiss all notifications" })
 --------------------------------------------------------------------------------------------
 -- Files  -----------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
-map("i", "<leader><leader>", "<esc>", { desc = "Exit insert mode" })
-
 map({ "n" }, "<leader>ss", "/", { desc = "Search", silent = false })
 
 --------------------------------------------------------------------------------------------
@@ -148,8 +145,7 @@ map({ "n" }, "n", "nzz", { desc = "Go to next and center cursor in middle of scr
 map({ "n" }, "N", "Nzz", { desc = "Go to previous and center cursor in middle of screen" })
 map({ "n" }, "*", "*zz", { desc = "Search forward for the word under the cursor and center cursor in middle of screen" })
 map({ "n" }, "#", "#zz", { desc = "Search backward and center cursor in middle of screen" })
-map({ "n" }, "g*", "g*zz",
-  { desc = "Search forward for the word under the cursor and center cursor in middle of screen" })
+map({ "n" }, "g*", "g*zz", { desc = "Search forward for the word under the cursor and center cursor in middle of screen" })
 map({ "n" }, "g#", "g#zz", { desc = "Search backward and center cursor in middle of screen" })
 
 --------------------------------------------------------------------------------------------
