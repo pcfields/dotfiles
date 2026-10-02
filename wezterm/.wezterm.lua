@@ -439,10 +439,31 @@ tab_title.describe = function(tab)
 	return process
 end
 
+tab_title.color = function(is_active, hover)
+	if is_active then
+		return palette.text
+	end
+
+	return hover and palette.subtle or palette.muted
+end
+
 tab_title.register = function()
-	wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
-		local text = " " .. (tab.tab_index + 1) .. ": " .. tab_title.describe(tab) .. " "
-		return wezterm.truncate_right(text, max_width)
+	wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
+		-- The number is the key after LEADER, so give it its own color. Only
+		-- the title is truncated, so the number is never cut off.
+		local number = " " .. (tab.tab_index + 1) .. ":"
+		local title = wezterm.truncate_right(" " .. tab_title.describe(tab) .. " ", max_width - wezterm.column_width(number))
+
+		-- ResetAttributes does not restore the tab bar colors here, so the
+		-- title color is set explicitly (these match scheme.tab_bar).
+		return {
+			{ Foreground = { Color = palette.iris } },
+			{ Attribute = { Intensity = "Bold" } },
+			{ Text = number },
+			{ Attribute = { Intensity = "Normal" } },
+			{ Foreground = { Color = tab_title.color(tab.is_active, hover) } },
+			{ Text = title },
+		}
 	end)
 end
 
