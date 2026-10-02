@@ -29,7 +29,8 @@ and the right status shows `LEADER`.
 | `LEADER h j k l` | Move focus |
 | `LEADER z` | Toggle zoom |
 | `LEADER '` | Rotate panes clockwise |
-| `LEADER v` | Pick a pane by label |
+| `LEADER m` | Pick a pane by label and focus it |
+| `LEADER SHIFT+m` | Pick a pane by label and swap it with the active one |
 | `LEADER x` | Close pane (asks first) |
 
 ## Tabs
@@ -109,10 +110,10 @@ bindings, since this list goes stale.
 
 | Kind | Free |
 |---|---|
-| Letters | `b` `e` `m` `n` `p` `q` |
+| Letters | `b` `e` `n` `p` `q` `v` |
 | Digits | `0` `7` `8` `9` (`1` to `6` jump to tabs) |
 | Punctuation | `-` `=` `[` `]` `\` `` ` `` `/` |
-| `LEADER SHIFT` + letter | everything except `F`, `X`, `O` and `I` |
+| `LEADER SHIFT` + letter | everything except `F`, `X`, `O`, `I` and `M` |
 
 Also unbound: `Space`, `Tab`, `Enter`, the arrow keys, and the function keys.
 Taken punctuation is `'` `,` `.` `;` `?`.

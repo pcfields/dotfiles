@@ -385,7 +385,8 @@ config.keys = {
 	},
 	{ mods = "LEADER", key = "z", action = wezterm.action.TogglePaneZoomState },
 	{ mods = "LEADER", key = "'", action = wezterm.action.RotatePanes("Clockwise") },
-	{ mods = "LEADER", key = "v", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
+	{ mods = "LEADER", key = "m", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
+	{ mods = "LEADER|SHIFT", key = "M", action = wezterm.action.PaneSelect({ mode = "SwapWithActive" }) },
 
 	{ mods = "LEADER", key = "h", action = wezterm.action.ActivatePaneDirection("Left") },
 	{ mods = "LEADER", key = "j", action = wezterm.action.ActivatePaneDirection("Down") },
