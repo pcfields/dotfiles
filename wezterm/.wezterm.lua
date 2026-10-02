@@ -639,7 +639,17 @@ status_bar.pane_section = function(state)
 	return #segments > 0 and segments or nil
 end
 
-status_bar.neighbour_name_width = 16
+status_bar.neighbour_name_width = 20
+
+-- Pure: keep the end of a long name behind a leading "…". Workspace names
+-- share a prefix (edocs.site.…), so the end is what tells them apart.
+status_bar.shorten_name = function(name, width)
+	if wezterm.column_width(name) <= width then
+		return name
+	end
+
+	return "…" .. wezterm.truncate_left(name, width - 1)
+end
 
 -- Pure: "‹ prev ● next › (total)", where the marker stands for the current
 -- workspace. With two workspaces previous and next are the same, so previous
@@ -654,7 +664,7 @@ status_bar.workspace_section = function(names, current)
 			local previous = names[(index - 2) % #names + 1]
 			local next_name = names[index % #names + 1]
 			local function short(workspace)
-				return wezterm.truncate_right(workspace, status_bar.neighbour_name_width)
+				return status_bar.shorten_name(workspace, status_bar.neighbour_name_width)
 			end
 
 			-- Both names share a color; the marker between them is the current
