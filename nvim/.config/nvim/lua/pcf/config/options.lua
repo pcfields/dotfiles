@@ -62,6 +62,20 @@ opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,terminal,
 opt.shiftround = true -- Round indent to multiple of 'shiftwidth'
 opt.shiftwidth = 2 -- Size of an indent
 opt.sidescrolloff = 8 -- Columns of context
+-- On Windows use PowerShell for :!, :terminal and the snacks terminal (see :h shell-powershell)
+if vim.fn.has("win32") == 1 then
+  local is_pwsh = vim.fn.executable("pwsh") == 1
+  opt.shelltemp = false
+  opt.shell = is_pwsh and "pwsh" or "powershell"
+  opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
+    .. "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();"
+    .. "$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+    .. (is_pwsh and "$PSStyle.OutputRendering='PlainText';" or "")
+  opt.shellpipe = "> %s 2>&1"
+  opt.shellquote = ""
+  opt.shellxquote = ""
+end
+
 opt.signcolumn = "yes" -- -- Always show the sign column to prevent text shifting
 opt.shortmess:append({ W = true, I = true, c = true, C = true }) -- Shorten various Vim messages
 opt.showmode = false -- Disable, lualine already shows mode in lualine_a
