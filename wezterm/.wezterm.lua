@@ -706,12 +706,28 @@ status_bar.read_state = function(window)
 	}
 end
 
+-- An error inside update-status blanks the whole bar. Build each side
+-- separately so a bug on one side leaves the other intact, and log it.
+status_bar.safe_format = function(build)
+	local ok, result = pcall(build)
+	if ok then
+		return result
+	end
+
+	wezterm.log_error("status bar: " .. tostring(result))
+	return ""
+end
+
 status_bar.register = function()
 	wezterm.on("update-status", function(window)
-		window:set_left_status(wezterm.format(status_bar.format_workspace_section(window)))
+		window:set_left_status(status_bar.safe_format(function()
+			return wezterm.format(status_bar.format_workspace_section(window))
+		end))
 
-		local sections = status_bar.right_sections(status_bar.read_state(window))
-		window:set_right_status(wezterm.format(status_bar.format_strip(sections)))
+		window:set_right_status(status_bar.safe_format(function()
+			local sections = status_bar.right_sections(status_bar.read_state(window))
+			return wezterm.format(status_bar.format_strip(sections))
+		end))
 	end)
 end
 
