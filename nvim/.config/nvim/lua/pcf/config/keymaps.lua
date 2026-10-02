@@ -36,7 +36,9 @@ map({ "n" }, "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
 -- Search word under cursor
 map({ "n", "x" }, "gw", "*N", { desc = "Search word under cursor" })
 
-map({ "n" }, "<leader>xn", "<cmd>Noice dismiss<cr>", { desc = "Dismiss all notifications" })
+map({ "n" }, "<leader>xn", function()
+  Snacks.notifier.hide()
+end, { desc = "Dismiss all notifications" })
 
 --------------------------------------------------------------------------------------------
 -- Files  -----------------------------------------------------------------------------------

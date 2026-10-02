@@ -6,6 +6,8 @@ return { -- Pretty cmdline, messages, and search UI
   },
   config = function()
     require("noice").setup({
+      -- snacks.notifier owns vim.notify (and its history picker)
+      notify = { enabled = false },
       lsp = {
         -- blink.cmp already shows signature help (signature.enabled in blink.lua)
         signature = { enabled = false },
