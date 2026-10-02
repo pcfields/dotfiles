@@ -62,6 +62,9 @@ return { -- Code formatting
       },
       formatters = {
         prettier = { command = prettier_cmd },
+        -- Only run biome in projects that have a biome.json[c]; elsewhere fall
+        -- through to prettierd/prettier so .prettierrc settings are respected.
+        biome = { require_cwd = true },
       },
       format_on_save = save_settings,
     })
