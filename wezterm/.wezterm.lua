@@ -383,7 +383,7 @@ config.keys = {
 			timeout_milliseconds = 1000,
 		}),
 	},
-	{ mods = "LEADER", key = "m", action = wezterm.action.TogglePaneZoomState },
+	{ mods = "LEADER", key = "z", action = wezterm.action.TogglePaneZoomState },
 	{ mods = "LEADER", key = "'", action = wezterm.action.RotatePanes("Clockwise") },
 	{ mods = "LEADER", key = "v", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
 
@@ -407,6 +407,8 @@ config.keys = {
 	{ mods = "LEADER", key = "x", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "LEADER", key = "o", action = wezterm.action.ActivateTabRelative(1) },
 	{ mods = "LEADER", key = "i", action = wezterm.action.ActivateTabRelative(-1) },
+	{ mods = "LEADER|SHIFT", key = "O", action = wezterm.action.MoveTabRelative(1) },
+	{ mods = "LEADER|SHIFT", key = "I", action = wezterm.action.MoveTabRelative(-1) },
 	{ mods = "LEADER", key = "a", action = wezterm.action.ActivateLastTab }, -- [a]lternate tab
 	keymap_builders.go_to_tab(1),
 	keymap_builders.go_to_tab(2),
