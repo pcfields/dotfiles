@@ -72,6 +72,6 @@ return {
     map({ "n" }, "<leader>jw", u.JumpToNextReference, { desc = "Jump to next reference of word" })
     map({ "n" }, "<leader>jW", u.JumpToPreviousReference, { desc = "Jump to previous reference of word" })
 
-    map({ "n", "v" }, "<A-o>", u.ToggleTerminal, { desc = "Toggle Terminal" })
+    map({ "n", "v", "t" }, "<A-o>", u.ToggleTerminal, { desc = "Toggle Terminal" })
   end,
 }
