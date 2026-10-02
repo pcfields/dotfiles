@@ -71,8 +71,8 @@ function M.execute_command_on_enclosing_node(command)
     local command_suffix = get_command_suffix(treesitter_node)
 
     if command_suffix then
-      -- Execute the command with the suffix .e.g `di{` or `yi{`
-      vim.cmd("normal! " .. command .. command_suffix)
+      -- Feed the keys (not :normal) so `c` stays in insert mode, with the suffix .e.g `di{` or `yi{`
+      vim.api.nvim_feedkeys(command .. command_suffix, "n", false)
       return
     end
 

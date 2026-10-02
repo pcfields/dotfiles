@@ -241,44 +241,44 @@ map({ "n" }, "<leader>ye", "y$", { desc = "Yank till end of line" })
 -- `di"`. They use the default register like plain y/d/c.
 local brackets_or_strings_text = " (...) or [...] or {...} or strings"
 
-map({ "n", "v" }, "<leader>yi", function()
+map({ "n" }, "<leader>yi", function()
   execute_command_on_enclosing_node("yi")
 end, { desc = "Yank inside " .. brackets_or_strings_text })
 
-map({ "n", "v" }, "<leader>ya", function()
+map({ "n" }, "<leader>ya", function()
   execute_command_on_enclosing_node("ya")
 end, { desc = "Yank around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Delete Inside and around keymaps
 --------------------------------------------------------------------------------------------
-map({ "n", "v" }, "<leader>di", function()
+map({ "n" }, "<leader>di", function()
   execute_command_on_enclosing_node("di")
 end, { desc = "Delete inside " .. brackets_or_strings_text })
 
-map({ "n", "v" }, "<leader>da", function()
+map({ "n" }, "<leader>da", function()
   execute_command_on_enclosing_node("da")
 end, { desc = "Delete around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Select inside and around keymaps
 --------------------------------------------------------------------------------------------
-map({ "n", "v" }, "<leader>vi", function()
+map({ "n" }, "<leader>vi", function()
   execute_command_on_enclosing_node("vi")
 end, { desc = "Select inside " .. brackets_or_strings_text })
 
-map({ "n", "v" }, "<leader>va", function()
+map({ "n" }, "<leader>va", function()
   execute_command_on_enclosing_node("va")
 end, { desc = "Select around " .. brackets_or_strings_text })
 
 --------------------------------------------------------------------------------------------
 -- Change inside and around keymaps
 --------------------------------------------------------------------------------------------
-map({ "n", "v" }, "<leader>ci", function()
+map({ "n" }, "<leader>ci", function()
   execute_command_on_enclosing_node("ci")
 end, { desc = "Change inside " .. brackets_or_strings_text })
 
-map({ "n", "v" }, "<leader>ca", function()
+map({ "n" }, "<leader>ca", function()
   execute_command_on_enclosing_node("ca")
 end, { desc = "Change around " .. brackets_or_strings_text })
 

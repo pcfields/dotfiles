@@ -18,7 +18,7 @@ function M.record_macro()
   local register_letter = vim.fn.input("Record macro in register: @")
 
   if register_letter ~= "" then
-    vim.cmd("normal! q" .. register_letter) -- Play the macro in the specified register
+    vim.api.nvim_feedkeys("q" .. register_letter, "n", false) -- Start recording in the specified register
   else
     print("No register specified")
   end
