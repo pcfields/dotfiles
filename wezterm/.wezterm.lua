@@ -44,6 +44,31 @@ keymap_builders.go_to_tab = function(tab_number)
 	}
 end
 
+-- Pure: the default copy mode keys with `y` also clearing the selection. The
+-- built-in `y` copies and closes copy mode but leaves the text highlighted.
+keymap_builders.copy_mode_keys = function(default_keys)
+	local keys = {}
+
+	for _, binding in ipairs(default_keys) do
+		-- The default tables spell keys as "mapped:<char>"
+		if binding.key == "mapped:y" and binding.mods == "NONE" then
+			table.insert(keys, {
+				key = binding.key,
+				mods = binding.mods,
+				action = wezterm.action.Multiple({
+					wezterm.action.CopyTo("ClipboardAndPrimarySelection"),
+					wezterm.action.ClearSelection,
+					wezterm.action.CopyMode("Close"),
+				}),
+			})
+		else
+			table.insert(keys, binding)
+		end
+	end
+
+	return keys
+end
+
 -- ============================================================================
 -- COMMAND SPAWNERS MODULE
 -- ============================================================================
@@ -253,6 +278,7 @@ config.mouse_bindings = {
 
 -- Key Tables
 config.key_tables = {
+	copy_mode = keymap_builders.copy_mode_keys(wezterm.gui.default_key_tables().copy_mode),
 	resize_panes = {
 		keymap_builders.resize_pane("j", "Down"),
 		keymap_builders.resize_pane("k", "Up"),
