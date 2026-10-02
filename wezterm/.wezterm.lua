@@ -81,6 +81,10 @@ local palette = {
 	text = "#e0def4",
 	gold = "#f6c177",
 	iris = "#c4a7e7",
+	love = "#eb6f92",
+	foam = "#9ccfd8",
+	-- Darker than the tab bar so the right status reads as recessed
+	void = "#15131f",
 }
 
 -- ============================================================================
@@ -440,6 +444,8 @@ status_bar.colors = {
 	background = palette.iris,
 	-- The workspace badge turns this color while the leader key is active
 	leader_background = palette.gold,
+	-- Background of each right status box
+	box = palette.void,
 }
 
 status_bar.badge_background = function(window)
@@ -487,62 +493,106 @@ status_bar.mode_label = function(state)
 	return nil
 end
 
+-- A section is a list of segments: { text = "...", color = "#rrggbb", bold = true }.
+
+-- Pure: the input mode as a section. Nil when idle.
+status_bar.mode_section = function(state)
+	local label = status_bar.mode_label(state)
+	if not label then
+		return nil
+	end
+
+	return { { text = label, color = palette.gold, bold = true } }
+end
+
 -- Pure: zoom state and pane count. Nil for a lone, unzoomed pane.
-status_bar.pane_label = function(state)
-	local parts = {}
+status_bar.pane_section = function(state)
+	local segments = {}
 
 	if state.zoomed then
-		table.insert(parts, "ZOOM")
+		table.insert(segments, { text = "ZOOM", color = palette.love, bold = true })
 	end
 
 	if state.pane_count > 1 then
-		table.insert(parts, state.pane_count .. " panes")
+		table.insert(segments, { text = state.pane_count .. " panes", color = palette.text })
 	end
 
-	return #parts > 0 and table.concat(parts, " · ") or nil
+	return #segments > 0 and segments or nil
 end
 
--- Pure: "2/4" among the workspaces. Nil with a single workspace.
-status_bar.workspace_position = function(names, current)
+status_bar.neighbour_name_width = 16
+
+-- Pure: "‹ prev ● next › (total)", where the marker stands for the current
+-- workspace. With two workspaces previous and next are the same, so previous
+-- is omitted. Nil with a single workspace.
+status_bar.workspace_section = function(names, current)
 	if #names < 2 then
 		return nil
 	end
 
 	for index, name in ipairs(names) do
 		if name == current then
-			return index .. "/" .. #names
+			local previous = names[(index - 2) % #names + 1]
+			local next_name = names[index % #names + 1]
+			local function short(workspace)
+				return wezterm.truncate_right(workspace, status_bar.neighbour_name_width)
+			end
+
+			-- Both names share a color; the marker between them is the current
+			-- workspace, so neither name reads as "active"
+			local segments = {}
+			if previous ~= next_name then
+				table.insert(segments, { text = "‹ " .. short(previous), color = palette.text })
+			end
+			table.insert(segments, { text = "●", color = palette.iris, bold = true })
+			table.insert(segments, { text = short(next_name) .. " ›", color = palette.text })
+			table.insert(segments, { text = "(" .. #names .. ")", color = palette.foam })
+
+			return segments
 		end
 	end
 
 	return nil
 end
 
--- Pure: chips for the right status, left to right.
-status_bar.right_chips = function(state)
-	local chips = {}
+-- Pure: the non-empty sections of the right status, left to right.
+status_bar.right_sections = function(state)
+	local sections = {}
 
-	local function add(text, foreground, background)
-		if text then
-			table.insert(chips, { text = text, foreground = foreground, background = background })
+	local function add(section)
+		if section then
+			table.insert(sections, section)
 		end
 	end
 
-	add(status_bar.mode_label(state), palette.base, palette.gold)
-	add(status_bar.pane_label(state), palette.text, palette.overlay)
-	add(status_bar.workspace_position(state.workspace_names, state.workspace), palette.subtle, palette.surface)
+	add(status_bar.mode_section(state))
+	add(status_bar.pane_section(state))
+	add(status_bar.workspace_section(state.workspace_names, state.workspace))
 
-	return chips
+	return sections
 end
 
-status_bar.format_chips = function(chips)
+-- Each section is a dark box, with a gap of tab bar color between boxes.
+-- Empty when there is nothing to show.
+status_bar.format_strip = function(sections)
 	local items = {}
 
-	for _, chip in ipairs(chips) do
+	for _, section in ipairs(sections) do
 		table.insert(items, { Background = { Color = palette.base } })
 		table.insert(items, { Text = " " })
-		table.insert(items, { Background = { Color = chip.background } })
-		table.insert(items, { Foreground = { Color = chip.foreground } })
-		table.insert(items, { Text = " " .. chip.text .. " " })
+		table.insert(items, { Background = { Color = status_bar.colors.box } })
+		table.insert(items, { Text = " " })
+
+		for segment_index, segment in ipairs(section) do
+			if segment_index > 1 then
+				table.insert(items, { Text = " " })
+			end
+			table.insert(items, { Foreground = { Color = segment.color } })
+			table.insert(items, { Attribute = { Intensity = segment.bold and "Bold" or "Normal" } })
+			table.insert(items, { Text = segment.text })
+		end
+
+		table.insert(items, { Text = " " })
 	end
 
 	table.insert(items, "ResetAttributes")
@@ -571,8 +621,8 @@ status_bar.register = function()
 	wezterm.on("update-status", function(window)
 		window:set_left_status(wezterm.format(status_bar.format_workspace_section(window)))
 
-		local chips = status_bar.right_chips(status_bar.read_state(window))
-		window:set_right_status(wezterm.format(status_bar.format_chips(chips)))
+		local sections = status_bar.right_sections(status_bar.read_state(window))
+		window:set_right_status(wezterm.format(status_bar.format_strip(sections)))
 	end)
 end
 
