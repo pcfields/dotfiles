@@ -185,6 +185,10 @@ scheme.tab_bar = {
 	new_tab = { bg_color = palette.base, fg_color = palette.muted },
 	new_tab_hover = { bg_color = palette.surface, fg_color = palette.text },
 }
+-- The built-in selection is a faint fill that barely differs from the
+-- background; a solid iris block with dark text is clearly visible.
+scheme.selection_bg = palette.iris
+scheme.selection_fg = palette.base
 config.color_schemes = { [color_scheme .. "-tabs"] = scheme }
 config.color_scheme = color_scheme .. "-tabs"
 
