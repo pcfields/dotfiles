@@ -467,9 +467,112 @@ status_bar.format_workspace_section = function(window)
 	}
 end
 
+status_bar.key_table_labels = {
+	split_panes = "SPLIT",
+	resize_panes = "RESIZE",
+	copy_mode = "COPY",
+	search_mode = "SEARCH",
+}
+
+-- Pure: what input mode is the window in? Nil when idle.
+status_bar.mode_label = function(state)
+	if state.leader_active then
+		return "LEADER"
+	end
+
+	if state.key_table then
+		return status_bar.key_table_labels[state.key_table] or state.key_table:upper()
+	end
+
+	return nil
+end
+
+-- Pure: zoom state and pane count. Nil for a lone, unzoomed pane.
+status_bar.pane_label = function(state)
+	local parts = {}
+
+	if state.zoomed then
+		table.insert(parts, "ZOOM")
+	end
+
+	if state.pane_count > 1 then
+		table.insert(parts, state.pane_count .. " panes")
+	end
+
+	return #parts > 0 and table.concat(parts, " · ") or nil
+end
+
+-- Pure: "2/4" among the workspaces. Nil with a single workspace.
+status_bar.workspace_position = function(names, current)
+	if #names < 2 then
+		return nil
+	end
+
+	for index, name in ipairs(names) do
+		if name == current then
+			return index .. "/" .. #names
+		end
+	end
+
+	return nil
+end
+
+-- Pure: chips for the right status, left to right.
+status_bar.right_chips = function(state)
+	local chips = {}
+
+	local function add(text, foreground, background)
+		if text then
+			table.insert(chips, { text = text, foreground = foreground, background = background })
+		end
+	end
+
+	add(status_bar.mode_label(state), palette.base, palette.gold)
+	add(status_bar.pane_label(state), palette.text, palette.overlay)
+	add(status_bar.workspace_position(state.workspace_names, state.workspace), palette.subtle, palette.surface)
+
+	return chips
+end
+
+status_bar.format_chips = function(chips)
+	local items = {}
+
+	for _, chip in ipairs(chips) do
+		table.insert(items, { Background = { Color = palette.base } })
+		table.insert(items, { Text = " " })
+		table.insert(items, { Background = { Color = chip.background } })
+		table.insert(items, { Foreground = { Color = chip.foreground } })
+		table.insert(items, { Text = " " .. chip.text .. " " })
+	end
+
+	table.insert(items, "ResetAttributes")
+
+	return items
+end
+
+status_bar.read_state = function(window)
+	local panes = window:active_tab():panes_with_info()
+	local zoomed = false
+	for _, pane in ipairs(panes) do
+		zoomed = zoomed or pane.is_zoomed
+	end
+
+	return {
+		leader_active = window:leader_is_active(),
+		key_table = window:active_key_table(),
+		zoomed = zoomed,
+		pane_count = #panes,
+		workspace = window:active_workspace(),
+		workspace_names = wezterm.mux.get_workspace_names(),
+	}
+end
+
 status_bar.register = function()
 	wezterm.on("update-status", function(window)
 		window:set_left_status(wezterm.format(status_bar.format_workspace_section(window)))
+
+		local chips = status_bar.right_chips(status_bar.read_state(window))
+		window:set_right_status(wezterm.format(status_bar.format_chips(chips)))
 	end)
 end
 
