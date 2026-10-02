@@ -403,6 +403,21 @@ tab_title.looks_like_default_title = function(title, process, cwd_basename)
 	return tab_title.shells[lowered] or false
 end
 
+-- Tools like lazygit title themselves "<repo> - <tool>". The location is
+-- already on the workspace badge, so keep just the tool.
+tab_title.strip_location_prefix = function(title, cwd_basename)
+	if not cwd_basename then
+		return title
+	end
+
+	local prefix = cwd_basename:lower() .. " - "
+	if title:sub(1, #prefix):lower() == prefix and #title > #prefix then
+		return title:sub(#prefix + 1)
+	end
+
+	return title
+end
+
 tab_title.describe = function(tab)
 	if tab.tab_title and tab.tab_title ~= "" then
 		return tab.tab_title
@@ -413,7 +428,7 @@ tab_title.describe = function(tab)
 	local cwd = tab_title.cwd_basename(pane)
 
 	if not tab_title.looks_like_default_title(pane.title, process, cwd) then
-		return pane.title
+		return tab_title.strip_location_prefix(pane.title, cwd)
 	end
 
 	-- A shell tells you nothing; where it is does. A tool names itself.
