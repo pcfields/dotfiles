@@ -383,15 +383,15 @@ config.keys = {
 			timeout_milliseconds = 1000,
 		}),
 	},
-	{ mods = "LEADER", key = "z", action = wezterm.action.TogglePaneZoomState },
-	{ mods = "LEADER", key = "'", action = wezterm.action.RotatePanes("Clockwise") },
-	{ mods = "LEADER", key = "m", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
+	{ mods = "LEADER",       key = "z", action = wezterm.action.TogglePaneZoomState },
+	{ mods = "LEADER",       key = "'", action = wezterm.action.RotatePanes("Clockwise") },
+	{ mods = "LEADER",       key = "m", action = wezterm.action.PaneSelect({ mode = "Activate" }) },
 	{ mods = "LEADER|SHIFT", key = "M", action = wezterm.action.PaneSelect({ mode = "SwapWithActive" }) },
 
-	{ mods = "LEADER", key = "h", action = wezterm.action.ActivatePaneDirection("Left") },
-	{ mods = "LEADER", key = "j", action = wezterm.action.ActivatePaneDirection("Down") },
-	{ mods = "LEADER", key = "k", action = wezterm.action.ActivatePaneDirection("Up") },
-	{ mods = "LEADER", key = "l", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ mods = "LEADER",       key = "h", action = wezterm.action.ActivatePaneDirection("Left") },
+	{ mods = "LEADER",       key = "j", action = wezterm.action.ActivatePaneDirection("Down") },
+	{ mods = "LEADER",       key = "k", action = wezterm.action.ActivatePaneDirection("Up") },
+	{ mods = "LEADER",       key = "l", action = wezterm.action.ActivatePaneDirection("Right") },
 	{ -- [r]esize panes
 		mods = "LEADER",
 		key = "r",
@@ -403,14 +403,14 @@ config.keys = {
 	},
 
 	-- Tab Management
-	{ mods = "LEADER", key = "t", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
+	{ mods = "LEADER",       key = "t", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
 	{ mods = "LEADER|SHIFT", key = "X", action = wezterm.action.CloseCurrentTab({ confirm = true }) },
-	{ mods = "LEADER", key = "x", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
-	{ mods = "LEADER", key = "o", action = wezterm.action.ActivateTabRelative(1) },
-	{ mods = "LEADER", key = "i", action = wezterm.action.ActivateTabRelative(-1) },
+	{ mods = "LEADER",       key = "x", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
+	{ mods = "LEADER",       key = "o", action = wezterm.action.ActivateTabRelative(1) },
+	{ mods = "LEADER",       key = "i", action = wezterm.action.ActivateTabRelative(-1) },
 	{ mods = "LEADER|SHIFT", key = "O", action = wezterm.action.MoveTabRelative(1) },
 	{ mods = "LEADER|SHIFT", key = "I", action = wezterm.action.MoveTabRelative(-1) },
-	{ mods = "LEADER", key = "a", action = wezterm.action.ActivateLastTab }, -- [a]lternate tab
+	{ mods = "LEADER",       key = "a", action = wezterm.action.ActivateLastTab }, -- [a]lternate tab
 	keymap_builders.go_to_tab(1),
 	keymap_builders.go_to_tab(2),
 	keymap_builders.go_to_tab(3),
@@ -712,7 +712,7 @@ status_bar.shorten_name = function(name, width)
 	return "…" .. wezterm.truncate_left(name, width - 1)
 end
 
--- Pure: "‹ prev ● next › (total)", where the marker stands for the current
+-- Pure: "󰅁 prev 󰇙 next 󰅂 (total)", where the marker stands for the current
 -- workspace. With two workspaces previous and next are the same, so previous
 -- is omitted. Nil with a single workspace.
 status_bar.workspace_section = function(names, current)
@@ -732,10 +732,10 @@ status_bar.workspace_section = function(names, current)
 			-- workspace, so neither name reads as "active"
 			local segments = {}
 			if previous ~= next_name then
-				table.insert(segments, { text = "‹ " .. short(previous), color = palette.text })
+				table.insert(segments, { text = "󰅁 " .. short(previous), color = palette.text })
 			end
-			table.insert(segments, { text = "●", color = palette.iris, bold = true })
-			table.insert(segments, { text = short(next_name) .. " ›", color = palette.text })
+			table.insert(segments, { text = "󰇙", color = palette.love, bold = true })
+			table.insert(segments, { text = short(next_name) .. " 󰅂", color = palette.text })
 			table.insert(segments, { text = "(" .. #names .. ")", color = palette.foam })
 
 			return segments

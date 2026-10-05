@@ -97,7 +97,7 @@ zoomed and a row of `▪` marks a split tab, one per pane (`+` past four).
 - the input mode: `LEADER`, or `SPLIT` / `RESIZE` / `COPY` / `SEARCH` while that
   key table is active
 - `ZOOM` and `N panes` for the active tab
-- `‹ previous ● next › (total)` for workspaces. The dot stands for the current
+- `󰅁 previous 󰇙 next 󰅂 (total)` for workspaces (Nerd Font glyphs). The divider stands for the current
   workspace, so neither name reads as the active one. It is hidden with a
   single workspace. Names longer than 20 columns keep their end behind a
   leading `…`, because the names share a prefix (`…platform.landingpage`).
