@@ -26,6 +26,13 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
   Push side effects to the edges.
 - Explicit data flow: pass data as arguments, return results. Avoid hidden
   state and implicit mutation.
+- Prefer a single options object over many params. Positional is fine for 1-2
+  params whose order is obvious; use an object at 3+, or whenever any param is
+  optional, a boolean, or shares a type with another (so call sites are
+  self-describing).
+- Top-level functions use `function` declarations; use `const fn = ...` for
+  helpers inside other functions. Put the file's main purpose at the top and
+  its helper functions below it.
 - Small functions that each do one thing. Extract only when a pattern
   actually repeats. No speculative abstraction.
 
