@@ -14,7 +14,7 @@ platform.shell = platform.is_windows and "pwsh.exe" or (os.getenv("SHELL") or "/
 
 platform.home_dir = wezterm.home_dir
 
-platform.font_size = platform.is_windows and 10.5 or 11.0
+platform.font_size = 12
 
 -- ============================================================================
 -- KEYMAP BUILDERS MODULE
