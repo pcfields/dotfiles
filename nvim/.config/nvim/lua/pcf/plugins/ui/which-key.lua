@@ -26,6 +26,7 @@ return {
       { "<leader>h", group = "Buffers / files" },
       { "<leader>j", group = "Jump" },
       { "<leader>m", group = "Macros" },
+      { "<leader>n", group = "Notes" },
       { "<leader>o", group = "Open" },
       { "<leader>p", group = "Paste" },
       { "<leader>q", group = "Quit" },

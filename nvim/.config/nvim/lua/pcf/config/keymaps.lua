@@ -87,6 +87,22 @@ map({ "n" }, "<leader>oe", "<cmd>Neotree toggle reveal current<cr>", { desc = "O
 map({ "n" }, "<leader>og", "<cmd>Neotree git_status<cr>", { desc = "Open Neo-tree Git status" })
 
 --------------------------------------------------------------------------------------------
+-- Notes (obsidian.nvim) ---------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+map({ "n" }, "<leader>nn", "<cmd>Obsidian new<cr>", { desc = "New note" })
+map({ "n" }, "<leader>nt", "<cmd>Obsidian new_from_template<cr>", { desc = "New note from template" })
+map({ "n" }, "<leader>nT", "<cmd>Obsidian template<cr>", { desc = "Insert template" })
+map({ "n" }, "<leader>nf", "<cmd>Obsidian quick_switch<cr>", { desc = "Find note" })
+map({ "n" }, "<leader>ns", "<cmd>Obsidian search<cr>", { desc = "Search notes" })
+map({ "n" }, "<leader>nb", "<cmd>Obsidian backlinks<cr>", { desc = "Backlinks" })
+map({ "n" }, "<leader>nl", "<cmd>Obsidian links<cr>", { desc = "Links in note" })
+map({ "n" }, "<leader>ng", "<cmd>Obsidian tags<cr>", { desc = "Tags" })
+map({ "n" }, "<leader>nr", "<cmd>Obsidian rename<cr>", { desc = "Rename note (updates links)" })
+map({ "n" }, "<leader>np", "<cmd>Obsidian paste_img<cr>", { desc = "Paste image" })
+map({ "v" }, "<leader>nk", "<cmd>Obsidian link<cr>", { desc = "Link selection to note" })
+map({ "v" }, "<leader>nx", "<cmd>Obsidian extract_note<cr>", { desc = "Extract selection to new note" })
+
+--------------------------------------------------------------------------------------------
 -- Buffers ----------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 

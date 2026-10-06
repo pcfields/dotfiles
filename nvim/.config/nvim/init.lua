@@ -45,6 +45,9 @@ plugin_manager.setup({
   plugin("navigation.mini-files"),
   plugin("navigation.neo-tree"),
 
+  plugin("notes.obsidian"),
+  plugin("notes.render-markdown"),
+
   plugin("testing.neo-test"),
 
   plugin("ui.lualine"),
