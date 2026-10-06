@@ -367,7 +367,7 @@ config.keys = {
 		end),
 	},
 	{ mods = "LEADER", key = "g", action = command_spawners.spawn_tool("LazyGit", "lazygit") },
-	{ mods = "LEADER", key = ";", action = command_spawners.spawn_tool("Claude", "claude") },
+	{ mods = "LEADER", key = "a", action = command_spawners.spawn_tool("Claude", "claude") }, -- [a]i
 	{ mods = "LEADER", key = "f", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "LEADER", key = ".", action = wezterm.action.SwitchWorkspaceRelative(1) },
 	{ mods = "LEADER", key = ",", action = wezterm.action.SwitchWorkspaceRelative(-1) },
@@ -410,7 +410,7 @@ config.keys = {
 	{ mods = "LEADER",       key = "i", action = wezterm.action.ActivateTabRelative(-1) },
 	{ mods = "LEADER|SHIFT", key = "O", action = wezterm.action.MoveTabRelative(1) },
 	{ mods = "LEADER|SHIFT", key = "I", action = wezterm.action.MoveTabRelative(-1) },
-	{ mods = "LEADER",       key = "a", action = wezterm.action.ActivateLastTab }, -- [a]lternate tab
+	{ mods = "LEADER",       key = "e", action = wezterm.action.ActivateLastTab }, -- last tab, pairs with w (last workspace)
 	keymap_builders.go_to_tab(1),
 	keymap_builders.go_to_tab(2),
 	keymap_builders.go_to_tab(3),
