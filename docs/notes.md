@@ -9,23 +9,19 @@ involved, so there is no `.obsidian/` folder to maintain.
 
 ## Vault
 
-- Location: `~/notes/Personal`. Override with the `NOTES_VAULT` environment
-  variable, e.g. on Windows.
+- Location: `~/ws/personal/personal-notebook`, so it appears in the WezTerm
+  project picker as `personal/personal-notebook` like every other project.
+  Override with the `NOTES_VAULT` environment variable, e.g. on Windows.
 - The vault is **not** part of this repo. It is its own **private** GitHub repo,
-  so articles are not mixed with config.
+  `pcfields/personal-notebook`, so articles are not mixed with config.
 
-### First-time repo setup
+### Setting up a new machine
 
 ```fish
-cd ~/notes/Personal
-git init -b main
-printf '.DS_Store\n' > .gitignore
-git add -A && git commit -m "chore: initial vault"
-git remote add origin git@github.com:pcfields/personal-notebook.git
-git push -u origin main
+git clone git@github.com:pcfields/personal-notebook.git ~/ws/personal/personal-notebook
 ```
 
-Check on GitHub that `personal-notebook` is **private** before pushing.
+On Windows, clone it wherever suits and set `NOTES_VAULT` to that path.
 
 ### Reading on the phone
 
@@ -84,7 +80,7 @@ plugin prompt for a value.
 Pull before you start writing, commit and push when you finish:
 
 ```fish
-cd ~/notes/Personal
+cd ~/ws/personal/personal-notebook
 git pull
 # ...write...
 git add -A && git commit -m "docs: add my-article" && git push

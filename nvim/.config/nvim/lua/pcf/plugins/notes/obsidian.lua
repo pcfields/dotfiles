@@ -8,7 +8,7 @@
 --
 -- Override the vault location with $NOTES_VAULT (e.g. on Windows).
 
-local VAULT_PATH = vim.env.NOTES_VAULT or "~/notes/Personal"
+local VAULT_PATH = vim.env.NOTES_VAULT or "~/ws/personal/personal-notebook"
 
 -- "My Article" -> "my-article" so filenames need no URL escaping in links.
 -- Falls back to a timestamp when no title is given.
