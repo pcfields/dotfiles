@@ -19,13 +19,13 @@ involved, so there is no `.obsidian/` folder to maintain.
 ```fish
 cd ~/notes/Personal
 git init -b main
-printf '.obsidian/\n.trash/\n.DS_Store\n' > .gitignore
+printf '.DS_Store\n' > .gitignore
 git add -A && git commit -m "chore: initial vault"
-gh repo create notes --private --source=. --remote=origin --push
+git remote add origin git@github.com:pcfields/personal-notebook.git
+git push -u origin main
 ```
 
-Remove the stale `.obsidian/` folder (and its `.gitignore` line) if it is still
-there from the earlier Obsidian vault.
+Check on GitHub that `personal-notebook` is **private** before pushing.
 
 ### Reading on the phone
 
@@ -57,28 +57,27 @@ links.
 | `<leader>np` | Paste image from clipboard |
 | `<leader>nk` (visual) | Turn selection into a link |
 | `<leader>nx` (visual) | Extract selection into a new note |
-| `gf` / `<CR>` on a link | Follow link |
+| `<CR>` on a link / checkbox / tag | Follow link, toggle checkbox, or browse tag |
+| `gf` on a link | Follow link |
 
 ## First-time setup
 
 1. `./install.sh stow`, then open Neovim and run `:Lazy sync`.
-2. Create `templates/article.md` in the vault, for example:
+2. Check with `:checkhealth obsidian`.
 
-   ```markdown
-   ---
-   tags: [article, draft]
-   ---
+## Templates
 
-   # {{title}}
+Templates live in the vault's `templates/` folder (they are vault content, not
+part of this repo). Use `<leader>nt` to start a note from one.
 
-   ## Summary
+| Template | Use for |
+|---|---|
+| `article.md` | A long-form article: summary, context, main points, open questions |
+| `note.md` | One atomic idea in your own words, with a source |
+| `index.md` | A curated list of links on one topic |
 
-   ## Notes
-
-   ## Related
-   ```
-
-3. Check with `:checkhealth obsidian`.
+Only `{{title}}` and `{{date}}` are used. Any other `{{variable}}` makes the
+plugin prompt for a value.
 
 ## Workflow
 
