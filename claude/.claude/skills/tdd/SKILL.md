@@ -8,6 +8,16 @@ description: Drive new logic or a bug fix with Canon TDD — build a test list, 
 Based on Kent Beck's Canon TDD (https://newsletter.kentbeck.com/p/canon-tdd).
 Five steps, repeated until the list is empty.
 
+## Seams — where tests go
+
+A seam is the public boundary you test at: the interface where you observe
+behavior without reaching inside. Tests live at seams, never against
+internals.
+
+Agree the seam with the user (or take it from the plan file) before writing
+any test. You can't test everything; agreeing seams up front puts testing
+effort on the behaviors that matter instead of every internal detail.
+
 ## 1. Test list
 
 Before writing any test, list the behavior variants expected: normal
@@ -45,9 +55,11 @@ case you hadn't considered, add it to the list — don't chase it now.
 Only while everything is green. Clean up duplication, names, structure.
 Keep this separate from making the test pass — don't mix the two modes.
 
-## 5. Repeat
+## 5. Verify and repeat
 
-Go back to step 2 until the list is empty.
+Run the targeted test, then the relevant suite. Go back to step 2 until the
+list is empty. Before calling the work done, also run the typecheck, lint
+and build. Never claim "should pass": run it, read the output, quote it.
 
 ## Test doubles
 
