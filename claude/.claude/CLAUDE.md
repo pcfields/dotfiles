@@ -13,6 +13,16 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
 - Ask before ambiguous, high-impact changes, or anything touching auth,
   public APIs, schemas, or infra.
 
+## Core philosophy
+
+- Tidy first (Kent Beck): before changing behavior, look for small tidyings
+  that make the change easier (clearer names, extracted helpers, dead code
+  removed). Keep tidyings in their own commits, separate from behavior
+  changes. Propose them before doing them.
+- Iterate and keep improving: plans, code and the product are expected to
+  change as we learn. Revisit and update plans, tests and code when feedback
+  or new facts show a better way; leave code cleaner than you found it.
+
 ## Working discipline
 
 - Understand the current behavior and constraints before editing.
