@@ -30,12 +30,46 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
 - If confidence is low, say so and propose a safe next step instead of
   guessing.
 
-## Coding principles
+<!-- Design and Testing are kept identical in opencode/.config/opencode/AGENTS.md -->
 
-- Separate calculations (pure functions, no I/O) from actions (side effects).
-  Push side effects to the edges.
+## Design
+
+Grokking Simplicity (Eric Normand) is the anchor; the other ideas here are
+applied through it.
+
+- Separate data, calculations (pure functions, no I/O) and actions (side
+  effects). Push actions to the edges: a functional core inside a thin
+  imperative shell.
 - Explicit data flow: pass data as arguments, return results. Avoid hidden
-  state and implicit mutation.
+  state and implicit mutation; treat data as immutable (copy-on-write).
+- Deep modules (John Ousterhout, *A Philosophy of Software Design*): a
+  simple interface hiding real functionality. Pull complexity down into the
+  module instead of pushing it onto callers. Every layer must add meaning;
+  no pass-through wrappers.
+- Simple design (Kent Beck): passes the tests, reveals intention, no
+  duplication, fewest elements. No speculative abstraction.
+- Intention-revealing names; each unit has a single responsibility.
+- Extract a function when a pattern repeats, or to pull a calculation out of
+  an action. Not just to make functions shorter.
+
+## Testing
+
+- Test behavior, not implementation (Kent C. Dodds): the more tests resemble
+  how the software is used, the more confidence they give. Test through the
+  public interface; a refactor that preserves behavior must not break a test.
+- Calculations get fast, direct tests with plain values. Actions get fewer
+  tests, through the real interface (DOM, HTTP, CLI).
+- Mocking is a design smell. Needing a mock usually means logic is tangled
+  with an action: extract the calculation instead. Preference order: real
+  code, then an in-memory fake or Nullable (James Shore), then a mock only at
+  a boundary you don't own (network, clock, randomness), placed as far out
+  as possible (MSW rather than mocking `fetch`).
+- Assert on outcomes (return values, resulting state, what the user sees),
+  not on which internal functions were called. Never mock your own modules.
+- The `tdd` skill has the procedure, test-double details and React rules.
+
+## Coding style
+
 - Prefer a single options object over many params. Positional is fine for 1-2
   params whose order is obvious; use an object at 3+, or whenever any param is
   optional, a boolean, or shares a type with another (so call sites are
@@ -43,14 +77,13 @@ Anything a setting or hook can enforce belongs in `settings.json`, not here.
 - Top-level functions use `function` declarations; use `const fn = ...` for
   helpers inside other functions. Put the file's main purpose at the top and
   its helper functions below it.
-- Small functions that each do one thing. Extract only when a pattern
-  actually repeats. No speculative abstraction.
 
 ## Test-driven development
 
-- Default technique for new logic and bug fixes, when the project has a test
-  suite: build a test list, take one test at a time, make it pass for real,
-  refactor only while green. Use the `tdd` skill for the full procedure.
+- Canon TDD (Kent Beck) is the default technique for new logic and bug
+  fixes, when the project has a test suite: build a test list, take one test
+  at a time, make it pass for real, refactor only while green. Use the `tdd`
+  skill for the full procedure.
 
 ## Commits
 

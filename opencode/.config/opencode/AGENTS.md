@@ -37,6 +37,44 @@ Ask, don't assume, when:
 Do not ask when the answer is already in the plan, or the choice is
 trivial with no meaningful downside either way.
 
+<!-- Design and Testing are kept identical in claude/.claude/CLAUDE.md -->
+
+## Design
+
+Grokking Simplicity (Eric Normand) is the anchor; the other ideas here are
+applied through it.
+
+- Separate data, calculations (pure functions, no I/O) and actions (side
+  effects). Push actions to the edges: a functional core inside a thin
+  imperative shell.
+- Explicit data flow: pass data as arguments, return results. Avoid hidden
+  state and implicit mutation; treat data as immutable (copy-on-write).
+- Deep modules (John Ousterhout, *A Philosophy of Software Design*): a
+  simple interface hiding real functionality. Pull complexity down into the
+  module instead of pushing it onto callers. Every layer must add meaning;
+  no pass-through wrappers.
+- Simple design (Kent Beck): passes the tests, reveals intention, no
+  duplication, fewest elements. No speculative abstraction.
+- Intention-revealing names; each unit has a single responsibility.
+- Extract a function when a pattern repeats, or to pull a calculation out of
+  an action. Not just to make functions shorter.
+
+## Testing
+
+- Test behavior, not implementation (Kent C. Dodds): the more tests resemble
+  how the software is used, the more confidence they give. Test through the
+  public interface; a refactor that preserves behavior must not break a test.
+- Calculations get fast, direct tests with plain values. Actions get fewer
+  tests, through the real interface (DOM, HTTP, CLI).
+- Mocking is a design smell. Needing a mock usually means logic is tangled
+  with an action: extract the calculation instead. Preference order: real
+  code, then an in-memory fake or Nullable (James Shore), then a mock only at
+  a boundary you don't own (network, clock, randomness), placed as far out
+  as possible (MSW rather than mocking `fetch`).
+- Assert on outcomes (return values, resulting state, what the user sees),
+  not on which internal functions were called. Never mock your own modules.
+- The `tdd` skill has the procedure, test-double details and React rules.
+
 ## Project Auto-Detection
 
 No project ever has a committed `.opencode/` folder from this setup — this
