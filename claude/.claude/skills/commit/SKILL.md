@@ -5,10 +5,12 @@ description: Plan and create conventional commits from the working tree, split b
 
 ## Current state
 
-- Status: !`git status --short`
-- Staged stat: !`git diff --cached --stat`
-- Unstaged stat: !`git diff --stat`
-- Recent commits (match their style): !`git log --oneline -10`
+Start by running:
+
+- Status: `git status --short`
+- Staged stat: `git diff --cached --stat`
+- Unstaged stat: `git diff --stat`
+- Recent commits (match their style): `git log --oneline -10`
 
 ## Split by concern
 
@@ -27,9 +29,10 @@ Read the full diff (`git diff`, `git diff --cached`) before proposing anything.
    or commit before that.
 3. For each commit in order:
    - Whole files: `git add <paths>`.
-   - Part of a file: write only the wanted hunks to a patch file in the
-     scratchpad and run `git apply --cached <patch>`. Never edit the working
-     tree back to an intermediate state to stage it; that can lose work.
+   - Part of a file: write only the wanted hunks to a patch file in a
+     temporary directory outside the repo and run `git apply --cached
+     <patch>`. Never edit the working tree back to an intermediate state to
+     stage it; that can lose work.
    - Verify with `git diff --cached` that exactly the intended change is
      staged, then `git commit`.
 4. Finish with `git log --oneline -<n>` and `git status --short` so the user

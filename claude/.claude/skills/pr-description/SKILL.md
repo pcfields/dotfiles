@@ -5,10 +5,12 @@ description: Draft a pull request title and description for the current branch f
 
 ## Current state
 
-- Branch: !`git branch --show-current`
-- Commits on this branch vs origin/dev: !`git log --oneline --first-parent origin/dev..HEAD`
-- Files changed vs origin/dev: !`git diff --stat origin/dev...HEAD`
-- Uncommitted: !`git status --short`
+Start by running:
+
+- Branch: `git branch --show-current`
+- Commits on this branch vs origin/dev: `git log --oneline --first-parent origin/dev..HEAD`
+- Files changed vs origin/dev: `git diff --stat origin/dev...HEAD`
+- Uncommitted: `git status --short`
 
 The base defaults to `origin/dev`. If the user names another base (e.g. `main`), rerun the
 log and diff against that instead. If there are uncommitted changes, say so — the description
