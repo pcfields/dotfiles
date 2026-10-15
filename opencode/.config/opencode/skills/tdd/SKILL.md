@@ -78,6 +78,44 @@ helpers. Structural redesign belongs in review, not this loop.
 Run the targeted test, then the relevant suite, typecheck, lint, and
 build. Never claim "should pass" — run it, read the output, quote it.
 
+## Test doubles
+
+Mocks are a design smell, not a first resort. Before reaching for one, ask
+whether a calculation is tangled inside an action. If it is, extract it and
+test it with plain values; no double needed.
+
+Preference order:
+
+1. **Real code.** Calculations never need doubles.
+2. **In-memory fake or Nullable** for infrastructure you own: a working,
+   simplified implementation, such as an in-memory repository or a wrapper
+   with a `createNull()` mode (James Shore, "Testing Without Mocks"). Assert
+   on the resulting state or output.
+3. **Stub or mock** only at a boundary you don't own (network, clock,
+   randomness, third-party SDKs), placed as far out as possible: MSW at the
+   HTTP layer rather than mocking `fetch` or an API module. Wrap third-party
+   code you depend on and fake the wrapper.
+
+Never mock the unit under test or your own modules it calls. Don't assert
+on which internal functions were called or in what order; assert on
+outcomes. Checking a call is only acceptable when the call itself is the
+observable behavior at a boundary, e.g. "sends exactly one email".
+
+## React components
+
+Test the way a user would, with Testing Library (Kent C. Dodds):
+
+- Query by role first (`getByRole` with its accessible name), then label,
+  then text. `getByTestId` is a last resort.
+- Drive interactions with `user-event`, not `fireEvent`. Use `findBy*` or
+  `waitFor` for async results.
+- Don't assert on component state, props, hooks or instance methods.
+- No shallow rendering: render with real children. Snapshots don't replace
+  behavioral assertions.
+- Logic with meaning of its own (pricing, validation, formatting rules)
+  belongs in a calculation outside the component, tested directly. Anything
+  else is tested through the rendered component.
+
 ## Bug fixes
 
 Always start with a failing regression test that reproduces the reported
@@ -91,7 +129,8 @@ is untestable at any reasonable seam — justify that explicitly if so.
 - **Tautological assertions** that recompute the expected value the same
   way the code does — they pass by construction and can't disagree.
 - **Mocking internals** instead of testing through the public seam — the
-  test breaks on refactors even when behavior hasn't changed.
+  test breaks on refactors even when behavior hasn't changed. See Test
+  doubles above.
 - **Horizontal slicing** — writing every test on the list, then all
   implementation. Work vertically: one list item → one test → one minimal
   implementation → repeat until the list is empty.
