@@ -5,16 +5,16 @@ description: Draft a pull request title and description for the current branch f
 
 ## Current state
 
-Start by running:
+Start by finding the base: `git symbolic-ref --short refs/remotes/origin/HEAD` (e.g.
+`origin/main`). If that fails, try `origin/main`, then `origin/master`. If the user names another
+base (e.g. `dev`), use that instead. Then run, with `<base>` substituted:
 
 - Branch: `git branch --show-current`
-- Commits on this branch vs origin/dev: `git log --oneline --first-parent origin/dev..HEAD`
-- Files changed vs origin/dev: `git diff --stat origin/dev...HEAD`
+- Commits on this branch vs the base: `git log --oneline --first-parent <base>..HEAD`
+- Files changed vs the base: `git diff --stat <base>...HEAD`
 - Uncommitted: `git status --short`
 
-The base defaults to `origin/dev`. If the user names another base (e.g. `main`), rerun the
-log and diff against that instead. If there are uncommitted changes, say so — the description
-covers committed work only.
+If there are uncommitted changes, say so — the description covers committed work only.
 
 ## Gather before writing
 
