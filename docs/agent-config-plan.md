@@ -65,8 +65,8 @@ them from one source would be speculative; revisit if duplication hurts.
 
 Each step is its own commit and independently revertable.
 
-1. [ ] **Tidy:** reconcile the diverged `tdd` skill copies (no behavior change).
-2. [ ] Create the `agents/` package; move skills in; re-point Claude and OpenCode links.
+1. [x] **Tidy:** reconcile the diverged `tdd` skill copies (no behavior change).
+2. [x] Create the `agents/` package; move skills in; re-point Claude and OpenCode links.
 3. [ ] Move hook scripts and `test-hooks.sh` to `agents/bin/` and `agents/tests/`; update `settings.json` paths; run tests.
 4. [ ] Unify the instructions file; wire Codex `AGENTS.md`.
 5. [ ] Verify Codex/OpenCode skill and hook paths for installed versions; add the OpenCode plugin adapter, then Codex's if supported.
