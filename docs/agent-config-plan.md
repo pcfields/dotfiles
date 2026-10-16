@@ -78,7 +78,7 @@ Each step is its own commit and independently revertable.
 1. [x] **Tidy:** reconcile the diverged `tdd` skill copies (no behavior change).
 2. [x] Create the `agents/` package; move skills in; re-point Claude and OpenCode links.
 3. [x] Unify the instructions file; wire OpenCode and Codex `AGENTS.md`.
-4. [ ] Add the link/frontmatter check script for the shared package.
+4. [x] Add `install/check-agent-config.sh` (skill frontmatter plus wiring checks).
 5. [ ] Update the Windows symlink script (`~/.agents`, drop the stale Claude skills entry), `docs/strategy.md` and `docs/install.md`.
 6. [ ] Deferred: shared hooks and checks (see above).
 
