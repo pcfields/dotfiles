@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# Links each shared skill (agents/.config/agents/skills/*) into every agent
+# Links each shared skill (agents/.agents/skills/*) into every agent
 # harness's skills directory, one symlink per skill. Per-skill links, not a
 # directory link, because harnesses keep app-managed entries beside ours
 # (~/.claude/skills/synced, ~/.codex/skills/.system).
+# Codex and VS Code read ~/.agents/skills directly (stowed from this package).
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/lib/common.sh"
 
-SHARED_SKILLS="$ROOT_DIR/agents/.config/agents/skills"
+SHARED_SKILLS="$ROOT_DIR/agents/.agents/skills"
 
-# Codex reads ~/.agents/skills natively.
 TARGETS=(
   "$HOME/.claude/skills"
   "$HOME/.config/opencode/skills"
-  "$HOME/.agents/skills"
 )
 
 [[ -d "$SHARED_SKILLS" ]] || { error "Missing $SHARED_SKILLS"; exit 1; }
