@@ -1,5 +1,5 @@
 ---
-name: pr-description
+name: pr-draft
 description: Draft a pull request title and description for the current branch from its commits, diff and this session's context. Use whenever the user asks for a PR title, PR summary or PR description, or asks to "write up" a branch for review.
 ---
 
