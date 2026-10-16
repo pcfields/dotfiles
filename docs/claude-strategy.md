@@ -29,15 +29,17 @@ add config files to. A project's own `CLAUDE.md` layers on top.
 ```text
 claude/.claude/
 ├── settings.json                    # model, attribution, sandbox, permissions, hook wiring
-├── CLAUDE.md                        # global instructions, loaded every session
+├── CLAUDE.md                        # imports the shared ~/.agents/AGENTS.md + Claude-only lines
 ├── hooks/
 │   ├── protect-secrets.sh           # PreToolUse(Read|Edit|Write): blocks secret-shaped paths
 │   ├── block-catastrophic-bash.sh   # PreToolUse(Bash): blocks destructive commands
 │   └── test-hooks.sh                # regression fixtures for both hooks
-└── skills/
-    ├── commit/SKILL.md              # plan + create commits split by concern
-    └── tdd/SKILL.md                 # Canon TDD: test list, one test at a time, refactor while green
 ```
+
+Instructions and skills are shared with other harnesses and live in
+`agents/.agents/` (see "Shared agent config" in `docs/strategy.md`):
+`AGENTS.md`, and the skills `commit`, `tdd` and `pr-draft`. The
+`agent-links` install step links the skills into `~/.claude/skills`.
 
 `CLAUDE.md` also routes to skills that ship with Claude Code:
 `code-review`, `security-review`, and `simplify`.
@@ -147,7 +149,8 @@ whose repo it is.
 ```bash
 bash claude/.claude/hooks/test-hooks.sh     # hook regression fixtures
 jq . claude/.claude/settings.json           # settings are valid JSON
-ls -l ~/.claude/                            # CLAUDE.md, settings.json, hooks, skills/commit are symlinks
+ls -l ~/.claude/                            # CLAUDE.md, settings.json, hooks are symlinks
+./install/check-agent-config.sh             # shared instructions and skills are wired in
 ```
 
 After changing a setting through `/config` or `/model`, check that

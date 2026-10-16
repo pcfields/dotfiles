@@ -33,7 +33,7 @@ chmod +x install.sh
 The installer runs the setup in stages so the machine can be rebuilt in a predictable order.
 
 ```text
-apt → fish → stow → fonts → nix → flatpak → mise → opencode
+apt → fish → stow → agent-links → fonts → nix → flatpak → mise → opencode
 ```
 
 For the reasoning behind that order, see [`docs/strategy.md`](docs/strategy.md).
@@ -65,6 +65,7 @@ Neovim startup.
 | Add a CLI tool via Nix | Edit `nix/.config/nix/home.nix`, then run `home-manager switch --flake ~/.config/nix` |
 | Change runtime versions | Edit `mise/.config/mise/config.toml`, then run `mise install` |
 | Add a new dotfile config | Add a new stow package and run `./install.sh stow` |
+| Add a shared agent skill | Add `agents/.agents/skills/<name>/SKILL.md`, then run `./install.sh agent-links` and `./install/check-agent-config.sh` |
 | Install OpenCode only | Run `./install.sh opencode` |
 | Validate Neovim config | Run `nvim --headless -u NONE -l nvim/.config/nvim/tests/smoke.lua` |
 
@@ -81,6 +82,7 @@ Neovim startup.
 ├── mise/.config/mise/         # Runtime versions
 ├── nvim/.config/nvim/         # Neovim config
 ├── ohmyposh/.config/ohmyposh/ # Prompt config
+├── agents/.agents/            # Shared agent instructions and skills (stow-managed)
 ├── opencode/.config/opencode/ # OpenCode config (stow-managed)
 ├── wezterm/                   # WezTerm config
 └── windows/                   # Windows-specific setup scripts

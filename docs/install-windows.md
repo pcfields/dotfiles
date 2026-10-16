@@ -112,7 +112,7 @@ this workaround for prettier and documents the reasoning.
 ```powershell
 powershell -ExecutionPolicy Bypass -File install\windows\setup-windows-symlinks.ps1
 ```
-This safely symlinks your PowerShell profile (`profile.ps1`) to `$PROFILE` so all aliases, functions, and Oh My Posh setup work. Also links WezTerm, nvim, and other config files as needed.
+This safely symlinks your PowerShell profile (`profile.ps1`) to `$PROFILE` so all aliases, functions, and Oh My Posh setup work. Also links WezTerm, nvim, and other config files as needed, plus the shared agent config (`~/.agents`, Claude skills, `~/.codex/AGENTS.md`).
 
 ## Shell, Aliases, and Profile
 All PowerShell config (profile, aliases, helper functions) is managed in the `powershell/` directory and sourced by the symlinked profile. Edit in the repo for instant propagation.

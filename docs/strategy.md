@@ -152,6 +152,7 @@ nvim/.config/nvim/init.lua           → ~/.config/nvim/init.lua
 nix/.config/nix/flake.nix            → ~/.config/nix/flake.nix
 mise/.config/mise/config.toml        → ~/.config/mise/config.toml
 opencode/.config/opencode/opencode.json  → ~/.config/opencode/opencode.json
+agents/.agents/AGENTS.md             → ~/.agents/AGENTS.md
 ```
 
 To add a new config package:
@@ -161,19 +162,42 @@ To add a new config package:
 3. Add `myapp` to `STOW_PACKAGES` in `install/stow-dotfiles.sh`.
 4. Run `./install.sh stow`.
 
+## Shared agent config
+
+One source of truth for AI agent instructions and skills lives in the `agents`
+stow package, stowed to `~/.agents/`:
+
+```text
+agents/.agents/AGENTS.md          global instructions for every harness
+agents/.agents/skills/<name>/     shared skills (SKILL.md format)
+```
+
+How each harness picks it up:
+
+| Harness  | Instructions | Skills |
+|----------|--------------|--------|
+| Claude   | `claude/.claude/CLAUDE.md` imports `@~/.agents/AGENTS.md` | per-skill links into `~/.claude/skills` (`agent-links` step) |
+| OpenCode | `instructions` in `opencode.json` loads `~/.agents/AGENTS.md`; its own `AGENTS.md` holds OpenCode-only rules | scans `~/.agents/skills` itself |
+| Codex    | `~/.codex/AGENTS.md` links to the shared file (`agent-links` step) | reads `~/.agents/skills` natively |
+
+Edit the shared files once; `./install/check-agent-config.sh` verifies the
+wiring. Hooks stay per harness (`claude/.claude/hooks/`); sharing them is
+deferred, see `docs/agent-config-plan.md`.
+
 ## Install order
 
 ```text
 1. apt         — System packages, apt repos, Docker.
 2. fish        — Install Fish shell from PPA.
 3. stow        — Symlink configs into $HOME.
-4. fonts       — Install user fonts.
-5. ohmyposh    — Install Oh My Posh (curl script).
-6. rustup      — Install Rustup (official installer).
-7. nix         — Install Nix and run Home Manager (requires shell restart).
-8. flatpak     — Install sandboxed GUI apps.
-9. mise-runtimes — Install language runtimes.
-10. opencode    — Install the OpenCode binary.
+4. agent-links — Link shared agent skills/instructions into Claude and Codex.
+5. fonts       — Install user fonts.
+6. ohmyposh    — Install Oh My Posh (curl script).
+7. rustup      — Install Rustup (official installer).
+8. nix         — Install Nix and run Home Manager (requires shell restart).
+9. flatpak     — Install sandboxed GUI apps.
+10. mise-runtimes — Install language runtimes.
+11. opencode    — Install the OpenCode binary.
 ```
 
 This order matters because each later step depends on tools or config provided
