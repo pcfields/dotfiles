@@ -33,7 +33,7 @@ mark_completed() {
 STEPS=(
   apt
   stow
-  agent-skills
+  agent-links
   fish
   fonts
   ohmyposh
@@ -50,7 +50,7 @@ step_script() {
   case "$step" in
     apt)      echo "$INSTALL_DIR/install-apt.sh" ;;
     stow)     echo "$INSTALL_DIR/stow-dotfiles.sh" ;;
-    agent-skills) echo "$INSTALL_DIR/install-agent-skills.sh" ;;
+    agent-links) echo "$INSTALL_DIR/install-agent-links.sh" ;;
     fish)     echo "$INSTALL_DIR/install-fish.sh" ;;
     fonts)    echo "$INSTALL_DIR/install-fonts.sh" ;;
     ohmyposh) echo "$INSTALL_DIR/install-ohmyposh.sh" ;;
