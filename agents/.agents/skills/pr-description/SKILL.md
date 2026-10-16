@@ -1,6 +1,6 @@
 ---
 name: pr-description
-description: Draft a pull request title and description for the current branch from its commits, diff and this session's context, then offer to create the PR in Azure DevOps. Use whenever the user asks for a PR title, PR summary or PR description, or asks to "write up" a branch for review.
+description: Draft a pull request title and description for the current branch from its commits, diff and this session's context. Use whenever the user asks for a PR title, PR summary or PR description, or asks to "write up" a branch for review.
 ---
 
 ## Current state
@@ -56,18 +56,4 @@ No marketing language, no restating the diff line by line, no emoji.
 Show the title and the description as two separate fenced blocks (a plain one for the title, a
 `markdown` one for the description) so each can be copied as-is.
 
-Then ask the user whether they want to **copy it themselves** or have you **create the PR in
-Azure DevOps**. Stop and wait for the answer. Don't push or create anything before then.
-
-## Creating the PR (only when the user chooses it)
-
-1. Check `az` is installed and signed in (`az account show`) with the `azure-devops` extension
-   (`az extension show --name azure-devops`). If not, say what's missing and leave the draft to
-   copy instead.
-2. If the branch isn't on the remote or is behind it, say so and ask before pushing
-   (`git push -u origin <branch>`).
-3. Ask for the target branch if it isn't clear from the base (e.g. "dev"). Save the description
-   to a temporary file and create the PR with the repo's own remote detected:
-   `az repos pr create --detect true --source-branch <branch> --target-branch <target> --title "<title>" --description "$(cat <file>)"`
-4. Report the PR's URL from the command output. Don't add reviewers, set auto-complete or link
-   work items unless the user asks.
+Don't push or create the PR; the user copies the draft.
