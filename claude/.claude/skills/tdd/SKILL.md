@@ -6,7 +6,8 @@ description: Drive new logic or a bug fix with Canon TDD — build a test list, 
 # Canon TDD
 
 Based on Kent Beck's Canon TDD (https://newsletter.kentbeck.com/p/canon-tdd).
-Five steps, repeated until the list is empty.
+Five steps, repeated until the list is empty. See `examples.md` for one
+worked test.
 
 ## Seams — where tests go
 
