@@ -5,6 +5,9 @@ end
 if not contains "$HOME/.opencode/bin" $PATH
     set -gx PATH "$HOME/.opencode/bin" $PATH
 end
+if not contains "$HOME/go/bin" $PATH
+    set -gx PATH "$HOME/go/bin" $PATH
+end
 
 # Set SHELL for other terminals that respect it (cosmic-term, gnome-terminal, etc.)
 set -gx SHELL (which fish)
