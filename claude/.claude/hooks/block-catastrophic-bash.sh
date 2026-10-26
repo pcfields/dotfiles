@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# PreToolUse hook for Bash. Blocks a narrow deny-list of catastrophic
-# commands. Defense in depth only - the sandbox and permission prompts are the
-# real boundary. Keep the list short to avoid false positives.
+# PreToolUse hook for Bash and PowerShell. Blocks a narrow deny-list of
+# catastrophic commands. Defense in depth only - the sandbox (where the OS
+# supports it) and permission prompts are the real boundary. Keep the list
+# short to avoid false positives.
 set -euo pipefail
 
 input="$(cat)"

@@ -18,6 +18,7 @@ expect() {
 }
 
 bash_cmd() { jq -cn --arg c "$1" '{tool_name:"Bash",tool_input:{command:$c}}'; }
+pwsh_cmd() { jq -cn --arg c "$1" '{tool_name:"PowerShell",tool_input:{command:$c}}'; }
 file_op() { jq -cn --arg p "$1" '{tool_name:"Read",tool_input:{file_path:$p}}'; }
 grep_op() { jq -cn --arg p "$1" '{tool_name:"Grep",tool_input:{pattern:"KEY",path:$p}}'; }
 
@@ -38,6 +39,8 @@ expect 0 "$B" "$(bash_cmd 'rm -rf /tmp/foo')" "rm -rf absolute subdir"
 expect 0 "$B" "$(bash_cmd 'git push origin main')" "normal push main"
 expect 0 "$B" "$(bash_cmd 'git push --force origin feature/x')" "force push feature branch"
 expect 0 "$B" '{"tool_input":{}}' "missing command"
+expect 2 "$B" "$(pwsh_cmd 'git push --force origin main')" "PowerShell force push main"
+expect 0 "$B" "$(pwsh_cmd 'git push origin main')" "PowerShell normal push"
 
 S=protect-secrets.sh
 expect 2 "$S" "$(file_op '/repo/.env')" ".env"
