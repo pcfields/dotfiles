@@ -19,6 +19,7 @@ expect() {
 
 bash_cmd() { jq -cn --arg c "$1" '{tool_name:"Bash",tool_input:{command:$c}}'; }
 file_op() { jq -cn --arg p "$1" '{tool_name:"Read",tool_input:{file_path:$p}}'; }
+grep_op() { jq -cn --arg p "$1" '{tool_name:"Grep",tool_input:{pattern:"KEY",path:$p}}'; }
 
 B=block-catastrophic-bash.sh
 expect 2 "$B" "$(bash_cmd 'rm -rf /')" "rm -rf /"
@@ -49,6 +50,10 @@ expect 2 "$S" 'not json' "malformed input fails closed"
 expect 0 "$S" "$(file_op '/repo/.env.example')" ".env.example allowed"
 expect 0 "$S" "$(file_op '/repo/src/auth/credentials.ts')" "credentials.ts source allowed"
 expect 0 "$S" "$(file_op '/repo/README.md')" "ordinary file"
+expect 2 "$S" "$(grep_op '/repo/.env')" "grep inside .env"
+expect 2 "$S" "$(grep_op '/home/u/.ssh')" "grep the .ssh dir"
+expect 0 "$S" "$(grep_op '/repo/src')" "grep ordinary dir"
+expect 0 "$S" '{"tool_name":"Grep","tool_input":{"pattern":"x"}}' "grep with no path"
 
 echo
 if ((failures)); then
