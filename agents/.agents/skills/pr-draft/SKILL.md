@@ -18,8 +18,7 @@ If there are uncommitted changes, say so — the description covers committed wo
 
 ## Gather before writing
 
-1. Read the full diff against the base, skipping test and fixture files. Read test file names
-   and `describe`/`it` titles only, to summarise what's covered.
+1. Read the full diff against the base, skipping test and fixture files.
 2. Take the ticket number from the branch name (`feat/6905/...` → `6905`). If there isn't one,
    leave the scope out.
 3. Pull decisions, trade-offs, known gaps, backend limitations and QA status from this session.
@@ -34,21 +33,25 @@ imperative or noun phrase, ≤ 72 characters, no trailing period.
 
 ## Description
 
-Markdown, matching the team's existing PRs. Use only the sections that apply, in this order:
+Short and sweet: people struggle to read long PR descriptions, so aim for well under 15 lines.
+Markdown, matching the team's existing PRs.
 
-- **Summary** — one or two sentences on what the user can now do (name the story/ACs covered),
-  then bullets of user-visible behaviour. Bold lead-in per bullet.
-- **How it works / key decisions** — the *why* behind non-obvious choices: data shape, API
-  quirks, edge cases. Name the section after its subject (e.g. "How the order is saved", "API").
-- **Validation**, **Accessibility**, or other topic sections when the change has real content
-  there.
+The default is a **Summary** and nothing else: one sentence on what the user can now do (name the
+story/ACs covered), then a few bullets of user-visible behaviour, each with a bold lead-in.
+
+Add one of these short sections only when a reviewer would otherwise miss it:
+
+- **Key decisions** — the *why* behind a non-obvious choice (API quirk, edge case), in a bullet
+  or two, not an essay.
 - **Not included** — deliberate omissions and gaps (e.g. backend not ready), each with the reason.
-- **Worth checking** — unconfirmed risks or things reviewers/QA should verify.
+- **Worth checking** — unconfirmed risks, or things that weren't tested, for reviewers/QA.
 - **Other changes in this PR** — unrelated commits, formatter churn, merges from the base.
-- **Testing** — what the automated tests cover (by behaviour, not file list), the checks run
-  (tests, type-check, lint), and manual QA only if confirmed.
 
-Style: plain, specific and short. Reference endpoints, components and fields in backticks.
+No Testing section listing test cases or checks that passed: the tests are in the diff and CI
+shows the checks. Mention testing only when it tells a reviewer something they can't see, such
+as how to try it by hand.
+
+Style: plain and specific. Reference endpoints, components and fields in backticks.
 No marketing language, no restating the diff line by line, no emoji.
 
 ## Output
