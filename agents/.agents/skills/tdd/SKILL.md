@@ -18,12 +18,21 @@ Agree the seam with the user (or take it from the plan file) before writing
 any test. You can't test everything; agreeing seams up front puts testing
 effort on the behaviors that matter instead of every internal detail.
 
+Agree at the same time how often to stop for review: after every passing
+test (the default), after each red-green-refactor cycle, or only when the
+list is empty.
+
 ## 1. Test list
 
 Before writing any test, list the behavior variants expected: normal
-cases, edges, errors. Keep the list visible — a comment, a scratch note,
-or the plan file — and add to it as you learn more. Cross items off as
-they pass.
+cases, edges, errors. Write each item as a concrete example, input and
+expected outcome ("empty cart → total 0", "3rd failed retry → throws
+TimeoutError"), not an abstract rule ("handles empty carts"). Then check for
+missing cases: zero or empty input, boundaries, special cases, and
+interactions between rules. Ask the user about each gap rather than
+inventing the expected behavior, and get the list confirmed before
+starting. Keep the list visible — a comment, a scratch note, or the plan
+file — and add to it as you learn more. Cross items off as they pass.
 
 ## 2. Pick one item, write one test
 
@@ -36,8 +45,14 @@ Picking order matters: prefer the case that teaches the most about the
 design, or the simplest degenerate case, over the hardest one. This is a
 skill that improves with practice, not a fixed formula.
 
-Run the test and confirm it fails for the expected reason — missing
-behavior, not a typo or setup error.
+Before running it, predict the result: it will fail, why, and the error
+message you expect. Then run it and compare. It should fail for missing
+behavior, not a typo or setup error. If the result doesn't match the
+prediction, stop and find out why before going further.
+
+If a new test passes straight away, don't force a failure: name the earlier
+change that already covers it, keep it as a verification test, and pick the
+next item.
 
 ## 3. Make it pass — for real
 
@@ -46,6 +61,9 @@ value to get to green fast — is fine as a first step; the next test's job
 is to force a more general solution (triangulation). Never fake it by
 deleting or weakening the assertion, or by copying the computed output
 into the expected value — both destroy what the test is for.
+
+Predict again before running: which tests pass. A surprise here means the
+code doesn't do what you think; investigate rather than adjust until green.
 
 All previously-passing tests must stay passing. If this test surfaces a
 case you hadn't considered, add it to the list — don't chase it now.
