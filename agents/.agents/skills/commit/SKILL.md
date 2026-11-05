@@ -5,12 +5,9 @@ description: Commit this, commit my changes, save my work, split into commits, w
 
 ## Current state
 
-Start by running:
-
-- Status: `git status --short`
-- Staged stat: `git diff --cached --stat`
-- Unstaged stat: `git diff --stat`
-- Recent commits (match their style): `git log --oneline -10`
+From the repo, run `bash ~/.agents/skills/commit/scripts/commit-state.sh`. It
+prints the status, staged and unstaged stats, and the last 10 commits; match
+their style.
 
 ## Split by concern
 
