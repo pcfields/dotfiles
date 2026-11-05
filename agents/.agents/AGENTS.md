@@ -7,10 +7,8 @@ hooks) belongs there, not here.
 
 ## Communication
 
-- Be concise and direct. For non-trivial work, restate the task and propose a
-  short plan before diving in; summarize what changed afterward.
-- Don't ask for confirmation on read-only actions (reading files, searching,
-  listing).
+- For non-trivial work, restate the task and propose a short plan before
+  diving in; summarize what changed afterward.
 - Ask before ambiguous, high-impact changes, or anything touching auth,
   public APIs, schemas, or infra.
 - Ask, don't assume, when requirements admit more than one reasonable
@@ -26,14 +24,10 @@ hooks) belongs there, not here.
   that make the change easier (clearer names, extracted helpers, dead code
   removed). Keep tidyings in their own commits, separate from behavior
   changes. Propose them before doing them.
-- Iterate and keep improving: plans, code and the product are expected to
-  change as we learn. Revisit and update plans, tests and code when feedback
-  or new facts show a better way; leave code cleaner than you found it.
 
 ## Working discipline
 
-- Understand the current behavior and constraints before editing.
-- Prefer small, reversible changes over big rewrites. Match existing style.
+- Prefer small, reversible changes over big rewrites.
 - If confidence is low, say so and propose a safe next step instead of
   guessing.
 - Detect the project's setup instead of assuming it: package manager from
@@ -59,7 +53,6 @@ applied through it.
   no pass-through wrappers.
 - Simple design (Kent Beck): passes the tests, reveals intention, no
   duplication, fewest elements. No speculative abstraction.
-- Intention-revealing names; each unit has a single responsibility.
 - Extract a function when a pattern repeats, or to pull a calculation out of
   an action. Not just to make functions shorter.
 
@@ -70,14 +63,11 @@ applied through it.
   public interface; a refactor that preserves behavior must not break a test.
 - Calculations get fast, direct tests with plain values. Actions get fewer
   tests, through the real interface (DOM, HTTP, CLI).
-- Mocking is a design smell. Needing a mock usually means logic is tangled
-  with an action: extract the calculation instead. Preference order: real
-  code, then an in-memory fake or Nullable (James Shore), then a mock only at
-  a boundary you don't own (network, clock, randomness), placed as far out
-  as possible (MSW rather than mocking `fetch`).
-- Assert on outcomes (return values, resulting state, what the user sees),
-  not on which internal functions were called. Never mock your own modules.
-- The `tdd` skill has the procedure, test-double details and React rules.
+- Mocking is a design smell: extract the calculation instead. Never mock your
+  own modules; assert on outcomes, not on which internal functions were
+  called.
+- The `tdd` skill has the procedure, the test-double preference order and
+  React rules.
 
 ## Coding style
 
@@ -92,9 +82,7 @@ applied through it.
 ## Test-driven development
 
 - Canon TDD (Kent Beck) is the default technique for new logic and bug
-  fixes, when the project has a test suite: build a test list, take one test
-  at a time, make it pass for real, refactor only while green. Use the `tdd`
-  skill for the full procedure.
+  fixes, when the project has a test suite. Use the `tdd` skill.
 
 ## Commits
 
