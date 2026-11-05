@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Plan and create conventional commits from the working tree, split by logical concern. Use whenever the user asks to commit or to draft a commit message.
+description: Commit this, commit my changes, save my work, split into commits, write a commit message. Plans and creates conventional commits from the working tree, split by logical concern. Use whenever the user asks to commit, check in, or draft a commit message.
 ---
 
 ## Current state

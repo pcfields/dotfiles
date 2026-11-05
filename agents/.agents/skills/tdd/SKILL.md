@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Drive new logic or a bug fix with Canon TDD — build a test list, take tests one at a time, make each pass for real, refactor only while green. Use before writing implementation code for non-trivial changes, when the project has a test suite.
+description: Write tests first, red-green-refactor, TDD this, fix this bug with a test, add a feature test-first. Drives new logic or a bug fix with Canon TDD — build a test list, take tests one at a time, make each pass for real, refactor only while green. Use before writing implementation code for non-trivial changes or bug fixes, when the project has a test suite.
 ---
 
 # Canon TDD
