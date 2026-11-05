@@ -36,11 +36,10 @@ scope only if the repo's commits use one, imperative or noun phrase,
 ## Description
 
 Short and sweet: people struggle to read long PR descriptions, so aim for
-well under 15 lines. Markdown.
+well under 15 lines. Write it in the shape of
+[examples/personal.md](examples/personal.md).
 
-The default is a **Summary** and nothing else: one sentence on what the change
-does and why, then a few bullets of user-visible behaviour, each with a bold
-lead-in.
+The default is a **Summary** and nothing else.
 
 Add one of these short sections only when a reviewer would otherwise miss it:
 
