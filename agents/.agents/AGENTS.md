@@ -89,6 +89,13 @@ applied through it.
 - Conventional commits, one logical change each. Use the `commit` skill when
   preparing commits.
 
+## Skills
+
+- When a skill step goes wrong, add a one-line rule that prevents it to that
+  skill's `GOTCHAS.md` (create it, and a "Read GOTCHAS.md before step 1" line
+  in SKILL.md, if missing). Only after a real failure; once a rule is
+  permanent, move it into SKILL.md or a script and delete it from GOTCHAS.md.
+
 ## Definition of done
 
 - Run the project's tests and any linter/type-checker before calling a task
