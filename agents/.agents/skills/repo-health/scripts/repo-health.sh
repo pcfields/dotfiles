@@ -75,9 +75,10 @@ usage: repo-health.sh [--since <git date>] [--top <n>] [<path>]
 EOF
 }
 
-# source_files <path>: tracked, non-binary, non-empty files worth measuring.
+# source_files <path>: non-binary, non-empty files worth measuring: tracked
+# ones plus new ones not yet committed (ignored files stay out).
 source_files() {
-  git -c core.quotePath=false grep -Il '' -- "$1" | grep -Ev "$SKIP_FILES" || true
+  git -c core.quotePath=false grep -Il --untracked '' -- "$1" | grep -Ev "$SKIP_FILES" || true
 }
 
 # change_log <since> <path>: one \001<author> line per commit, then its files.
