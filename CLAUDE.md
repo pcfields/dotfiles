@@ -61,7 +61,7 @@ Which tool owns what — respect these when adding software (from `AGENTS.md`):
 | Core CLI dev tools | Nix + Home Manager | Scoop | `nix/.config/nix/home.nix` / `packages/scoop-packages.txt` |
 | Sandboxed GUI apps | Flatpak | — | `packages/flatpak-packages.txt` |
 | Language runtimes | mise | mise | `mise/.config/mise/config.toml` |
-| **LSP servers, formatters, linters** | Nix + Home Manager | Scoop, else npm | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt` — **not Mason** (Mason handles DAP only) |
+| **LSP servers, formatters, linters** | Nix + Home Manager | Scoop, else npm (pip for Python-based tools) | `nix/.config/nix/home.nix` / `packages/npm-global-packages.txt`, `packages/pip-packages.txt` — **not Mason** (Mason handles DAP only) |
 | DAP debug adapters | Mason | Mason | `:DapInstallAdapters` installs the three adapters declared in `lua/pcf/plugins/debugging/dap.lua`; see `docs/strategy.md` for why Mason and not Nix here |
 
 **Provisioning is split by platform, not by tool type.** Linux gets everything

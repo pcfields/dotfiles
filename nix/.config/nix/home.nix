@@ -64,6 +64,7 @@
     shfmt                               # shfmt (shell formatter)
     shellcheck                          # shell linter; bash-language-server uses it
     sqlfluff                            # SQL linter and formatter
+    python3Packages.lizard              # lizard (function complexity; used by the repo-health agent skill)
 
     # --- Database clients ---
     sqlite                              # sqlite3

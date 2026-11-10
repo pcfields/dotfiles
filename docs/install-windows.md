@@ -108,6 +108,21 @@ where.exe <server-name>
 If the `.cmd` is absent, reinstall that package. `format.lua` already applies
 this workaround for prettier and documents the reasoning.
 
+### Python-based tooling
+
+`lizard` measures function length and complexity for the `repo-health` agent
+skill. It ships as a Python package, so on Windows it comes from pip (on Linux
+it comes from Nix). Install Python through mise, then the packages in
+`packages/pip-packages.txt`:
+
+```powershell
+mise use --global python@3.12
+pip install -r packages\pip-packages.txt
+```
+
+Check it with `where.exe lizard`. Without it the skill still works, but reports
+indentation only.
+
 **Next, you MUST set up symlinks for your PowerShell profile and other configs:**
 ```powershell
 powershell -ExecutionPolicy Bypass -File install\windows\setup-windows-symlinks.ps1

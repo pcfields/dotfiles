@@ -73,7 +73,9 @@ and Prettier.
 Windows installs what Scoop has and takes the Node-based tools from npm, with
 Node supplied by mise.
 
-Config files: `packages/scoop-packages.txt`, `packages/npm-global-packages.txt`
+Config files: `packages/scoop-packages.txt`, `packages/npm-global-packages.txt`,
+`packages/pip-packages.txt` (Python-based tools such as `lizard`, with Python
+supplied by mise)
 
 **Why not Mason for language servers?** Mason would cover all of them from
 inside Neovim and is the obvious alternative. It is rejected here because its

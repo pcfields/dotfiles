@@ -14,8 +14,8 @@ A seam is the public boundary you test at: the interface where you observe
 behavior without reaching inside. Tests live at seams, never against
 internals.
 
-Agree the seam with the user (or take it from the plan file) before writing
-any test. You can't test everything; agreeing seams up front puts testing
+Agree the seam with the user (or take it from the plan the `spec` skill
+produced) before writing any test. You can't test everything; agreeing seams up front puts testing
 effort on the behaviors that matter instead of every internal detail.
 
 Agree at the same time how often to stop for review: after every passing
@@ -73,6 +73,11 @@ case you hadn't considered, add it to the list — don't chase it now.
 Only while everything is green. Clean up duplication, names, structure.
 Keep this separate from making the test pass — don't mix the two modes.
 
+Name each problem and pick its fix from
+`~/.agents/skills/refactor/refactorings.md`. This step is for the code this
+cycle wrote; if existing code around it needs more than a quick tidy, finish
+the cycle and offer the `refactor` skill.
+
 ## 5. Verify and repeat
 
 Run the targeted test, then the relevant suite. Go back to step 2 until the
@@ -102,6 +107,31 @@ on which internal functions were called or in what order; assert on
 outcomes. Checking a call is only acceptable when the call itself is the
 observable behavior at a boundary, e.g. "sends exactly one email".
 
+## Property tests
+
+Example tests check the cases you thought of. A property test generates
+hundreds of inputs and checks a rule that must hold for all of them, which
+finds the cases you didn't.
+
+Add one after the example tests pass, for a calculation whose inputs range
+widely: parsing, formatting, money, dates, sorting, merging. Use the
+project's property-testing library (fast-check, Hypothesis, FsCheck,
+StreamData, proptest, Go's `testing/quick`). If it has none, suggest one and
+wait; don't add a dependency unasked.
+
+Rules worth looking for:
+
+- **Round trip**: `decode(encode(x))` gives back `x`.
+- **Invariant**: the output is always sorted, the total is never negative,
+  nothing is lost or duplicated.
+- **Idempotence**: applying it twice equals applying it once.
+- **Oracle**: it agrees with a slower, simpler or older implementation.
+- **No crash**: any valid input returns a result.
+
+Don't restate the implementation as the rule; that passes by construction.
+When a property test finds a failing input, add that input as a named example
+test, then fix. Actions don't get property tests.
+
 ## React components
 
 Test the way a user would, with Testing Library (Kent C. Dodds):
@@ -118,6 +148,9 @@ Test the way a user would, with Testing Library (Kent C. Dodds):
   else is tested through the rendered component.
 
 ## Bug fixes
+
+If the cause isn't known yet, use the `debug-it` skill first; come back here
+once it is.
 
 Always start with a failing regression test that reproduces the reported
 symptom. No fix lands without one, except in the rare case where the bug

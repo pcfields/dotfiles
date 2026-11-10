@@ -1,0 +1,13 @@
+# ── Global pip Packages (Windows) ──────────────────────────────────────
+# One package per line. Lines starting with # are ignored.
+#
+# Python-based developer tools that have no scoop manifest. On Linux the same
+# tools come from Nix (see nix/.config/nix/home.nix) and this file is unused.
+#
+# Requires Python, which mise provides:
+#   mise use --global python@3.12
+#
+# This is a pip requirements file, so install with:
+#   pip install -r packages\pip-packages.txt
+
+lizard                          # function complexity; used by the repo-health agent skill
