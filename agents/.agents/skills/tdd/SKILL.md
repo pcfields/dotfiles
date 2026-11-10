@@ -124,6 +124,9 @@ Test the way a user would, with Testing Library (Kent C. Dodds):
 
 ## Bug fixes
 
+If the cause isn't known yet, use the `debug-it` skill first; come back here
+once it is.
+
 Always start with a failing regression test that reproduces the reported
 symptom. No fix lands without one, except in the rare case where the bug
 is untestable at any reasonable seam — justify that explicitly if so.
