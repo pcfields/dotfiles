@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Prints what the repo-health skill needs: which source files change most, how
 # complex they are, which ones change together and how many authors touch them.
-# Complexity is measured from indentation, so it works for any language.
+# Complexity is measured from indentation, so it works for any language. When
+# lizard is installed, functions that are long, branchy or take many
+# parameters are listed too and count towards the file's grade.
 # Run inside a git repo: bash repo-health.sh [--since <date>] [--top <n>] [<path>]
 set -euo pipefail
 
@@ -11,6 +13,10 @@ SKIP_FILES='(^|/)(flake\.lock|yarn\.lock|pnpm-lock\.yaml)$|\.(lock|json|md|txt|c
 MAX_COMMIT_FILES=50
 # Pairs that changed together fewer times than this are noise.
 MIN_SHARED_COMMITS=3
+# A function at or past any FLAG_ value is flagged (yellow); past a RED_ value
+# it is red. Rough and uncalibrated, like the file thresholds in grades().
+FLAG_CCN=10 FLAG_LENGTH=60 FLAG_PARAMS=5
+RED_CCN=20 RED_LENGTH=120
 
 main() {
   local since="12 months ago" top=15 path="."
@@ -38,7 +44,7 @@ main() {
   local work
   work="$(mktemp -d)"
   trap "rm -rf '$work'" EXIT
-  touch "$work/churn" "$work/coupling" "$work/totals"
+  touch "$work/churn" "$work/coupling" "$work/totals" "$work/functions"
 
   source_files "$path" >"$work/files"
   if [[ ! -s "$work/files" ]]; then
@@ -46,7 +52,16 @@ main() {
     exit 1
   fi
   change_log "$since" "$path" | history_stats "$work/files" "$work"
-  complexity <"$work/files" >"$work/complexity"
+  indentation <"$work/files" >"$work/indentation"
+  # lizard is optional: without it, or if it fails, the rest still reports.
+  local no_functions=""
+  if ! command -v lizard >/dev/null; then
+    no_functions="lizard not installed"
+  elif ! function_metrics <"$work/files" >"$work/functions"; then
+    no_functions="lizard failed"
+    : >"$work/functions"
+  fi
+  grades "$work/functions" "$work/indentation" >"$work/complexity"
   hotspots "$work/complexity" "$work/churn" >"$work/hotspots"
 
   overview "$since" "$path" "$top" "$work"
@@ -64,6 +79,15 @@ main() {
     "grade	lines	depth	complexity	file" \
     < <(awk -F'\t' '$5 != "green" { print $5 "\t" $2 "\t" $4 "\t" $3 "\t" $1 }' "$work/complexity" |
       sort -t$'\t' -k1,1 -k4,4nr | head -n "$top")
+  if [[ -z "$no_functions" ]]; then
+    table "Functions over the limits (ccn $FLAG_CCN+, $FLAG_LENGTH+ lines or $FLAG_PARAMS+ parameters)" \
+      "ccn	lines	params	function	location" \
+      < <(awk -F'\t' '$7 > 0 { print $7 "\t" $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 ":" $6 }' "$work/functions" |
+        sort -t$'\t' -k1,1nr -k2,2nr -k3,3nr | cut -f2- | head -n "$top")
+  else
+    printf '\n## Functions over the limits\n'
+    echo "($no_functions: function length, branching and parameters not measured)"
+  fi
 }
 
 usage() {
@@ -128,12 +152,11 @@ history_stats() {
   ' "$1" -
 }
 
-# complexity: reads file names on stdin, prints
-#   file, lines, complexity, depth, grade
+# indentation: reads file names on stdin, prints
+#   file, lines, complexity, depth
 # lines counts non-blank lines; depth is the deepest indentation level;
 # complexity is the sum over lines of (1 + indentation level).
-# The grade thresholds are rough and uncalibrated.
-complexity() {
+indentation() {
   sed 's|^|./|' | tr '\n' '\0' | xargs -0 -r awk '
     FNR == 1 { if (file != "") report(); file = FILENAME; lines = 0; previous = 0; split("", steps) }
     /^[ \t]*$/ { next }
@@ -150,7 +173,7 @@ complexity() {
     }
     END { if (file != "") report() }
 
-    function report(   i, s, unit, level, above, total, deepest, grade) {
+    function report(   i, s, unit, level, above, total, deepest) {
       # the indent unit is the most common step between consecutive lines
       unit = 4
       if (!(unit in steps)) steps[unit] = 0
@@ -163,12 +186,50 @@ complexity() {
         total += 1 + level
         if (level > deepest) deepest = level
       }
-      grade = "green"
-      if (lines >= 400 || deepest >= 6) grade = "yellow"
-      if (lines >= 1000 || deepest >= 8) grade = "red"
-      printf "%s\t%d\t%d\t%d\t%s\n", substr(file, 3), lines, total, deepest, grade
+      printf "%s\t%d\t%d\t%d\n", substr(file, 3), lines, total, deepest
     }
   '
+}
+
+# function_metrics: reads file names on stdin and prints, for every function
+# lizard can parse:
+#   ccn, length, params, name, file, start line, level (0 ok, 1 flagged, 2 red)
+function_metrics() {
+  sed 's|^|./|' | tr '\n' '\0' | xargs -0 -r lizard --csv -i -1 |
+    awk -v fc="$FLAG_CCN" -v fl="$FLAG_LENGTH" -v fp="$FLAG_PARAMS" \
+      -v rc="$RED_CCN" -v rl="$RED_LENGTH" '
+      {
+        # nloc,ccn,tokens,params,length,"location","file","name","long name",start,end
+        n = split($0, quoted, "\",\"")
+        if (n < 4) next
+        split(quoted[1], head, ",")
+        m = split(quoted[n], tail, ",")
+        ccn = head[2]; params = head[4]; length_ = head[5]
+        level = 0
+        if (ccn >= fc || length_ >= fl || params >= fp) level = 1
+        if (ccn >= rc || length_ >= rl) level = 2
+        printf "%d\t%d\t%d\t%s\t%s\t%d\t%d\n",
+          ccn, length_, params, quoted[3], substr(quoted[2], 3), tail[m - 1], level
+      }
+    '
+}
+
+# grades <functions> <indentation>: prints each indentation row with a grade:
+#   file, lines, complexity, depth, grade
+# The grade is the worse of the file's own (length, nesting depth) and its
+# worst function's level. The thresholds are rough and uncalibrated.
+grades() {
+  awk -F'\t' '
+    BEGIN { name[0] = "green"; name[1] = "yellow"; name[2] = "red" }
+    FILENAME == ARGV[1] { if ($7 > worst[$5]) worst[$5] = $7; next }
+    {
+      level = 0
+      if ($2 >= 400 || $4 >= 6) level = 1
+      if ($2 >= 1000 || $4 >= 8) level = 2
+      if (worst[$1] > level) level = worst[$1]
+      print $0 "\t" name[level]
+    }
+  ' "$1" "$2"
 }
 
 # hotspots <complexity> <churn>: files changed in the window, worst first:

@@ -17,10 +17,14 @@ It prints:
 - **Change coupling**: files that keep changing in the same commit.
 - **Author density**: files many authors edit. Empty for a solo repo.
 - **Least healthy files**: yellow and red files, whether or not they change.
+- **Functions over the limits**: functions that are long, branchy (`ccn` is
+  cyclomatic complexity) or take many parameters. Needs `lizard`; without it
+  the section says so, and you find these by reading.
 
-Complexity comes from indentation and the grades use rough thresholds on file
-length and nesting depth. They rank files; they are not a calibrated score.
-Lockfiles, JSON, Markdown and other data are left out.
+Complexity comes from indentation. Grades use rough thresholds on file length,
+nesting depth and, with `lizard`, the worst function. They rank files; they
+are not a calibrated score. Lockfiles, JSON, Markdown and other data are left
+out.
 
 ## Investigate
 
@@ -55,8 +59,8 @@ Lead with the verdict in a sentence or two, then:
    with Guard Clauses, Extract Class, Introduce Parameter Object, ...).
 3. **Coupling worth acting on**, if any.
 4. **Healthy but busy**: hotspots that need no work.
-5. **Not measured**: anything the script skipped that matters here, and that
-   grades are indentation-based.
+5. **Not measured**: anything the script skipped that matters here, and
+   whether function metrics were available.
 
 Report only. Don't refactor anything unless the user asks; when they do, use
 the `refactor` skill.
