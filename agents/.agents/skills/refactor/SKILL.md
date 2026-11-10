@@ -6,6 +6,10 @@ description: Refactor this, clean up this file, improve code health, reduce comp
 Refactoring changes structure, never behavior. A bug found on the way is
 reported, not fixed in the same commit.
 
+Before removing or rewriting something that looks pointless, find out why it
+is there: its callers, its tests, `git blame`. Never drop error handling to
+make code look cleaner.
+
 ## Size it first
 
 - **Tidy**: a few small cleanups, minutes each, that make the change in hand
