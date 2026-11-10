@@ -18,6 +18,11 @@ trade-offs later, so ask for it if it isn't given.
 
 List what is in scope and, just as important, what is not.
 
+Question the premise before accepting it: is this the right problem, does
+something that exists already do it, is there a simpler way to the same
+outcome? Raise it once, with what you would do instead, then go with the
+user's call.
+
 ## 2. Read before designing
 
 Find where this lands in the existing code:
@@ -27,6 +32,10 @@ Find where this lands in the existing code:
   best guide).
 - The files it will touch. If the `repo-health` script grades one yellow or
   red, plan a tidy first with the `refactor` skill.
+
+When the plan depends on something outside the repo (a library's API, a
+service's limits, a standard), read the official docs or the source, not
+memory. Note in the plan what was verified and what is assumed.
 
 ## 3. Ask the open questions
 
@@ -80,7 +89,14 @@ Call out anything touching auth, sessions, input validation, queries,
 payments, schemas, public APIs or infrastructure: those need the user's
 explicit approval.
 
-## 6. Slice it
+## 6. Name the risks
+
+Say what could go wrong with this design, what it doesn't cover, and what
+you couldn't check. One line each, with what would reduce it. "None" is an
+acceptable answer for small work; an empty list for large work means the
+looking hasn't been done.
+
+## 7. Slice it
 
 Break the work into small steps that each leave the code working and can be
 committed on their own: tidy first, then the thinnest end-to-end path, then
@@ -90,7 +106,7 @@ Each step says how it will be checked (a test, the build, a manual check).
 Split a step that needs "and" to describe it or touches more than about
 five files.
 
-## 7. Confirm
+## 8. Confirm
 
 Show the plan and **stop until the user confirms or adjusts it**:
 
@@ -107,6 +123,9 @@ Show the plan and **stop until the user confirms or adjusts it**:
 ## Design
 Data, calculations, actions, seams, files.
 
+## Risks
+- <what could go wrong> — <what reduces it>
+
 ## Steps
 1. ... — checked by ...
 
@@ -114,11 +133,14 @@ Data, calculations, actions, seams, files.
 - ... (none, if all were answered)
 ```
 
+For a plan with real design choices or risk, offer to run the `challenge`
+skill on it before starting.
+
 Keep it in the conversation by default. Save it as a file when the work will
 span sessions or the user asks: where the repo already keeps plans, otherwise
 ask where.
 
-Then start step 1 with the `tdd` skill. When something learned along the way
+Then start the first step of the plan with the `tdd` skill. When something learned along the way
 changes the plan, say so and update it; don't drift from it silently.
 
 The questioning in step 3 follows Matt Pocock's `grilling` skill
