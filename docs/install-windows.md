@@ -129,6 +129,12 @@ powershell -ExecutionPolicy Bypass -File install\windows\setup-windows-symlinks.
 ```
 This safely symlinks your PowerShell profile (`profile.ps1`) to `$PROFILE` so all aliases, functions, and Oh My Posh setup work. Also links WezTerm, nvim, and other config files as needed, plus the shared agent config (`~/.agents`, Claude skills, `~/.codex/AGENTS.md`).
 
+After adding, renaming or removing a skill in `agents\.agents\skills`, relink just the skills. This needs no Administrator prompt, because skills are linked with directory junctions:
+```powershell
+powershell -ExecutionPolicy Bypass -File install\windows\link-agent-skills.ps1
+```
+Then run `/reload-skills` in Claude Code, or start a new session.
+
 ## Shell, Aliases, and Profile
 All PowerShell config (profile, aliases, helper functions) is managed in the `powershell/` directory and sourced by the symlinked profile. Edit in the repo for instant propagation.
 - Aliases are harmonized with the fish shell equivalents for consistency.

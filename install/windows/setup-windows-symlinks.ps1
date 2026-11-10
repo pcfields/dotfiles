@@ -84,25 +84,6 @@ $Links = @(
     }
 )
 
-# Claude Code keeps app-managed entries in ~/.claude/skills, so link each shared
-# skill individually (as install/install-agent-links.sh does on Linux). A
-# directory symlink left by an older version of this script would send these
-# links into the repo, so remove it first.
-$claudeSkills = Join-Path $realUserProfile ".claude\skills"
-# Get-Item (not Test-Path) so a dangling link, which is what the old one is now
-# that claude\.claude\skills is gone, is still found.
-$existingSkills = Get-Item $claudeSkills -Force -ErrorAction SilentlyContinue
-if ($existingSkills -and ($existingSkills.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
-    Write-Host "Removing old directory symlink: $claudeSkills" -ForegroundColor Cyan
-    $existingSkills.Delete()
-}
-$sharedSkills = Join-Path $DotfilesRoot "agents\.agents\skills"
-if (Test-Path $sharedSkills) {
-    foreach ($skill in Get-ChildItem $sharedSkills -Directory) {
-        $Links += @{ Source = $skill.FullName; Target = Join-Path $claudeSkills $skill.Name }
-    }
-}
-
 foreach ($Link in $Links) {
     $source = $Link.Source
     $target = $Link.Target
@@ -138,6 +119,9 @@ foreach ($Link in $Links) {
 
     Write-Host "Linked: $target -> $source" -ForegroundColor Green
 }
+
+Write-Host "`nLinking agent skills..." -ForegroundColor Green
+& (Join-Path $PSScriptRoot "link-agent-skills.ps1") -UserProfile $realUserProfile
 
 Write-Host "`nSymlinking PowerShell profile..." -ForegroundColor Green
 

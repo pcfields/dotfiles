@@ -178,7 +178,7 @@ How each harness picks it up:
 
 | Harness  | Instructions | Skills |
 |----------|--------------|--------|
-| Claude   | `claude/.claude/CLAUDE.md` imports `@~/.agents/AGENTS.md` | per-skill links into `~/.claude/skills` (`agent-links` step) |
+| Claude   | `claude/.claude/CLAUDE.md` imports `@~/.agents/AGENTS.md` | per-skill links into `~/.claude/skills` (`agent-links` step; on Windows, `install/windows/link-agent-skills.ps1`) |
 | OpenCode | `instructions` in `opencode.json` loads `~/.agents/AGENTS.md`; its own `AGENTS.md` holds OpenCode-only rules | scans `~/.agents/skills` itself |
 | Codex    | `~/.codex/AGENTS.md` links to the shared file (`agent-links` step) | reads `~/.agents/skills` natively |
 
