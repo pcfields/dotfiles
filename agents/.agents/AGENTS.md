@@ -78,6 +78,11 @@ applied through it.
 - Top-level functions use `function` declarations; use `const fn = ...` for
   helpers inside other functions. Put the file's main purpose at the top and
   its helper functions below it.
+- Comments are rare. No doc summaries on members whose name says it, and
+  never narrate what the code or SQL does. One line, only for a non-obvious
+  why. Reviewers have rejected restating comments.
+- SQL: prefer a JOIN over a per-row correlated subquery in the SELECT list,
+  and think about scale over large tables or hierarchies.
 
 ## Test-driven development
 
@@ -103,7 +108,9 @@ applied through it.
   red tests.
 - For non-trivial changes (new logic, bug fixes; not docs or mechanical
   edits), run a low-effort code review on the diff before handing back, and
-  note what was addressed vs. deliberately left.
+  note what was addressed vs. deliberately left. Also check the diff yourself
+  for comments that restate the code and for per-row subqueries; reviewers
+  flag both.
 - Evidence before claims: never say "should pass" or "looks correct". Run the
   verification command, read the output, and quote it before claiming
   completion.
