@@ -3,6 +3,8 @@ name: commit
 description: Commit this, commit my changes, save my work, split into commits, write a commit message. Plans and creates conventional commits from the working tree, split by logical concern. Use whenever the user asks to commit, check in, or draft a commit message.
 ---
 
+Read GOTCHAS.md before step 1.
+
 ## Current state
 
 From the repo, run `bash ~/.agents/skills/commit/scripts/commit-state.sh`. It
