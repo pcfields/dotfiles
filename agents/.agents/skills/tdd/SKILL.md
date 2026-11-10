@@ -73,6 +73,11 @@ case you hadn't considered, add it to the list — don't chase it now.
 Only while everything is green. Clean up duplication, names, structure.
 Keep this separate from making the test pass — don't mix the two modes.
 
+Name each problem and pick its fix from
+`~/.agents/skills/refactor/refactorings.md`. This step is for the code this
+cycle wrote; if existing code around it needs more than a quick tidy, finish
+the cycle and offer the `refactor` skill.
+
 ## 5. Verify and repeat
 
 Run the targeted test, then the relevant suite. Go back to step 2 until the

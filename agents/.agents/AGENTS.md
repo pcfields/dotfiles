@@ -23,7 +23,10 @@ hooks) belongs there, not here.
 - Tidy first (Kent Beck): before changing behavior, look for small tidyings
   that make the change easier (clearer names, extracted helpers, dead code
   removed). Keep tidyings in their own commits, separate from behavior
-  changes. Propose them before doing them.
+  changes. Propose them before doing them. Tidy first when it makes this
+  change easier; after, when the change showed what was needed; later (tell
+  the user) when it's big; never, when the code won't change again. The
+  `refactor` skill has the procedure.
 
 ## Working discipline
 
@@ -104,6 +107,10 @@ applied through it.
 - For non-trivial changes (new logic, bug fixes; not docs or mechanical
   edits), run a low-effort code review on the diff before handing back, and
   note what was addressed vs. deliberately left.
+- In a git repo, check each source file you changed with
+  `bash ~/.agents/skills/repo-health/scripts/repo-health.sh <file>`. If it
+  grades yellow or red, clean up what this change added, or say why it was
+  left.
 - Evidence before claims: never say "should pass" or "looks correct". Run the
   verification command, read the output, and quote it before claiming
   completion.
