@@ -37,7 +37,7 @@ scope only if the repo's commits use one, imperative or noun phrase,
 
 Short and sweet: people struggle to read long PR descriptions, so aim for
 well under 15 lines. Write it in the shape of
-[examples/personal.md](examples/personal.md).
+[examples/description.md](examples/description.md).
 
 The default is a **Summary** and nothing else.
 
