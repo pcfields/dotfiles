@@ -2,21 +2,21 @@ Finished pr-draft output for a personal repo. Copy its shape (title, one-sentenc
 summary, bold-lead bullets, at most one or two extra sections), not its content.
 
 ```
-feat(agents): detect work vs personal context in pr-draft
+feat(agents): read pr-draft context and overlays from ~/.agents-local
 ```
 
 ```markdown
 ## Summary
 
-Makes `pr-draft` work in personal repos too: a script now picks the base and
-rules from the origin URL instead of assuming the work setup.
+Moves employer-specific PR rules out of this public repo: `pr-draft` now reads
+its context and any extra rules from a local folder.
 
-- **Personal repos** use `origin/HEAD`, then `origin/main`, then `origin/master` as the base.
-- **Azure DevOps repos** use `origin/dev` and load `work.md` for the ticket scope and extra sections.
+- **Context** comes from the first `contexts.txt` line whose pattern occurs in the origin URL, else `default`.
+- **Overlays** are optional: the script prints an `overlay:` line only when that context has a file for the skill.
 - **Explicit base** still wins: `branch-state.sh origin/release` skips detection.
 
 ## Key decisions
 
-- Context comes from the origin URL, matching both `dev.azure.com` and the
-  older `visualstudio.com` style, so no per-repo config is needed.
+- The folder is plain files outside the repo, not a second repo, so a machine
+  without it runs every skill as written.
 ```
