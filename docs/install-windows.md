@@ -57,10 +57,13 @@ scoop has no manifest for it. On Linux these come from Nix; on Windows they come
 from npm. This is the one place where Windows needs a package manager Linux does
 not, and it is deliberate rather than an oversight.
 
-Install Node through mise, then the packages:
+Install Node through mise, then the packages. Windows does not link the repo's
+mise config, so this sets the version in your own global config; keep it in
+step with `mise/.config/mise/config.toml`. Global npm packages live inside each
+Node major version, so re-run the second command after changing it:
 
 ```powershell
-mise use --global node@22
+mise use --global node@26
 powershell -ExecutionPolicy Bypass -File install\windows\install-npm-globals.ps1
 ```
 
@@ -112,11 +115,12 @@ this workaround for prettier and documents the reasoning.
 
 `lizard` measures function length and complexity for the `repo-health` agent
 skill. It ships as a Python package, so on Windows it comes from pip (on Linux
-it comes from Nix). Install Python through mise, then the packages in
+it comes from Nix). Install Python through mise (keep the version in step with
+`mise/.config/mise/config.toml`), then the packages in
 `packages/pip-packages.txt`:
 
 ```powershell
-mise use --global python@3.12
+mise use --global python@3.15
 pip install -r packages\pip-packages.txt
 ```
 

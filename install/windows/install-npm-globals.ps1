@@ -9,7 +9,7 @@ Write-Host "=== Global npm tooling setup ==="
 # Node comes from mise (installed by install-scoop.ps1)
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
   Write-Host "Error: npm not found on PATH."
-  Write-Host "Install Node first:  mise use --global node@22"
+  Write-Host "Install Node first:  mise use --global node@26"
   exit 1
 }
 

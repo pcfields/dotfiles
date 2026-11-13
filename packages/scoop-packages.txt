@@ -5,7 +5,7 @@
 
 # ── Core CLI (needed for config/aliases to work) ────────
 git
-mise                    # runtime manager; provides Node (mise use -g node@22)
+mise                    # runtime manager; provides Node (mise use -g node@26)
 nvim
 eza
 bat

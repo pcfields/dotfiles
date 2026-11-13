@@ -5,7 +5,7 @@
 # tools come from Nix (see nix/.config/nix/home.nix) and this file is unused.
 #
 # Requires Python, which mise provides:
-#   mise use --global python@3.12
+#   mise use --global python@3.15
 #
 # This is a pip requirements file, so install with:
 #   pip install -r packages\pip-packages.txt

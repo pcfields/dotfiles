@@ -6,7 +6,7 @@
 # tools come from Nix (see nix/.config/nix/home.nix) and this file is unused.
 #
 # Requires Node, which mise provides:
-#   mise use --global node@22
+#   mise use --global node@26
 #
 # Install them with:
 #   npm install -g (Get-Content packages/npm-global-packages.txt | Where-Object { $_ -notmatch '^\s*#' -and $_.Trim() })
