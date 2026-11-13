@@ -5,6 +5,8 @@ description: Repo health report, code health, hotspots, which files change most,
 
 ## Measure
 
+Read GOTCHAS.md before step 1.
+
 From the repo, run `bash ~/.agents/skills/repo-health/scripts/repo-health.sh`.
 Options: `--since "3 months ago"` (default 12 months; use about 1 month for a
 repo mostly edited by agents), `--top <n>` rows per table, and a path to limit
