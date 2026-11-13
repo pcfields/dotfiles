@@ -198,8 +198,8 @@ A skill's state script names the context from the first `contexts.txt` line
 whose pattern occurs in the origin URL (`dev.azure.com work origin/dev`), and
 prints an `overlay:` line when that context has a file for the skill. With no
 folder or no match the context is `default` and the skill runs as written.
-Only `pr-draft` does this so far; extract the lookup into a shared script when
-a second skill needs it. Local-only skills are linked into `~/.claude/skills`
+`pr-draft` and `commit` do this through `agents/.agents/lib/local-context.sh`,
+which any skill script can source. Local-only skills are linked into `~/.claude/skills`
 by the `agent-links` step, so they reach Claude Code only.
 
 Where a fact goes:

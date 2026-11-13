@@ -8,8 +8,11 @@ Read GOTCHAS.md before step 1.
 ## Current state
 
 From the repo, run `bash ~/.agents/skills/commit/scripts/commit-state.sh`. It
-prints the status, staged and unstaged stats, and the last 10 commits; match
-their style.
+prints the context, the branch, the status, staged and unstaged stats, and the
+last 10 commits; match their style.
+
+If it prints an `overlay:` line, read that file now; its rules add to and
+override this file.
 
 ## Split by concern
 
