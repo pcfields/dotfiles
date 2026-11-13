@@ -37,7 +37,7 @@ expect has "$out" "## Recent commits" "still prints the working tree state"
 
 local_dir="$WORK/local"
 mkdir -p "$local_dir/overlays/commit"
-echo 'dev.example.com work origin/dev' >"$local_dir/contexts.txt"
+echo 'dev.example.com work base=origin/dev' >"$local_dir/contexts.txt"
 out="$(state "$local_dir")"
 expect has "$out" "context: work" "matching origin: named context"
 expect lacks "$out" "overlay:" "context without an overlay file: no overlay"

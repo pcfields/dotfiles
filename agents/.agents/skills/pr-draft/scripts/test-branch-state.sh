@@ -59,7 +59,7 @@ expect_no "$out" "overlay:" "no local folder: no overlay"
 
 local_dir="$WORK/local"
 mkdir -p "$local_dir"
-printf '# pattern context base\r\n\ndev.example.com work origin/dev\nexample.org client\n' \
+printf '# pattern context settings\r\n\ndev.example.com work base=origin/dev\nexample.org client\n' \
   >"$local_dir/contexts.txt"
 
 out="$(state "$company" "$local_dir")"

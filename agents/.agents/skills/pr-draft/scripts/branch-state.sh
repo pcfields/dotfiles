@@ -12,18 +12,18 @@ set -euo pipefail
 source "$(cd -P "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/lib/local-context.sh"
 
 main() {
-  local context context_base base
-  read -r context context_base <<<"$(local_context)"
-  base="${1:-${context_base:-$(default_base)}}"
+  local base
+  base="${1:-$(local_setting base)}"
+  base="${base:-$(default_base)}"
 
   if ! git rev-parse --verify --quiet "$base^{commit}" >/dev/null; then
     echo "error: base '$base' not found; fetch it or pass a base explicitly" >&2
     exit 1
   fi
 
-  echo "context: $context"
+  echo "context: $(local_context)"
   echo "base: $base"
-  print_overlay pr-draft "$context"
+  print_overlay pr-draft
   echo "branch: $(git branch --show-current)"
   section "Commits ($base..HEAD)" git log --oneline --first-parent "$base..HEAD"
   section "Files changed" git diff --stat "$base...HEAD"

@@ -189,13 +189,13 @@ in a plain folder beside it. Make it a private git repo if it needs backup or
 syncing; nothing here depends on that. `AGENTS_LOCAL_DIR` moves it.
 
 ```text
-~/.agents-local/contexts.txt                    <pattern> <context> [<base>]
+~/.agents-local/contexts.txt                    <pattern> <context> [<key>=<value> ...]
 ~/.agents-local/overlays/<skill>/<context>.md   extra rules for a shared skill
 ~/.agents-local/skills/<name>/                  skills that exist only locally
 ```
 
 A skill's state script names the context from the first `contexts.txt` line
-whose pattern occurs in the origin URL (`dev.azure.com work origin/dev`), and
+whose pattern occurs in the origin URL (`dev.azure.com work base=origin/dev`), and
 prints an `overlay:` line when that context has a file for the skill. With no
 folder or no match the context is `default` and the skill runs as written.
 `pr-draft` and `commit` do this through `agents/.agents/lib/local-context.sh`,

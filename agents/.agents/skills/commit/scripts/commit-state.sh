@@ -12,10 +12,8 @@ set -euo pipefail
 source "$(cd -P "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/lib/local-context.sh"
 
 main() {
-  local context
-  read -r context _ <<<"$(local_context)"
-  echo "context: $context"
-  print_overlay commit "$context"
+  echo "context: $(local_context)"
+  print_overlay commit
   echo "branch: $(git branch --show-current)"
   section "Status" git status --short
   section "Staged" git diff --cached --stat
