@@ -3,25 +3,17 @@
 # it merges into, any local overlay to read, its commits, changed files and
 # any uncommitted work.
 #
-# Contexts and overlays come from a folder outside this repo, so nothing
-# about an employer or client is published (AGENTS_LOCAL_DIR overrides it):
-#
-#   ~/.agents-local/contexts.txt                    <pattern> <context> [<base>]
-#   ~/.agents-local/overlays/pr-draft/<context>.md  extra rules for that context
-#
-# The first contexts.txt line whose pattern occurs in the origin URL names the
-# context and, optionally, the branch its PRs merge into. Without the folder
-# or a match the context is `default`.
+# Context and overlay: see ../../../lib/local-context.sh.
 #
 # Run: bash branch-state.sh [base]    (an explicit base overrides detection)
 set -euo pipefail
 
-LOCAL_DIR="${AGENTS_LOCAL_DIR:-$HOME/.agents-local}"
+# -P: the skill may be reached through a symlink in ~/.claude/skills.
+source "$(cd -P "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/lib/local-context.sh"
 
 main() {
-  local origin context context_base base overlay
-  origin="$(git remote get-url origin 2>/dev/null || true)"
-  read -r context context_base <<<"$(context_for "$origin")"
+  local context context_base base
+  read -r context context_base <<<"$(local_context)"
   base="${1:-${context_base:-$(default_base)}}"
 
   if ! git rev-parse --verify --quiet "$base^{commit}" >/dev/null; then
@@ -31,28 +23,11 @@ main() {
 
   echo "context: $context"
   echo "base: $base"
-  overlay="$LOCAL_DIR/overlays/pr-draft/$context.md"
-  if [[ -f "$overlay" ]]; then echo "overlay: $overlay"; fi
+  print_overlay pr-draft "$context"
   echo "branch: $(git branch --show-current)"
   section "Commits ($base..HEAD)" git log --oneline --first-parent "$base..HEAD"
   section "Files changed" git diff --stat "$base...HEAD"
   section "Uncommitted" git status --short
-}
-
-# context_for <origin url>: prints "<context> [<base>]" from the first
-# contexts.txt line whose pattern occurs in the URL, else "default".
-context_for() {
-  local file="$LOCAL_DIR/contexts.txt" pattern context base
-  if [[ -n "$1" && -f "$file" ]]; then
-    while read -r pattern context base; do
-      [[ -n "$context" && "$pattern" != \#* ]] || continue
-      if [[ "$1" == *"$pattern"* ]]; then
-        echo "$context $base"
-        return
-      fi
-    done < <(tr -d '\r' <"$file"; echo)
-  fi
-  echo default
 }
 
 default_base() {
