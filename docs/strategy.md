@@ -207,7 +207,7 @@ Where a fact goes:
 | The fact is true of | Put it in |
 |---------------------|-----------|
 | Every project | `AGENTS.md`, or the body of a shared skill |
-| One language or stack | A reference file in the shared skill (`dotnet.md`), read when the script reports that stack. Add it after a real failure, not before |
+| One language or stack | A reference file in the shared skill (`dotnet.md`), linked from its `SKILL.md`. Add it after a real failure, not before |
 | One employer or client | `~/.agents-local/overlays/<skill>/<context>.md` |
 | One repo | That repo's own `AGENTS.md` or `.claude/skills/`, where the team allows it |
 
