@@ -4,7 +4,8 @@
 #
 # - Claude Code: one symlink per skill into ~/.claude/skills. Per-skill, not a
 #   directory link, because the app keeps managed entries beside ours
-#   (~/.claude/skills/synced).
+#   (~/.claude/skills/synced). Local-only skills in ~/.agents-local/skills
+#   (work, client; kept outside this repo) are linked the same way.
 # - Codex: ~/.codex/AGENTS.md -> the shared AGENTS.md.
 #
 # Not needed: Codex and VS Code read ~/.agents/skills directly, and OpenCode
@@ -19,6 +20,7 @@ source "$ROOT_DIR/lib/common.sh"
 SHARED_DIR="$ROOT_DIR/agents/.agents"
 SHARED_SKILLS="$SHARED_DIR/skills"
 SHARED_INSTRUCTIONS="$SHARED_DIR/AGENTS.md"
+LOCAL_SKILLS="${AGENTS_LOCAL_DIR:-$HOME/.agents-local}/skills"
 
 SKILL_TARGETS=(
   "$HOME/.claude/skills"
@@ -69,6 +71,14 @@ for target in "${SKILL_TARGETS[@]}"; do
   log "Linking shared skills into $target"
   prepare_target "$target"
   for skill in "$SHARED_SKILLS"/*/; do
+    link_skill "${skill%/}" "$target"
+  done
+  for skill in "$LOCAL_SKILLS"/*/; do
+    [[ -d "$skill" ]] || continue
+    if [[ -d "$SHARED_SKILLS/$(basename "$skill")" ]]; then
+      warn "Skipping local skill ${skill%/} (a shared skill has that name)"
+      continue
+    fi
     link_skill "${skill%/}" "$target"
   done
 done

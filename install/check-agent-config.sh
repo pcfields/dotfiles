@@ -53,6 +53,15 @@ check_wiring_links() {
       && pass "claude skill $name linked" || fail "~/.claude/skills/$name not linked (run ./install.sh agent-links)"
   done
 
+  for dir in "${AGENTS_LOCAL_DIR:-$HOME/.agents-local}"/skills/*/; do
+    [[ -d "$dir" ]] || continue
+    name="$(basename "$dir")"
+    [[ -d "$AGENTS_DIR/skills/$name" ]] && { fail "local skill $name has the same name as a shared skill"; continue; }
+    link="$HOME/.claude/skills/$name"
+    [[ "$(readlink -f "$link")" == "$(readlink -f "$dir")" ]] \
+      && pass "local claude skill $name linked" || fail "~/.claude/skills/$name not linked (run ./install.sh agent-links)"
+  done
+
   for link in "$HOME"/.claude/skills/*; do
     [[ -L "$link" && ! -e "$link" ]] && fail "dangling skill link: $link"
   done

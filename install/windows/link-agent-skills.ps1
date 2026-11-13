@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Links each shared agent skill into ~/.claude/skills.
+    Links each shared and local-only agent skill into ~/.claude/skills.
 
 .DESCRIPTION
     Windows twin of install/install-agent-links.sh. Run it after adding,
@@ -10,6 +10,10 @@
     Links per skill, not the whole folder, because Claude Code keeps its own
     entries (synced, .trash) in ~/.claude/skills. Removes links into the shared
     skills folder whose skill no longer exists; leaves everything else alone.
+
+    Local-only skills (work, client) live outside the repo in
+    ~/.agents-local/skills, or $env:AGENTS_LOCAL_DIR\skills, and are linked the
+    same way. A shared skill wins over a local one with the same name.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File install\windows\link-agent-skills.ps1
@@ -36,6 +40,8 @@ function Test-SamePath($a, $b) {
 
 $DotfilesRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $sharedSkills = Join-Path $DotfilesRoot "agents\.agents\skills"
+$localDir = if ($env:AGENTS_LOCAL_DIR) { $env:AGENTS_LOCAL_DIR } else { Join-Path $UserProfile ".agents-local" }
+$localSkills = Join-Path $localDir "skills"
 $claudeSkills = Join-Path $UserProfile ".claude\skills"
 
 if (-not (Test-Path $sharedSkills)) {
@@ -51,7 +57,17 @@ if ($existing -and (Test-IsLink $existing)) {
 }
 New-Item -ItemType Directory -Path $claudeSkills -Force | Out-Null
 
-$skills = Get-ChildItem $sharedSkills -Directory
+$skills = @(Get-ChildItem $sharedSkills -Directory)
+if (Test-Path $localSkills) {
+    $sharedNames = @($skills | ForEach-Object { $_.Name })
+    foreach ($skill in Get-ChildItem $localSkills -Directory) {
+        if ($sharedNames -contains $skill.Name) {
+            Write-Warning "Skipping local skill $($skill.FullName) (a shared skill has that name)"
+            continue
+        }
+        $skills += $skill
+    }
+}
 foreach ($skill in $skills) {
     $dest = Join-Path $claudeSkills $skill.Name
     $item = Get-Item $dest -Force -ErrorAction SilentlyContinue
@@ -71,8 +87,9 @@ foreach ($skill in $skills) {
 
 foreach ($item in Get-ChildItem $claudeSkills -Force | Where-Object { Test-IsLink $_ }) {
     $target = Get-LinkTarget $item
-    $intoShared = $target -and (Test-SamePath (Split-Path -Parent $target) $sharedSkills)
-    if ($intoShared -and -not (Test-Path $target)) {
+    $parent = if ($target) { Split-Path -Parent $target }
+    $isOurs = (Test-SamePath $parent $sharedSkills) -or (Test-SamePath $parent $localSkills)
+    if ($isOurs -and -not (Test-Path $target)) {
         $item.Delete()
         Write-Host "Removed dangling link: $($item.FullName)" -ForegroundColor Cyan
     }
