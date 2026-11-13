@@ -117,11 +117,13 @@ this workaround for prettier and documents the reasoning.
 skill. It ships as a Python package, so on Windows it comes from pip (on Linux
 it comes from Nix). Install Python through mise (keep the version in step with
 `mise/.config/mise/config.toml`), then the packages in
-`packages/pip-packages.txt`:
+`packages/pip-packages.txt`, then refresh mise's shims so the new `lizard`
+command is on PATH:
 
 ```powershell
 mise use --global python@3.15
 pip install -r packages\pip-packages.txt
+mise reshim
 ```
 
 Check it with `where.exe lizard`. Without it the skill still works, but reports

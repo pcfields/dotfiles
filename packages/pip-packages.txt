@@ -9,5 +9,6 @@
 #
 # This is a pip requirements file, so install with:
 #   pip install -r packages\pip-packages.txt
+#   mise reshim
 
 lizard                          # function complexity; used by the repo-health agent skill
