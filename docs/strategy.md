@@ -182,6 +182,35 @@ How each harness picks it up:
 | OpenCode | `instructions` in `opencode.json` loads `~/.agents/AGENTS.md`; its own `AGENTS.md` holds OpenCode-only rules | scans `~/.agents/skills` itself |
 | Codex    | `~/.codex/AGENTS.md` links to the shared file (`agent-links` step) | reads `~/.agents/skills` natively |
 
+### Local-only config (work, clients)
+
+This repo is public, so anything about an employer or client stays out of it,
+in a plain folder beside it. Make it a private git repo if it needs backup or
+syncing; nothing here depends on that. `AGENTS_LOCAL_DIR` moves it.
+
+```text
+~/.agents-local/contexts.txt                    <pattern> <context> [<base>]
+~/.agents-local/overlays/<skill>/<context>.md   extra rules for a shared skill
+~/.agents-local/skills/<name>/                  skills that exist only locally
+```
+
+A skill's state script names the context from the first `contexts.txt` line
+whose pattern occurs in the origin URL (`dev.azure.com work origin/dev`), and
+prints an `overlay:` line when that context has a file for the skill. With no
+folder or no match the context is `default` and the skill runs as written.
+Only `pr-draft` does this so far; extract the lookup into a shared script when
+a second skill needs it. Local-only skills are linked into `~/.claude/skills`
+by the `agent-links` step, so they reach Claude Code only.
+
+Where a fact goes:
+
+| The fact is true of | Put it in |
+|---------------------|-----------|
+| Every project | `AGENTS.md`, or the body of a shared skill |
+| One language or stack | A reference file in the shared skill (`dotnet.md`), read when the script reports that stack. Add it after a real failure, not before |
+| One employer or client | `~/.agents-local/overlays/<skill>/<context>.md` |
+| One repo | That repo's own `AGENTS.md` or `.claude/skills/`, where the team allows it |
+
 Edit the shared files once; `./install/check-agent-config.sh` verifies the
 wiring. Hooks stay per harness (`claude/.claude/hooks/`); sharing them is
 deferred, see `docs/agent-config-plan.md`.

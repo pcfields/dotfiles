@@ -7,11 +7,11 @@ description: Draft a pull request title and description for the current branch f
 
 From the repo, run `bash ~/.agents/skills/pr-draft/scripts/branch-state.sh`.
 If the user names a base (e.g. `dev`), pass it as the argument:
-`... branch-state.sh origin/dev`. It prints the context (work or personal),
-the base, the branch, its commits, the files changed and anything uncommitted.
+`... branch-state.sh origin/dev`. It prints the context, the base, the branch,
+its commits, the files changed and anything uncommitted.
 
-If it reports `context: work`, read [work.md](work.md) now; its rules add to
-and override this file.
+If it prints an `overlay:` line, read that file now; its rules add to and
+override this file.
 
 If there are uncommitted changes, say so: the description covers committed
 work only.
