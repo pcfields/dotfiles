@@ -7,10 +7,13 @@ description: Repo health report, code health, hotspots, which files change most,
 
 Read GOTCHAS.md before step 1.
 
-From the repo, run `bash ~/.agents/skills/repo-health/scripts/repo-health.sh`.
+From the repo, run
+`bash ~/.agents/skills/repo-health/scripts/repo-health.sh --data .repo-health`.
 Options: `--since "3 months ago"` (default 12 months; use about 1 month for a
 repo mostly edited by agents), `--top <n>` rows per table, and a path to limit
-the report to one directory.
+the report to one directory. `--data` saves the raw tables in `.repo-health/`
+at the repo root for the visual report, and adds that folder to
+`.git/info/exclude` so it stays out of `git status`.
 
 It prints:
 
@@ -66,3 +69,31 @@ Lead with the verdict in a sentence or two, then:
 
 Report only. Don't refactor anything unless the user asks; when they do, use
 the `refactor` skill.
+
+## Visual report
+
+After the written report, build the interactive page: a hotspot map (files as
+circles sized by lines, nested by folder, coloured by change frequency or
+grade), a change-coupling wheel, the refactor-first targets, the worst
+functions and the hotspot ranking.
+
+1. Write `.repo-health/findings.json` from the report, in the same words:
+
+   ```json
+   {"verdict": "The one- or two-sentence verdict.",
+    "targets": [{"path": "repo/relative/path.cs",
+                 "issues": ["What is wrong, with `Name` and line numbers."],
+                 "fix": "The named refactoring."}]}
+   ```
+
+   Targets go worst first. Each `path` must be exactly as the script printed
+   it, or that target is left off the page.
+2. Run `python ~/.agents/skills/repo-health/scripts/build-report.py .repo-health`
+   from the repo root (`python3` where `python` is missing). It writes
+   `.repo-health/report.html`, with the data inlined.
+3. Give the user the path. Where the Artifact tool is available, also publish
+   that file as a private artifact (icon `chart`). On a later run in the same
+   conversation, republish to the same URL. Say that the page is a snapshot of
+   this run.
+
+The page loads d3 from cdnjs, so opening the file offline shows no charts.

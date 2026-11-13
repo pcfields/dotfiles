@@ -1,0 +1,672 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: instrument-panel dashboard. Summary strip, then a hotspot map beside a file inspector, then the coupling wheel, then refactoring targets. */
+:root {
+  --bg: #f5f6f8; --panel: #ffffff; --fg: #18202b; --muted: #5b6676; --line: #dde1e7; --folder: #e6eaf0; --folder-edge: #c9d0da;
+  --accent: #2e62b8; --accent-soft: #dce7f8;
+  --good: #2f9a68; --warn: #d39417; --bad: #d1433b; --quiet: #cfd5de;
+  --heat-lo: #f6d5cf; --heat-hi: #a3170f;
+  --display: "IBM Plex Sans", system-ui, sans-serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --panel: #181e26; --fg: #e5e9ef; --muted: #98a3b3; --line: #2a323e; --folder: #1f2731; --folder-edge: #34404f;
+  --accent: #7ea8ec; --accent-soft: #23324a; --good: #4cbb85; --warn: #e8ac35; --bad: #ee6159; --quiet: #3a4452;
+  --heat-lo: #4a2a2a; --heat-hi: #ff6a5c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --panel: #181e26; --fg: #e5e9ef; --muted: #98a3b3; --line: #2a323e; --folder: #1f2731; --folder-edge: #34404f;
+  --accent: #7ea8ec; --accent-soft: #23324a; --good: #4cbb85; --warn: #e8ac35; --bad: #ee6159; --quiet: #3a4452;
+  --heat-lo: #4a2a2a; --heat-hi: #ff6a5c; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; line-height: 1.2 }
+h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.01em }
+h2 { font-size: 1.25rem; font-weight: 600 }
+h3 { font-size: 1rem; font-weight: 600 }
+p { margin: 0; max-width: 68ch }
+.eyebrow { font: 600 0.72rem/1 var(--body); text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted) }
+.mono { font-family: var(--mono); font-size: 0.82em }
+.muted { color: var(--muted) }
+.num { font-variant-numeric: tabular-nums }
+header { display: grid; gap: 10px }
+.verdict { font-size: 1.05rem; color: var(--fg) }
+
+.strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden }
+.stat { background: var(--panel); padding: 14px 16px; display: grid; gap: 4px; min-width: 0 }
+.stat b { font: 600 1.55rem/1.1 var(--display); font-variant-numeric: tabular-nums }
+.stat.wide { grid-column: span 2 }
+.gradebar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 6px }
+.gradebar span { display: block; height: 100% }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--muted) }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px }
+
+section { display: grid; gap: 14px }
+.sechead { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 20px }
+.sechead > div { display: grid; gap: 4px; min-width: 0 }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px }
+
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start }
+@media (max-width: 900px) { .mapgrid { grid-template-columns: 1fr } }
+.mapbox { position: relative; padding: 10px }
+#map { display: block; width: 100%; height: auto; aspect-ratio: 1; max-width: 100%; cursor: pointer; touch-action: manipulation }
+.crumbs { position: absolute; left: 18px; top: 16px; font-size: 0.8rem; display: flex; flex-wrap: wrap; gap: 4px; max-width: calc(100% - 36px); pointer-events: auto }
+.crumbs button { font: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--fg); cursor: pointer }
+.crumbs button:last-child { background: var(--accent-soft); border-color: transparent }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel) }
+.seg button { font: 500 0.85rem var(--body); border: 0; background: transparent; color: var(--muted); padding: 6px 12px; cursor: pointer }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel) }
+input[type="search"] { font: 0.85rem var(--body); padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--fg); width: 240px; max-width: 100% }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+label.chk { font-size: 0.85rem; color: var(--muted); display: inline-flex; gap: 6px; align-items: center }
+input[type="range"] { accent-color: var(--accent); width: 120px }
+
+.inspector { padding: 18px; display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+.inspector .path { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); word-break: break-all }
+.inspector .fname { font: 600 1.05rem var(--display); word-break: break-word }
+.pill { display: inline-block; font: 600 0.7rem/1 var(--body); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 999px; color: #fff; vertical-align: 2px }
+.pill.g { background: var(--good) } .pill.y { background: var(--warn) } .pill.r { background: var(--bad) }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px }
+.metrics div { display: grid; gap: 2px }
+.metrics b { font: 600 1.1rem var(--display); font-variant-numeric: tabular-nums }
+.metrics span { font-size: 0.72rem; color: var(--muted) }
+.note { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; font-size: 0.87rem; display: grid; gap: 6px }
+.partners { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.partners button { all: unset; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; width: 100%; font-size: 0.84rem }
+.partners button:hover .pn, .partners button:focus-visible .pn { color: var(--accent); text-decoration: underline }
+.partners .pn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.partners .meter { grid-column: 1 / -1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden }
+.partners .meter span { display: block; height: 100%; background: var(--accent) }
+.empty { color: var(--muted); font-size: 0.87rem }
+
+.wheelgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start }
+@media (max-width: 900px) { .wheelgrid { grid-template-columns: 1fr } }
+.wheelbox { overflow-x: auto; padding: 8px }
+#wheel { display: block; width: 100%; min-width: 620px; height: auto }
+.pairs { padding: 16px; display: grid; gap: 10px }
+.pairs ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: p }
+.pairs li { display: grid; gap: 3px; font-size: 0.84rem; min-width: 0 }
+.pairs li .names { overflow-wrap: anywhere }
+.pairs li .names button { all: unset; cursor: pointer; font-weight: 600 }
+.pairs li .names button:hover, .pairs li .names button:focus-visible { color: var(--accent); text-decoration: underline }
+.pairs li .why { color: var(--muted) }
+
+.targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px }
+.target { padding: 16px 18px; display: grid; gap: 8px; align-content: start; border-left: 4px solid var(--bad) }
+.target.y { border-left-color: var(--warn) }
+.target .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline }
+.target .rank { font: 600 0.8rem var(--mono); color: var(--muted) }
+.target .nums { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums }
+.target ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.88rem }
+.target .fix { font-size: 0.86rem }
+.target .fix b { color: var(--accent) }
+.target button.open { all: unset; cursor: pointer; font-family: var(--mono); font-size: 0.8rem; color: var(--accent); overflow-wrap: anywhere }
+.target button.open:hover, .target button.open:focus-visible { text-decoration: underline }
+
+.twocol { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px }
+@media (max-width: 460px) { .twocol, .targets { grid-template-columns: 1fr } }
+.chartbox { padding: 16px; display: grid; gap: 10px; min-width: 0 }
+.tablewrap { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 0.84rem; font-variant-numeric: tabular-nums }
+th { text-align: left; font: 600 0.7rem var(--body); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line) }
+td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle }
+td.r, th.r { text-align: right }
+tr.clickable { cursor: pointer }
+tr.clickable:hover td { background: var(--accent-soft) }
+.scorebar { height: 6px; border-radius: 3px; background: var(--bad); min-width: 2px }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px }
+.dot.g { background: var(--good) } .dot.y { background: var(--warn) } .dot.r { background: var(--bad) }
+
+#tip { position: fixed; pointer-events: none; z-index: 20; background: var(--fg); color: var(--bg); font-size: 0.78rem; line-height: 1.4; padding: 7px 10px; border-radius: 6px; max-width: 320px; opacity: 0; transition: opacity .1s }
+#tip .mono { font-size: 0.72rem; opacity: 0.8; word-break: break-all }
+footer { font-size: 0.8rem; color: var(--muted); display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px }
+svg text { font-family: var(--body) }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow" id="eyebrow"></span>
+    <h1 id="heading"></h1>
+    <p class="verdict" id="verdict"></p>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <section>
+    <div class="sechead">
+      <div>
+        <h2>Hotspot map</h2>
+        <p class="muted">Each circle is a source file, sized by lines of code and nested inside its folder. Click a folder to zoom in, click a file to inspect it, and click empty space to zoom back out.</p>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Colour files by">
+          <button id="mode-heat" aria-pressed="true">Change frequency</button>
+          <button id="mode-health" aria-pressed="false">Code health</button>
+        </div>
+        <input type="search" id="find" list="filelist" placeholder="Find a file…" aria-label="Find a file">
+        <datalist id="filelist"></datalist>
+      </div>
+    </div>
+    <div class="legend" id="maplegend"></div>
+    <div class="mapgrid">
+      <div class="panel mapbox">
+        <svg id="map" role="img" aria-label="Circle-packing map of every source file, grouped by folder"></svg>
+        <div class="crumbs" id="crumbs"></div>
+      </div>
+      <aside class="panel inspector" id="inspector" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <div>
+        <h2>Change coupling</h2>
+        <p class="muted">Files that keep changing in the same commit, linked across the wheel. Thicker lines mean more shared commits. The coloured arc shows which project each file belongs to. Hover a file to trace its links, or click it to inspect.</p>
+      </div>
+      <div class="controls">
+        <label class="chk" for="minshared">At least <b id="minval" class="num">5</b> shared commits <input type="range" id="minshared" min="3" max="12" value="5"></label>
+        <label class="chk" for="withtests"><input type="checkbox" id="withtests"> Include test projects</label>
+      </div>
+    </div>
+    <div class="legend" id="projlegend"></div>
+    <div class="wheelgrid">
+      <div class="panel wheelbox"><svg id="wheel" role="img" aria-label="Hierarchical edge bundling of files that change together"></svg></div>
+      <div class="panel pairs">
+        <h3>Strongest pairs</h3>
+        <p class="muted" style="font-size:.82rem">Degree is the share of the two files' average commit count that they made together.</p>
+        <ol id="pairlist"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="targets-section">
+    <div class="sechead"><div>
+      <h2>Refactor first</h2>
+      <p class="muted">The files where unhealthy code costs the most, worst first, each with the named refactoring that would fix it.</p>
+    </div></div>
+    <div class="targets" id="targets"></div>
+  </section>
+
+  <section class="twocol">
+    <div class="panel chartbox">
+      <h3>Functions over the limits</h3>
+      <p class="muted" style="font-size:.82rem">Cyclomatic complexity (ccn) of the 12 branchiest functions. Flagged at 10, red past 20.</p>
+      <svg id="fnchart" role="img" aria-label="Bar chart of the most complex functions"></svg>
+      <p class="empty" id="fnmissing" hidden></p>
+    </div>
+    <div class="panel chartbox">
+      <h3>Hotspot ranking</h3>
+      <p class="muted" style="font-size:.82rem">Score = commits × complexity. Click a row to inspect the file.</p>
+      <div class="tablewrap"><table id="hottable"></table></div>
+    </div>
+  </section>
+
+  <footer>
+    <p id="method"></p>
+    <p id="provenance"></p>
+  </footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const DATA = /*DATA*/;
+const FINDINGS = /*FINDINGS*/;
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const prose = s => esc(s).replace(/`([^`]+)`/g, '<span class="mono">$1</span>');
+const NOTES = Object.fromEntries((FINDINGS.targets || []).map((t, i) => [t.path, { rank: i + 1, issues: t.issues || [], fix: t.fix || "" }]));
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const GRADE = { g: "green", y: "yellow", r: "red" };
+const gradeVar = g => g === "g" ? "--good" : g === "y" ? "--warn" : "--bad";
+const base = p => p.split("/").pop();
+const project = p => p.includes("/") ? p.split("/")[0] : "(repo root)";
+const isTest = p => /(^|[\/._-])(tests?|specs?|__tests__)([\/._-]|$)/i.test(p) || /[a-z0-9](Tests?|Spec)\.\w+$/.test(p);
+const fmt = d3.format(",");
+
+const files = DATA.files.map(([path, lines, complexity, depth, grade, commits, authors, flagged, worst]) =>
+  ({ path, lines, complexity, depth, grade, commits, authors, flagged, worst, score: commits * complexity }));
+const byPath = new Map(files.map(f => [f.path, f]));
+const maxCommits = d3.max(files, f => f.commits);
+const partnersOf = path => DATA.coupling
+  .filter(c => c[2] === path || c[3] === path)
+  .map(([shared, degree, a, b]) => ({ other: a === path ? b : a, shared, degree }))
+  .sort((x, y) => y.shared - x.shared || y.degree - x.degree);
+
+let mode = "heat";
+let selected = null;
+const listeners = [];
+function select(path) { selected = path; listeners.forEach(fn => fn(path)); }
+
+const hotspots = files.filter(f => f.commits > 0).sort((a, b) => b.score - a.score);
+
+renderHeader();
+renderStrip();
+const map = buildMap();
+buildInspector();
+const wheel = buildWheel();
+renderTargets();
+renderFunctions();
+renderHotTable();
+initTooltip();
+let ready = false;
+const first = (FINDINGS.targets || []).map(t => t.path).find(p => byPath.has(p)) || (hotspots[0] || files[0]).path;
+select(first);
+ready = true;
+
+function renderHeader() {
+  const m = DATA.meta;
+  const date = new Date(m.date + "T00:00:00");
+  const when = isNaN(date) ? m.date : date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const scope = m.path && m.path !== "." ? ` · ${m.path}` : "";
+  document.getElementById("eyebrow").textContent = `${m.repo}${scope} · code health · since ${m.since}, to ${when}`;
+  document.getElementById("heading").textContent = DATA.title;
+  const v = document.getElementById("verdict");
+  if (FINDINGS.verdict) v.innerHTML = prose(FINDINGS.verdict); else v.hidden = true;
+  document.getElementById("method").textContent =
+    `Complexity is estimated from indentation${m.no_functions ? "" : ", and function metrics come from lizard"}. ` +
+    "Grades use rough thresholds on file length, nesting depth and the worst function. They rank files rather than give a calibrated score. " +
+    "Lockfiles, JSON, Markdown and other data files are left out. " +
+    `Coupling counts only commits that touch ${m.max_commit_files} files or fewer, and only pairs that changed together at least ${m.min_shared_commits} times.`;
+  document.getElementById("provenance").innerHTML =
+    `Generated by <span class="mono">repo-health.sh</span> on ${esc(m.date)}` + (m.branch ? ` from branch <span class="mono">${esc(m.branch)}</span>.` : ".");
+  const slider = document.getElementById("minshared");
+  slider.min = m.min_shared_commits;
+  const maxShared = d3.max(DATA.coupling, c => c[0]) || +m.min_shared_commits;
+  slider.max = Math.max(+m.min_shared_commits, Math.min(12, maxShared));
+  slider.value = Math.min(+slider.max, Math.max(+m.min_shared_commits, DATA.coupling.filter(c => c[0] >= 5).length >= 10 ? 5 : +m.min_shared_commits));
+}
+
+function renderStrip() {
+  const n = { g: 0, y: 0, r: 0 };
+  files.forEach(f => n[f.grade]++);
+  const total = files.length;
+  const changed = files.filter(f => f.commits > 0).length;
+  const seg = k => `<span style="width:${n[k] / total * 100}%;background:var(${gradeVar(k)})"></span>`;
+  document.getElementById("strip").innerHTML = `
+    <div class="stat"><span class="eyebrow">Source files</span><b>${fmt(total)}</b><span class="muted" style="font-size:.8rem">${fmt(changed)} changed in window</span></div>
+    <div class="stat wide"><span class="eyebrow">Health grades</span>
+      <div class="legend" style="color:var(--fg)"><span><i style="background:var(--good)"></i>${n.g} green</span><span><i style="background:var(--warn)"></i>${n.y} yellow</span><span><i style="background:var(--bad)"></i>${n.r} red</span></div>
+      <div class="gradebar">${seg("g")}${seg("y")}${seg("r")}</div></div>
+    <div class="stat"><span class="eyebrow">Commits</span><b>${fmt(DATA.commits)}</b><span class="muted" style="font-size:.8rem">by ${DATA.authors} authors</span></div>
+    <div class="stat"><span class="eyebrow">Top 10 hotspots</span><b>${topShare()}%</b><span class="muted" style="font-size:.8rem">of all file changes</span></div>
+    ${worstFunctionStat()}`;
+}
+
+function topShare() {
+  const all = d3.sum(hotspots, f => f.commits);
+  return all ? Math.round(100 * d3.sum(hotspots.slice(0, 10), f => f.commits) / all) : 0;
+}
+
+function worstFunctionStat() {
+  const w = DATA.fns[0];
+  if (!w) return `<div class="stat"><span class="eyebrow">Worst function</span><b>n/a</b><span class="muted" style="font-size:.8rem">not measured</span></div>`;
+  const owner = base(w[3]).replace(/\.[^.]+$/, "");
+  return `<div class="stat"><span class="eyebrow">Worst function</span><b>ccn ${w[0]}</b><span class="muted" style="font-size:.8rem">${fmt(w[1])} lines, ${esc(owner)}</span></div>`;
+}
+
+function fileFill(f) {
+  if (mode === "health") return css(gradeVar(f.grade));
+  if (!f.commits) return css("--quiet");
+  const t = Math.log(f.commits + 1) / Math.log(maxCommits + 1);
+  return d3.interpolateRgb(css("--heat-lo"), css("--heat-hi"))(Math.pow(t, 0.8));
+}
+
+function buildTree() {
+  const root = { name: "workspace", children: new Map() };
+  for (const f of files) {
+    const parts = f.path.split("/");
+    let node = root;
+    parts.forEach((part, i) => {
+      if (i === parts.length - 1) { node.children.set(part, { name: part, file: f }); return; }
+      if (!node.children.has(part)) node.children.set(part, { name: part, children: new Map() });
+      node = node.children.get(part);
+    });
+  }
+  const toArrays = n => n.children ? { name: n.name, children: [...n.children.values()].map(toArrays) } : n;
+  return toArrays(root);
+}
+
+function buildMap() {
+  const W = 900;
+  const svg = d3.select("#map").attr("viewBox", [-W / 2, -W / 2, W, W]);
+  const root = d3.hierarchy(buildTree())
+    .sum(d => d.file ? Math.max(d.file.lines, 6) : 0)
+    .sort((a, b) => b.value - a.value);
+  d3.pack().size([W, W]).padding(d => d.depth === 0 ? 8 : 3)(root);
+  root.each(d => { d.path = d.ancestors().reverse().slice(1).map(a => a.data.name).join("/"); });
+
+  const nodes = root.descendants();
+  const g = svg.append("g");
+  const circle = g.selectAll("circle").data(nodes).join("circle")
+    .attr("data-path", d => d.data.file ? d.data.file.path : null)
+    .style("stroke-width", 1)
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      if (d.data.file) { select(d.data.file.path); return; }
+      if (focus !== d) zoom(d);
+    })
+    .on("pointerenter", (event, d) => showTip(event, d.data.file ? fileTip(d.data.file) : folderTip(d)))
+    .on("pointermove", moveTip)
+    .on("pointerleave", hideTip);
+  const label = g.append("g").style("pointer-events", "none").attr("text-anchor", "middle")
+    .selectAll("text").data(nodes.filter(d => d.depth > 0)).join("text")
+    .style("font-size", "12px").style("font-weight", d => d.children ? 600 : 400)
+    .style("paint-order", "stroke").style("stroke-width", 3).style("stroke-linejoin", "round")
+    .text(d => d.data.name);
+  svg.on("click", () => { if (focus.parent) zoom(focus.parent); });
+
+  let focus = root, view;
+  const k0 = () => W / view[2];
+  function zoomTo(v) {
+    view = v; const k = k0();
+    circle.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`).attr("r", d => d.r * k);
+    label.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + (d.children ? -d.r * k + 16 : 4)})`);
+    updateLabels();
+  }
+  function updateLabels() {
+    const k = k0();
+    label.style("display", d => {
+      const r = d.r * k;
+      if (d.children) return d.parent === focus && r > 34 ? null : "none";
+      return d.parent && (d.parent === focus || d.parent.parent === focus) && r > 26 ? null : "none";
+    }).text(d => {
+      const r = d.r * k, max = Math.max(4, Math.floor(r / 3.6));
+      return d.data.name.length > max ? d.data.name.slice(0, max - 1) + "…" : d.data.name;
+    });
+  }
+  function zoom(d) {
+    focus = d;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    svg.transition().duration(reduce ? 0 : 650).tween("zoom", () => {
+      const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + 4]);
+      return t => zoomTo(i(t));
+    });
+    renderCrumbs();
+  }
+  function renderCrumbs() {
+    const box = document.getElementById("crumbs");
+    box.innerHTML = "";
+    focus.ancestors().reverse().forEach(a => {
+      const b = document.createElement("button");
+      b.textContent = a.depth === 0 ? "All projects" : a.data.name;
+      b.onclick = e => { e.stopPropagation(); zoom(a); };
+      box.appendChild(b);
+    });
+  }
+  function paint() {
+    const partners = selected ? new Set(partnersOf(selected).map(p => p.other)) : new Set();
+    circle
+      .style("fill", d => d.data.file ? fileFill(d.data.file) : d.depth === 0 ? "transparent" : css("--folder"))
+      .style("fill-opacity", d => d.data.file ? 1 : 0.55)
+      .style("stroke", d => {
+        if (!d.data.file) return d.depth === 0 ? "none" : css("--folder-edge");
+        if (d.data.file.path === selected) return css("--fg");
+        if (partners.has(d.data.file.path)) return css("--accent");
+        return "none";
+      })
+      .style("stroke-width", d => d.data.file && (d.data.file.path === selected || partners.has(d.data.file.path)) ? 3 : 1);
+    label.style("fill", d => d.children ? css("--fg") : "#fff").style("stroke", d => d.children ? css("--panel") : "rgba(0,0,0,.45)");
+  }
+  zoomTo([root.x, root.y, root.r * 2 + 4]);
+  renderCrumbs();
+  paint();
+  listeners.push(path => {
+    paint();
+    const leaf = nodes.find(n => n.data.file && n.data.file.path === path);
+    if (ready && leaf && !leaf.ancestors().includes(focus)) zoom(leaf.parent);
+  });
+  const dl = document.getElementById("filelist");
+  dl.innerHTML = files.map(f => `<option value="${esc(f.path)}"></option>`).join("");
+  document.getElementById("find").addEventListener("change", e => {
+    const v = e.target.value.trim();
+    const hit = byPath.get(v) || files.find(f => f.path.toLowerCase().includes(v.toLowerCase()));
+    if (hit) { select(hit.path); const leaf = nodes.find(n => n.data.file === hit); zoom(leaf.parent); }
+  });
+  for (const id of ["heat", "health"]) {
+    document.getElementById("mode-" + id).onclick = () => {
+      mode = id;
+      document.getElementById("mode-heat").setAttribute("aria-pressed", id === "heat");
+      document.getElementById("mode-health").setAttribute("aria-pressed", id === "health");
+      paint(); renderMapLegend();
+    };
+  }
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+  new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  renderMapLegend();
+  return { paint };
+}
+
+function renderMapLegend() {
+  const el = document.getElementById("maplegend");
+  if (mode === "health") {
+    el.innerHTML = `<span><i style="background:var(--good)"></i>Green: healthy</span><span><i style="background:var(--warn)"></i>Yellow: watch</span><span><i style="background:var(--bad)"></i>Red: unhealthy</span><span><i style="border:3px solid var(--accent)"></i>Changes with the selected file</span>`;
+  } else {
+    el.innerHTML = `<span><i style="background:var(--quiet)"></i>Not changed in 12 months</span><span><i style="background:var(--heat-lo)"></i>1 commit</span><span><i style="background:color-mix(in srgb, var(--heat-lo), var(--heat-hi))"></i>~7 commits</span><span><i style="background:var(--heat-hi)"></i>${maxCommits} commits</span><span><i style="border:3px solid var(--accent)"></i>Changes with the selected file</span>`;
+  }
+}
+
+function buildInspector() {
+  const el = document.getElementById("inspector");
+  listeners.push(path => {
+    const f = byPath.get(path);
+    if (!f) return;
+    const note = NOTES[path];
+    const partners = partnersOf(path);
+    const maxShared = d3.max(partners, p => p.shared) || 1;
+    const w = f.worst;
+    el.innerHTML = `
+      <div style="display:grid;gap:4px">
+        <span class="eyebrow">Selected file</span>
+        <div class="fname">${esc(base(path))} <span class="pill ${f.grade}">${GRADE[f.grade]}</span></div>
+        <div class="path">${esc(path)}</div>
+      </div>
+      <div class="metrics">
+        <div><b>${fmt(f.lines)}</b><span>lines</span></div>
+        <div><b>${f.commits}</b><span>commits (12 mo)</span></div>
+        <div><b>${f.authors}</b><span>authors</span></div>
+        <div><b>${f.depth}</b><span>max nesting</span></div>
+        <div><b>${fmt(f.complexity)}</b><span>complexity</span></div>
+        <div><b>${f.flagged}</b><span>functions over limits</span></div>
+      </div>
+      ${w ? `<div style="display:grid;gap:2px;font-size:.86rem"><span class="eyebrow">Worst function</span>
+        <span class="mono" style="overflow-wrap:anywhere">${esc(w[3])}</span>
+        <span class="muted num">line ${w[4]} · ccn ${w[0]} · ${fmt(w[1])} lines · ${w[2]} params</span></div>` : ""}
+      ${note ? `<div class="note"><b>Refactor target #${note.rank}</b><span>${note.fix}</span></div>` : ""}
+      <div style="display:grid;gap:8px">
+        <span class="eyebrow">Changes together with</span>
+        ${partners.length ? `<ul class="partners">${partners.slice(0, 8).map(p => `
+          <li><button data-go="${esc(p.other)}" title="${esc(p.other)}"><span class="pn">${esc(base(p.other))}</span><span class="muted num">${p.shared}× · ${p.degree}%</span>
+          <span class="meter"><span style="width:${p.shared / maxShared * 100}%"></span></span></button></li>`).join("")}</ul>`
+        : `<p class="empty">No file shared 3 or more commits with this one.</p>`}
+      </div>`;
+    el.querySelectorAll("[data-go]").forEach(b => b.onclick = () => select(b.dataset.go));
+  });
+}
+
+function buildWheel() {
+  const R = 250, PAD = 210, S = R + PAD;
+  const svg = d3.select("#wheel").attr("viewBox", [-S, -S, S * 2, S * 2]);
+  const slider = document.getElementById("minshared");
+  const tests = document.getElementById("withtests");
+  const projects = [...new Set(files.map(f => project(f.path)))].sort();
+  const pcolor = d3.scaleOrdinal(projects, ["#2e62b8", "#c2410c", "#0f8a6a", "#9333ea", "#b45309", "#0e7490", "#be185d", "#4d7c0f", "#6b7280", "#7c3aed", "#0369a1", "#a16207"]);
+  let hover = null;
+
+  function draw() {
+    const min = +slider.value;
+    document.getElementById("minval").textContent = min;
+    const links = DATA.coupling.filter(c => c[0] >= min && (tests.checked || (!isTest(c[2]) && !isTest(c[3]))));
+    const paths = [...new Set(links.flatMap(c => [c[2], c[3]]))];
+    const byProj = d3.group(paths, project);
+    const tree = { name: "", children: [...byProj].sort((a, b) => d3.ascending(a[0], b[0]))
+      .map(([p, list]) => ({ name: p, children: list.sort().map(path => ({ name: path, path })) })) };
+    const root = d3.hierarchy(tree);
+    d3.cluster().size([360, R])(root);
+    const leafBy = new Map(root.leaves().map(l => [l.data.path, l]));
+    svg.selectAll("*").remove();
+    if (!links.length) {
+      svg.append("text").attr("text-anchor", "middle").style("fill", css("--muted")).style("font-size", "16px").text("No pairs at this threshold");
+      renderPairs([]); renderProjLegend([]); return;
+    }
+    const line = d3.lineRadial().curve(d3.curveBundle.beta(0.85)).radius(d => d.y).angle(d => d.x / 180 * Math.PI);
+    const maxS = d3.max(links, c => c[0]);
+    const linkSel = svg.append("g").attr("fill", "none").selectAll("path").data(links).join("path")
+      .attr("d", c => line(leafBy.get(c[2]).path(leafBy.get(c[3]))))
+      .style("stroke-width", c => 1 + 3.5 * (c[0] - min) / Math.max(1, maxS - min))
+      .style("mix-blend-mode", "normal");
+
+    const arc = d3.arc().innerRadius(R + 4).outerRadius(R + 10);
+    const step = 360 / root.leaves().length / 2;
+    svg.append("g").selectAll("path").data(root.children).join("path")
+      .attr("d", d => arc({ startAngle: (d3.min(d.leaves(), l => l.x) - step * 0.8) / 180 * Math.PI, endAngle: (d3.max(d.leaves(), l => l.x) + step * 0.8) / 180 * Math.PI }))
+      .style("fill", d => pcolor(d.data.name))
+      .on("pointerenter", (e, d) => showTip(e, `<b>${esc(d.data.name)}</b><br>${d.leaves().length} coupled files`)).on("pointermove", moveTip).on("pointerleave", hideTip);
+
+    const nodeSel = svg.append("g").selectAll("g").data(root.leaves()).join("g")
+      .attr("transform", d => `rotate(${d.x - 90}) translate(${R + 16},0)`)
+      .style("cursor", "pointer")
+      .on("pointerenter", (e, d) => { hover = d.data.path; paint(); showTip(e, fileTip(byPath.get(d.data.path))); })
+      .on("pointermove", moveTip)
+      .on("pointerleave", () => { hover = null; paint(); hideTip(); })
+      .on("click", (e, d) => select(d.data.path));
+    nodeSel.append("circle").attr("r", 3.5).style("fill", d => css(gradeVar(byPath.get(d.data.path).grade)));
+    nodeSel.append("text").attr("dy", "0.32em")
+      .attr("x", d => d.x < 180 ? 8 : -8)
+      .attr("text-anchor", d => d.x < 180 ? "start" : "end")
+      .attr("transform", d => d.x >= 180 ? "rotate(180)" : null)
+      .style("font-size", "11px")
+      .text(d => { const b = base(d.data.path); return b.length > 34 ? b.slice(0, 33) + "…" : b; });
+
+    function paint() {
+      const focusPath = hover || selected;
+      const linked = new Set();
+      links.forEach(c => { if (c[2] === focusPath) linked.add(c[3]); if (c[3] === focusPath) linked.add(c[2]); });
+      const active = focusPath && leafBy.has(focusPath);
+      linkSel
+        .style("stroke", c => active && (c[2] === focusPath || c[3] === focusPath) ? css("--accent") : css("--muted"))
+        .style("stroke-opacity", c => !active ? 0.25 + 0.5 * c[1] / 100 : (c[2] === focusPath || c[3] === focusPath) ? 0.95 : 0.06);
+      linkSel.filter(c => active && (c[2] === focusPath || c[3] === focusPath)).raise();
+      nodeSel.select("text")
+        .style("fill", d => !active ? css("--fg") : d.data.path === focusPath ? css("--accent") : linked.has(d.data.path) ? css("--fg") : css("--muted"))
+        .style("font-weight", d => active && (d.data.path === focusPath || linked.has(d.data.path)) ? 600 : 400)
+        .style("opacity", d => !active || d.data.path === focusPath || linked.has(d.data.path) ? 1 : 0.45);
+    }
+    paint();
+    wheelPaint = paint;
+    renderPairs(links);
+    renderProjLegend(root.children.map(c => c.data.name));
+  }
+  function renderProjLegend(list) {
+    document.getElementById("projlegend").innerHTML = list.map(p => `<span><i style="background:${pcolor(p)}"></i>${esc(p)}</span>`).join("");
+  }
+  let wheelPaint = () => {};
+  slider.oninput = draw;
+  tests.onchange = draw;
+  draw();
+  listeners.push(() => wheelPaint());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return { draw };
+}
+
+function renderPairs(links) {
+  const top = [...links].sort((a, b) => b[0] - a[0] || b[1] - a[1]).slice(0, 10);
+  const ol = document.getElementById("pairlist");
+  ol.innerHTML = top.length ? top.map(([s, d, a, b]) => `
+    <li><span class="names"><button data-go="${esc(a)}" title="${esc(a)}">${esc(base(a))}</button> ↔ <button data-go="${esc(b)}" title="${esc(b)}">${esc(base(b))}</button></span>
+    <span class="why num">${s} shared commits · ${d}% degree${project(a) !== project(b) ? " · crosses projects" : ""}</span></li>`).join("")
+    : `<li class="empty">No pairs at this threshold.</li>`;
+  ol.querySelectorAll("[data-go]").forEach(btn => btn.onclick = () => select(btn.dataset.go));
+}
+
+function renderTargets() {
+  const el = document.getElementById("targets");
+  const known = Object.entries(NOTES).filter(([path]) => byPath.has(path));
+  if (!known.length) { document.getElementById("targets-section").hidden = true; return; }
+  el.innerHTML = known.sort((a, b) => a[1].rank - b[1].rank).map(([path, n]) => {
+    const f = byPath.get(path);
+    return `<article class="panel target ${f.grade}">
+      <div class="top"><h3>${esc(base(path))}</h3><span class="rank">#${n.rank}</span></div>
+      <span class="nums">${GRADE[f.grade]} · ${f.commits} commits · ${f.authors} authors · ${fmt(f.lines)} lines · depth ${f.depth} · complexity ${fmt(f.complexity)}</span>
+      <ul>${n.issues.map(i => `<li>${prose(i)}</li>`).join("")}</ul>
+      <p class="fix"><b>Fix:</b> ${prose(n.fix)}</p>
+      <button class="open" data-go="${esc(path)}">Show on map →</button>
+    </article>`;
+  }).join("");
+  el.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { select(b.dataset.go); document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" }); });
+}
+
+function renderFunctions() {
+  const top = DATA.fns.map(([ccn, len, name, path]) => ({ ccn, len, name, path }));
+  if (!top.length) {
+    const msg = document.getElementById("fnmissing");
+    msg.textContent = DATA.meta.no_functions ? `Not measured: ${DATA.meta.no_functions}.` : "No functions found.";
+    msg.hidden = false;
+    document.getElementById("fnchart").remove();
+    return;
+  }
+  const W = 560, rowH = 26, left = 230, H = top.length * rowH + 30;
+  const svg = d3.select("#fnchart").attr("viewBox", [0, 0, W, H]).style("width", "100%").style("height", "auto");
+  const x = d3.scaleLinear([0, d3.max(top, d => d.ccn)], [left, W - 46]).nice();
+  const g = svg.append("g");
+  g.selectAll("line").data(x.ticks(5)).join("line")
+    .attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", 0).attr("y2", top.length * rowH)
+    .style("stroke", "var(--line)");
+  g.selectAll(".tick").data(x.ticks(5)).join("text").attr("x", d => x(d)).attr("y", top.length * rowH + 16)
+    .attr("text-anchor", "middle").style("font-size", "10px").style("fill", "var(--muted)").text(d => d);
+  const row = g.selectAll(".row").data(top).join("g").attr("transform", (d, i) => `translate(0,${i * rowH})`)
+    .style("cursor", "pointer").on("click", (e, d) => select(d.path))
+    .on("pointerenter", (e, d) => showTip(e, `<b>${esc(d.name)}</b><br>ccn ${d.ccn} · ${fmt(d.len)} lines<div class="mono">${esc(d.path)}</div>`))
+    .on("pointermove", moveTip).on("pointerleave", hideTip);
+  row.append("rect").attr("x", left).attr("y", 5).attr("height", rowH - 10).attr("rx", 3)
+    .attr("width", d => Math.max(2, x(d.ccn) - left))
+    .style("fill", d => d.ccn > 20 ? "var(--bad)" : d.ccn >= 10 ? "var(--warn)" : "var(--good)");
+  row.append("text").attr("x", left - 8).attr("y", rowH / 2).attr("dy", "0.35em").attr("text-anchor", "end")
+    .style("font-size", "11px").style("fill", "var(--fg)")
+    .text(d => { const s = d.name.split("::").pop(); return s.length > 32 ? s.slice(0, 31) + "…" : s; });
+  row.append("text").attr("x", d => x(d.ccn) + 6).attr("y", rowH / 2).attr("dy", "0.35em")
+    .style("font-size", "11px").style("fill", "var(--muted)").style("font-variant-numeric", "tabular-nums").text(d => d.ccn);
+}
+
+function renderHotTable() {
+  const top = [...files].sort((a, b) => b.score - a.score).slice(0, 15);
+  const max = (top[0] && top[0].score) || 1;
+  const t = document.getElementById("hottable");
+  t.innerHTML = `<thead><tr><th>File</th><th class="r">Commits</th><th class="r">Lines</th><th style="width:28%">Score</th></tr></thead><tbody>${
+    top.map(f => `<tr class="clickable" data-go="${esc(f.path)}" title="${esc(f.path)}"><td><span class="dot ${f.grade}"></span>${esc(base(f.path))}</td>
+      <td class="r">${f.commits}</td><td class="r">${fmt(f.lines)}</td>
+      <td><div class="scorebar" style="width:${f.score / max * 100}%"></div></td></tr>`).join("")}</tbody>`;
+  t.querySelectorAll("[data-go]").forEach(r => r.onclick = () => { select(r.dataset.go); document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" }); });
+}
+
+function fileTip(f) {
+  return `<b>${esc(base(f.path))}</b> · ${GRADE[f.grade]}<br>${fmt(f.lines)} lines · ${f.commits} commits · ${f.authors} authors<br>depth ${f.depth} · complexity ${fmt(f.complexity)}<div class="mono">${esc(f.path)}</div>`;
+}
+function folderTip(d) {
+  if (d.depth === 0) return "<b>All projects</b>";
+  const leaves = d.leaves().map(l => l.data.file).filter(Boolean);
+  const red = leaves.filter(f => f.grade === "r").length;
+  const commits = d3.sum(leaves, f => f.commits);
+  return `<b>${esc(d.data.name)}/</b><br>${leaves.length} files · ${fmt(d3.sum(leaves, f => f.lines))} lines<br>${red} red · ${commits} file changes<div class="mono">${esc(d.path)}</div>`;
+}
+let tipEl;
+function initTooltip() { tipEl = document.getElementById("tip"); }
+function showTip(e, html) { tipEl.innerHTML = html; tipEl.style.opacity = 1; moveTip(e); }
+function moveTip(e) {
+  const pad = 14, r = tipEl.getBoundingClientRect();
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - pad;
+  tipEl.style.left = Math.max(8, x) + "px"; tipEl.style.top = Math.max(8, y) + "px";
+}
+function hideTip() { tipEl.style.opacity = 0; }
+</script>

@@ -4,7 +4,10 @@
 # Complexity is measured from indentation, so it works for any language. When
 # lizard is installed, functions that are long, branchy or take many
 # parameters are listed too and count towards the file's grade.
-# Run inside a git repo: bash repo-health.sh [--since <date>] [--top <n>] [<path>]
+# Run inside a git repo:
+#   bash repo-health.sh [--since <date>] [--top <n>] [--data <dir>] [<path>]
+# --data also keeps the raw per-file tables in <dir> for build-report.py; a
+# relative <dir> is taken from the repo root, and kept out of git status.
 set -euo pipefail
 
 # Lockfiles, data, dumps and prose: they churn, but indentation says nothing about them.
@@ -19,16 +22,20 @@ FLAG_CCN=10 FLAG_LENGTH=60 FLAG_PARAMS=5
 RED_CCN=20 RED_LENGTH=120
 
 main() {
-  local since="12 months ago" top=15 path="."
+  local since="12 months ago" top=15 path="." data=""
   while (($#)); do
     case "$1" in
-      --since | --top)
+      --since | --top | --data)
         if (($# < 2)); then
           echo "$1 needs a value" >&2
           usage >&2
           exit 2
         fi
-        if [[ "$1" == --since ]]; then since="$2"; else top="$2"; fi
+        case "$1" in
+          --since) since="$2" ;;
+          --top) top="$2" ;;
+          --data) data="$2" ;;
+        esac
         shift 2
         ;;
       -h | --help) usage; exit 0 ;;
@@ -63,6 +70,7 @@ main() {
   fi
   grades "$work/functions" "$work/indentation" >"$work/complexity"
   hotspots "$work/complexity" "$work/churn" >"$work/hotspots"
+  if [[ -n "$data" ]]; then save_data "$data" "$since" "$path" "$work" "$no_functions"; fi
 
   overview "$since" "$path" "$top" "$work"
   table "Hotspots (commits x complexity, worst first)" \
@@ -92,9 +100,11 @@ main() {
 
 usage() {
   cat <<'EOF'
-usage: repo-health.sh [--since <git date>] [--top <n>] [<path>]
+usage: repo-health.sh [--since <git date>] [--top <n>] [--data <dir>] [<path>]
   --since  how far back to read history (default: "12 months ago")
   --top    rows per table (default: 15)
+  --data   also write the raw tables to <dir> (relative to the repo root),
+           for build-report.py
   <path>   limit the report to a directory (default: whole repo)
 EOF
 }
@@ -259,6 +269,31 @@ overview() {
     { all += $3 } NR <= top { hot += $3 }
     END { if (all) printf "top %d hotspots take %d%% of all file changes\n", top, 100 * hot / all }
   ' "$work/hotspots"
+}
+
+# save_data <dir> <since> <path> <workdir> <no_functions>: the raw tables, plus
+# a meta file of key<TAB>value lines describing the run.
+save_data() {
+  local dir="$1" since="$2" path="$3" work="$4" no_functions="$5"
+  mkdir -p "$dir"
+  # A report folder inside the repo stays local: excluded, not added to .gitignore.
+  if [[ "$dir" != /* && ! "$dir" =~ ^[A-Za-z]: ]]; then
+    local exclude
+    exclude="$(git rev-parse --git-path info/exclude)"
+    mkdir -p "$(dirname "$exclude")"
+    grep -qxF "/${dir%/}/" "$exclude" 2>/dev/null || printf '/%s/\n' "${dir%/}" >>"$exclude"
+  fi
+  cp "$work"/{churn,complexity,coupling,functions,hotspots,totals} "$dir"/
+  {
+    printf 'repo\t%s\n' "$(basename "$PWD")"
+    printf 'branch\t%s\n' "$(git branch --show-current 2>/dev/null || true)"
+    printf 'path\t%s\n' "$path"
+    printf 'since\t%s\n' "$since"
+    printf 'date\t%s\n' "$(date +%Y-%m-%d)"
+    printf 'max_commit_files\t%s\n' "$MAX_COMMIT_FILES"
+    printf 'min_shared_commits\t%s\n' "$MIN_SHARED_COMMITS"
+    printf 'no_functions\t%s\n' "$no_functions"
+  } >"$dir/meta"
 }
 
 # table <title> <header>: prints the rows on stdin as aligned columns, or "(none)".
