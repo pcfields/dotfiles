@@ -35,7 +35,10 @@ uplift instead of growing it.
 2. Pick the tidyings from [refactorings.md](refactorings.md), list them with
    `file:line`, and wait for the user's yes.
 3. Make them, run the tests again, and commit them separately from the
-   behavior change (`refactor(scope): ...`).
+   behavior change (`refactor(scope): ...`). If the tidy is large (a JS→TS
+   conversion, more than a few small cleanups), put it on its own branch and
+   PR off the base branch, and stack the feature branch on it, so it is
+   reviewed apart from the behavior change.
 
 No baseline, re-measuring or playbook entry.
 

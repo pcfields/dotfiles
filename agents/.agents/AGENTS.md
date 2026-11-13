@@ -27,6 +27,9 @@ hooks) belongs there, not here.
   change easier; after, when the change showed what was needed; later (tell
   the user) when it's big; never, when the code won't change again. The
   `refactor` skill has the procedure.
+- Large tidyings (a JS→TS conversion, a file-wide refactor) go in their own
+  PR, opened before the feature PR that builds on it, so reviewers see the
+  restructure apart from the behavior change.
 
 ## Working discipline
 
