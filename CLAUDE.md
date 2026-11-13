@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Personal dotfiles and machine-setup repo for **two targets from one tree**: Ubuntu-based Linux (mainly Pop!_OS) and Windows (Scoop + PowerShell). There is no application to build or test — the "code" is install scripts and config files. Changes are validated by re-running the relevant install step, not a test suite.
+Personal dotfiles and machine-setup repo for **two targets from one tree**: Ubuntu-based Linux (mainly Pop!_OS) and Windows (Scoop + PowerShell). There is no application to build or test — the "code" is install scripts and config files. Changes are validated by re-running the relevant install step, not a test suite. The exception is the agent config: `bash .agents/check` runs the hook and skill script tests and verifies the wiring.
 
 ## Workflow
 

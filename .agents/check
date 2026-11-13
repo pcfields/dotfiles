@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# This repo's fast checks: the script tests and the agent config wiring.
+# Run: bash .agents/check    (agents run it through run-project-check.sh)
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+checks=(
+  claude/.claude/hooks/test-hooks.sh
+  agents/.agents/checks/test-checks.sh
+  agents/.agents/skills/pr-draft/scripts/test-branch-state.sh
+  agents/.agents/skills/commit/scripts/test-commit-state.sh
+  install/check-agent-config.sh
+)
+
+for check in "${checks[@]}"; do
+  echo "== $check"
+  bash "$check"
+done
