@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression fixtures for the PreToolUse hooks. Run: bash test-hooks.sh
+# Regression fixtures for the PreToolUse and Stop hooks. Run: bash test-hooks.sh
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -57,6 +57,19 @@ expect 2 "$S" "$(grep_op '/repo/.env')" "grep inside .env"
 expect 2 "$S" "$(grep_op '/home/u/.ssh')" "grep the .ssh dir"
 expect 0 "$S" "$(grep_op '/repo/src')" "grep ordinary dir"
 expect 0 "$S" '{"tool_name":"Grep","tool_input":{"pattern":"x"}}' "grep with no path"
+
+# Stop hook: a throwaway repo with uncommitted changes and a failing check.
+C=run-check-on-stop.sh
+repo="$(mktemp -d)"
+trap "rm -rf '$repo'" EXIT
+git -C "$repo" init -q
+mkdir "$repo/.agents" && echo 'exit 1' >"$repo/.agents/check"
+stop_event() { jq -cn --arg d "$repo" --argjson active "$1" '{hook_event_name:"Stop",cwd:$d,stop_hook_active:$active}'; }
+expect 2 "$C" "$(stop_event false)" "stop: failing check sends Claude back"
+expect 0 "$C" "$(stop_event true)" "stop: second stop is let through"
+expect 0 "$C" "$(jq -cn --arg d "$repo/missing" '{cwd:$d}')" "stop: unknown directory fails open"
+echo 'exit 0' >"$repo/.agents/check"
+expect 0 "$C" "$(stop_event false)" "stop: passing check lets Claude stop"
 
 echo
 if ((failures)); then

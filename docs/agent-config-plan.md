@@ -48,6 +48,16 @@ use a small override file for a harness-specific tweak rather than forking.
 Decision: the Claude hooks stay in `claude/.claude/hooks/` for now. Sharing
 guardrails across harnesses is postponed until it earns its complexity.
 
+One check is shared already: the completion gate.
+`agents/.agents/checks/run-project-check.sh` runs a project's `check` command
+(`.agents/check`, or a `check` entry in `package.json`, `justfile`, `Makefile`
+or `mise.toml`) when there are uncommitted changes, and exits 2 with the
+output when it fails. It knows nothing about any harness. Claude Code calls it
+from a `Stop` hook (`claude/.claude/hooks/run-check-on-stop.sh`), which sends a
+failure back once and then lets Claude stop. Another harness needs only its
+own few-line adapter; until it has one, `AGENTS.md` tells the agent to run the
+script itself. Tests: `agents/.agents/checks/test-checks.sh`.
+
 Design notes for when we return to it:
 
 - A `checks/` folder in the `agents` package, one contract: exit 0 passes, exit 2

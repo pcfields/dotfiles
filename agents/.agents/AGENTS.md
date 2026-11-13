@@ -112,6 +112,11 @@ applied through it.
 - Run the project's tests and any linter/type-checker before calling a task
   complete. Fix failures or report them explicitly. Never declare done with
   red tests.
+- A project's fast checks (lint, types, build) sit behind one command named
+  `check`: a `.agents/check` script, or a `check` entry in `package.json`,
+  `justfile`, `Makefile` or `mise.toml`. Run it with
+  `bash ~/.agents/checks/run-project-check.sh`. Some harnesses run it for you
+  when you finish; a failure it reports is yours to fix or report.
 - For non-trivial changes (new logic, bug fixes; not docs or mechanical
   edits), run a low-effort code review on the diff before handing back, and
   note what was addressed vs. deliberately left. Also check the diff yourself

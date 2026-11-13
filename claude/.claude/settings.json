@@ -56,6 +56,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/run-check-on-stop.sh\"",
+            "timeout": 180
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
