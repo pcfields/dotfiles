@@ -243,6 +243,7 @@ const partnersOf = path => DATA.coupling
 
 let mode = "heat";
 let selected = null;
+let tipEl;
 const listeners = [];
 function select(path) { selected = path; listeners.forEach(fn => fn(path)); }
 
@@ -658,7 +659,6 @@ function folderTip(d) {
   const commits = d3.sum(leaves, f => f.commits);
   return `<b>${esc(d.data.name)}/</b><br>${leaves.length} files · ${fmt(d3.sum(leaves, f => f.lines))} lines<br>${red} red · ${commits} file changes<div class="mono">${esc(d.path)}</div>`;
 }
-let tipEl;
 function initTooltip() { tipEl = document.getElementById("tip"); }
 function showTip(e, html) { tipEl.innerHTML = html; tipEl.style.opacity = 1; moveTip(e); }
 function moveTip(e) {
