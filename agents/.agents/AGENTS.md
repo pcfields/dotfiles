@@ -42,6 +42,9 @@ hooks) belongs there, not here.
   project's own instructions, `CONTRIBUTING.md`, `.editorconfig` and
   linter/formatter config. Respect team conventions silently; don't propose
   changing them unprompted. If detection is ambiguous, ask.
+- Existing code is not a convention when it breaks a rule in this file (e.g.
+  tests that mock the project's own modules). Don't copy it into new code;
+  name the conflict and ask which way to go.
 
 ## Design
 

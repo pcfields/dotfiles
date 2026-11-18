@@ -3,6 +3,8 @@ name: refactor
 description: Refactor this, clean up this file, improve code health, reduce complexity, untangle this function, pay down tech debt, make this code AI-friendly. Improves the structure of existing code without changing behavior, as a quick tidy before a change or a full uplift of a file — in small tested steps, using named refactorings and a per-repo playbook of what worked. Use whenever the user asks to refactor, tidy or uplift code, or to act on a repo-health report.
 ---
 
+Read GOTCHAS.md before step 1.
+
 Refactoring changes structure, never behavior. A bug found on the way is
 reported, not fixed in the same commit.
 
