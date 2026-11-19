@@ -66,6 +66,9 @@
     sqlfluff                            # SQL linter and formatter
     python3Packages.lizard              # lizard (function complexity; used by the repo-health agent skill)
 
+    # --- Python tooling ---
+    uv                                  # pins its own Python; builds and installs the code-health tool
+
     # --- Database clients ---
     sqlite                              # sqlite3
     postgresql                          # psql (client; the server is unused here)
