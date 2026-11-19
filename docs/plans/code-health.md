@@ -33,7 +33,7 @@ any machine, in any project, and open to any agent harness.
 | Shape | One CLI, `code-health`, harness-neutral. Each harness gets a thin adapter (Claude Code first, as a Stop hook). An MCP server can come later, wrapping `--json`. | One scorer, so the file and repo reports never disagree. Hooks fire every time; an MCP tool only fires when the agent chooses to call it. |
 | Skills | Keep the `repo-health` skill name. It calls `code-health repo` instead of `repo-health.sh`. No new skill: the edit loop is a hook. | The skill name is the question people ask ("how healthy is this repo"). The consistency belongs in the CLI, where everything is under `code-health`. |
 | Language | Python 3.12+, parsing with tree-sitter (`tree-sitter-language-pack`), packaged with `uv` and installed with `uv tool install --editable`. | tree-sitter gives one real parser for every language, including bash and PowerShell, which lizard can't read. Python is quick to change while the rules are being calibrated. uv pins its own Python, which avoids mise shim breaks (lizard and cloc have both hit "not provided by the active python/node"). Port to Rust later only if speed or distribution needs it. |
-| Languages | C#, TypeScript, TSX, JavaScript, JSX, bash, PowerShell, Lua, Rust. SQL is out of v1 (see "Revisit: SQL"). | What the user writes. VB.NET is out: it's listed as "not scored". SQL was dropped after step 1 found no usable T-SQL grammar. |
+| Languages | C#, TypeScript, TSX, JavaScript, JSX, bash, PowerShell, Lua, Rust, Python. SQL is out of v1 (see "Revisit: SQL"). | What the user writes. Python was added after step 1, so the tool can check its own code. VB.NET is out: it's listed as "not scored". SQL was dropped after step 1 found no usable T-SQL grammar. |
 | Platforms | Everything works on Linux and Windows: the CLI, tests, adapters and install. Use `pathlib`, handle CRLF, and resolve home and cache dirs per platform. A Linux-only part is a bug, or a named gap with a step that closes it. | The user works on both machines from one tree. |
 | Score | 1.0-10.0 per file. Bands: green ≥ 9, yellow ≥ 4, red < 4. | Matches CodeScene's scale. The bands are from memory of CodeScene, not a published source. |
 | When the safeguard fails | A changed file gains a **new** finding, an existing finding gets **worse**, or a new ignore comment is added. Findings that were already there and not made worse are reported but don't fail. | Comparing findings is precise and gives the agent a to-do list. A fixed bar (say 9.5) would either let small regressions through in green files or block every edit to a red legacy file. Any drop in score comes from a new or worse finding, so this catches it. |
@@ -79,8 +79,10 @@ calibrate**, not CodeScene's (theirs aren't published).
 | Large File | ≥ 1,000 lines of code. | Split the module by responsibility |
 
 Language notes:
-- Top-level script code in bash, PowerShell and Lua is measured as a
-  pseudo-function named `<script>`.
+- Top-level script code in bash, PowerShell, Lua and Python is measured as
+  a pseudo-function named `<script>`.
+- Python: `self` and `cls` don't count toward Excess Function Arguments.
+  Comprehension `for` and `if` clauses count as loops and branches.
 - Node type names per language are in `src/code_health/languages.py`
   (recorded in step 1). JSX uses the `javascript` grammar.
 - PowerShell: the grammar doesn't parse the PowerShell 7 `??` operator
@@ -309,8 +311,9 @@ same expected findings and line numbers as its LF twin. Mark the fixtures
 `-text` in a `.gitattributes` under `tests/fixtures/`, so `core.autocrlf` on
 Windows doesn't rewrite their line endings.
 
-1. ✅ **Spike the grammars.** Done: eight languages parse, node types are in
-   `languages.py`, and SQL was dropped (see "Revisit: SQL"). Create the uv
+1. ✅ **Spike the grammars.** Done: nine languages parse (Python added
+   afterwards), node types are in `languages.py`, and SQL was dropped (see
+   "Revisit: SQL"). Create the uv
    project. Write a test that parses one sample per language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua,
    Rust, T-SQL) with no ERROR nodes, and record each language's node type
    names. If PowerShell, C# or T-SQL is missing from the language pack or
@@ -330,8 +333,9 @@ Windows doesn't rewrite their line endings.
 6. **Claude adapter**, settings entries, `test-hooks.sh` cases and the
    AGENTS.md definition-of-done line. Checked by `test-hooks.sh` and a live
    run in a scratch repo.
-7. **Languages, one commit each:** C#, JS/JSX/TSX, bash, PowerShell, Lua,
-   Rust. C# comes first so step 7a can happen early. Each language
+7. **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
+   PowerShell, Lua, Rust. C# comes first so step 7a can happen early, then
+   Python so the tool checks its own code. Each language
    needs fixtures for every smell, plus `<script>` handling where it
    applies. Checked by pytest.
    - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
