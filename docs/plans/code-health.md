@@ -33,7 +33,8 @@ any machine, in any project, and open to any agent harness.
 | Shape | One CLI, `code-health`, harness-neutral. Each harness gets a thin adapter (Claude Code first, as a Stop hook). An MCP server can come later, wrapping `--json`. | One scorer, so the file and repo reports never disagree. Hooks fire every time; an MCP tool only fires when the agent chooses to call it. |
 | Skills | Keep the `repo-health` skill name. It calls `code-health repo` instead of `repo-health.sh`. No new skill: the edit loop is a hook. | The skill name is the question people ask ("how healthy is this repo"). The consistency belongs in the CLI, where everything is under `code-health`. |
 | Language | Python 3.12+, parsing with tree-sitter (`tree-sitter-language-pack`), packaged with `uv` and installed with `uv tool install --editable`. | tree-sitter gives one real parser for every language, including bash and PowerShell, which lizard can't read. Python is quick to change while the rules are being calibrated. uv pins its own Python, which avoids mise shim breaks (lizard and cloc have both hit "not provided by the active python/node"). Port to Rust later only if speed or distribution needs it. |
-| Languages | C#, TypeScript, TSX, JavaScript, JSX, bash, PowerShell, Lua, Rust, SQL (T-SQL). | What the user writes. VB.NET is out: it's listed as "not scored". |
+| Languages | C#, TypeScript, TSX, JavaScript, JSX, bash, PowerShell, Lua, Rust. SQL is out of v1 (see "Revisit: SQL"). | What the user writes. VB.NET is out: it's listed as "not scored". SQL was dropped after step 1 found no usable T-SQL grammar. |
+| Platforms | Everything works on Linux and Windows: the CLI, tests, adapters and install. Use `pathlib`, handle CRLF, and resolve home and cache dirs per platform. A Linux-only part is a bug, or a named gap with a step that closes it. | The user works on both machines from one tree. |
 | Score | 1.0-10.0 per file. Bands: green ≥ 9, yellow ≥ 4, red < 4. | Matches CodeScene's scale. The bands are from memory of CodeScene, not a published source. |
 | When the safeguard fails | A changed file gains a **new** finding, an existing finding gets **worse**, or a new ignore comment is added. Findings that were already there and not made worse are reported but don't fail. | Comparing findings is precise and gives the agent a to-do list. A fixed bar (say 9.5) would either let small regressions through in green files or block every edit to a red legacy file. Any drop in score comes from a new or worse finding, so this catches it. |
 | Approving a failure for now | Only the user can approve, with `code-health accept`. It needs an interactive terminal and a typed `yes`, and Claude's settings also deny it to the agent. The agent is told to ask the user and shows the exact command. | The agent must never be able to approve its own regression. Requiring a terminal works the same in every harness, because agents' shell calls have no terminal. |
@@ -76,15 +77,15 @@ calibrate**, not CodeScene's (theirs aren't published).
 | Large Method | ≥ 70 lines of code (blank and comment lines not counted). | Extract Function; Split Phase |
 | Excess Function Arguments | ≥ 5 parameters. Constructors: ≥ 8, because C# dependency injection legitimately takes many. | Introduce Parameter Object |
 | Large File | ≥ 1,000 lines of code. | Split the module by responsibility |
-| Correlated Subquery in SELECT (SQL only) | A subquery in the SELECT list that references the outer query. | Rewrite as a JOIN (also a rule in AGENTS.md) |
 
 Language notes:
-- Top-level script code in bash, PowerShell, Lua and SQL batches is measured
-  as a pseudo-function named `<script>`.
-- SQL procedures, functions and triggers count as functions. T-SQL
-  `IF`/`WHILE`/`CASE WHEN`/`BEGIN TRY` count as branches and nesting.
-- In the user's repos, SQL procedures live inside migration scripts, so
-  migrations are **not** excluded by default.
+- Top-level script code in bash, PowerShell and Lua is measured as a
+  pseudo-function named `<script>`.
+- Node type names per language are in `src/code_health/languages.py`
+  (recorded in step 1). JSX uses the `javascript` grammar.
+- PowerShell: the grammar doesn't parse the PowerShell 7 `??` operator
+  (found in step 1). Files using it are "not scored". Check `?.` and `??=`
+  when PowerShell lands in step 7.
 - Test files (`**/*.test.*`, `**/*.spec.*`, `**/tests/**`, `**/*Tests/**`)
   give Large Method half weight by default.
 - Default exclusions: `*.min.js`, `*.min.css`, `vendor/`, `node_modules/`,
@@ -304,10 +305,13 @@ machine, step 7a can run there instead.
 
 **CRLF from the start.** Many Windows repos use CRLF line endings. From step
 2 on, every language's fixtures include at least one CRLF file, with the
-same expected findings and line numbers as its LF twin.
+same expected findings and line numbers as its LF twin. Mark the fixtures
+`-text` in a `.gitattributes` under `tests/fixtures/`, so `core.autocrlf` on
+Windows doesn't rewrite their line endings.
 
-1. **Spike the grammars.** Create the uv project. Write a test that parses
-   one sample per language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua,
+1. ✅ **Spike the grammars.** Done: eight languages parse, node types are in
+   `languages.py`, and SQL was dropped (see "Revisit: SQL"). Create the uv
+   project. Write a test that parses one sample per language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua,
    Rust, T-SQL) with no ERROR nodes, and record each language's node type
    names. If PowerShell, C# or T-SQL is missing from the language pack or
    parses badly, **stop and report to the user** with the alternatives (a
@@ -327,7 +331,7 @@ same expected findings and line numbers as its LF twin.
    AGENTS.md definition-of-done line. Checked by `test-hooks.sh` and a live
    run in a scratch repo.
 7. **Languages, one commit each:** C#, JS/JSX/TSX, bash, PowerShell, Lua,
-   Rust, SQL. C# comes first so step 7a can happen early. Each language
+   Rust. C# comes first so step 7a can happen early. Each language
    needs fixtures for every smell, plus `<script>` handling where it
    applies. Checked by pytest.
    - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
@@ -341,8 +345,6 @@ same expected findings and line numbers as its LF twin.
        constructors is the likely one).
      - Bring back generic notes only, and turn each into a synthetic fixture
        or a limit change on Linux.
-     - Also try `code-health review` on one T-SQL migration that contains a
-       stored procedure, if SQL has landed by then.
 8. **Config, ignore comments and `accept`.** Checked by pytest, with a test
    that `accept` refuses without a terminal.
 9. **`code-health repo`:** port churn, author density, coupling
@@ -363,11 +365,18 @@ same expected findings and line numbers as its LF twin.
     end added to the `refactor` skill. Checked by pytest with a synthetic
     transcript and a key-allowlist test on global records.
 11. **Install wiring.**
-    - Linux: add `uv` to `nix/.config/nix/home.nix`, and add an install step
-      that runs `uv tool install --editable ~/.agents/tools/code-health`,
-      following the `STEPS` pattern in `install.sh`.
+    - Linux: `uv` is already in `nix/.config/nix/home.nix` (pulled forward
+      for step 1). Add an install step that runs
+      `uv tool install --editable ~/.agents/tools/code-health`, following
+      the `STEPS` pattern in `install.sh`.
     - Windows: add `uv` to `packages/scoop-packages.txt`, and a script or
       section in `install/windows/` that runs the same command.
+    - On both: download the grammars at install time (for example a
+      `code-health grammars` command calling the pack's `download()`).
+      `tree-sitter-language-pack` fetches each grammar on first use into
+      its cache (`~/.cache/tree-sitter-language-pack/` on Linux), so an
+      offline first run would otherwise fail. Check where that cache lives
+      on Windows.
     - Remove `lizard` from `packages/pip-packages.txt` and `home.nix`.
     - Document it in `docs/install.md` and `docs/install-windows.md`.
 
@@ -387,10 +396,46 @@ Later: an MCP server wrapping `--json` (tools like `score`, `review`,
 test smells, Brain Class and Low Cohesion, and calibrating against the
 CodeScene trial on about 20 files.
 
+## Revisit: SQL
+
+Dropped from v1 after step 1. Revisit once v1 is done.
+
+What step 1 found (tree-sitter-language-pack 1.25.2):
+- The pack's `tsql` grammar is broken: `select a from t` gives ERROR nodes,
+  while `select 1` parses.
+- The generic `sql` grammar (the same one PyPI ships as `tree-sitter-sql`)
+  parses `SELECT`, `CASE` and subqueries, but none of T-SQL's procedural
+  syntax: `DECLARE`, `IF … BEGIN`, `WHILE`, `CREATE PROCEDURE`/`FUNCTION`,
+  `TRY`/`CATCH` or `GO`.
+- PyPI has no other T-SQL tree-sitter grammar.
+
+Options:
+1. A token scanner. Skip comments and strings, split batches on `GO`, find
+   `CREATE PROC`/`FUNCTION`/`TRIGGER` boundaries, track nesting through
+   `IF`/`WHILE`/`BEGIN…END`/`CASE…END`/`TRY`/`CATCH`, and count
+   `AND`/`OR`. Detect a correlated subquery as a `(SELECT …)` in the select
+   list that names an outer alias.
+2. The scanner for procedure structure, plus the `sql` grammar for each
+   `SELECT` statement, which gives a real tree for the subquery check.
+3. sqlglot, a Python SQL parser with a T-SQL dialect. Untested so far.
+
+What SQL support needs, from the v1 design:
+- The smell "Correlated Subquery in SELECT": a subquery in the SELECT list
+  that references the outer query. Fix: rewrite as a JOIN (also a rule in
+  AGENTS.md).
+- Procedures, functions and triggers count as functions. `IF`, `WHILE`,
+  `CASE WHEN` and `BEGIN TRY` count as branches and nesting. Top-level batch
+  code is the `<script>` pseudo-function.
+- In the user's repos, procedures live inside migration scripts, so
+  migrations must **not** be excluded by default.
+- On Windows, try it on one real T-SQL migration that contains a stored
+  procedure.
+
 ## Risks
 
-- **Grammar gaps** (PowerShell, newer C#, T-SQL). Step 1 tests this first.
-  An unparseable file is "not scored", never 10.
+- **Grammar gaps** (PowerShell, newer C#). Step 1 tested this: C# with
+  newer syntax parses, PowerShell fails on `??`, and T-SQL was dropped. An
+  unparseable file is "not scored", never 10.
 - **The score looks authoritative but is uncalibrated.** It carries
   `scorer_version`, and calibrating against CodeScene comes later.
 - **The agent games the score** by splitting code into tiny functions. The
