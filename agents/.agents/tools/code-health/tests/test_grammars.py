@@ -46,6 +46,7 @@ def test_recorded_node_types_exist_in_the_grammar(language):
         (r"C:\work\Service\OrderService.cs", "csharp"),
         ("install/setup.ps1", "powershell"),
         ("scripts/run.sh", "bash"),
+        ("src/code_health/cli.py", "python"),
     ],
 )
 def test_language_for_path(path, expected):

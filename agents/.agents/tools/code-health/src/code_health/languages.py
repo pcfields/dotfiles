@@ -129,6 +129,19 @@ LANGUAGES = (
         has_script_body=True,
     ),
     Language(
+        name="python",
+        grammar="python",
+        extensions=(".py", ".pyi"),
+        functions=frozenset({"function_definition", "lambda"}),
+        branches=frozenset(
+            {"if_statement", "elif_clause", "case_clause", "except_clause", "conditional_expression", "if_clause"}
+        ),
+        loops=frozenset({"for_statement", "while_statement", "for_in_clause"}),
+        boolean_operators=frozenset({"and", "or"}),
+        parameter_lists=frozenset({"parameters", "lambda_parameters"}),
+        has_script_body=True,
+    ),
+    Language(
         name="rust",
         grammar="rust",
         extensions=(".rs",),
