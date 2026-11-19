@@ -292,6 +292,20 @@ repos, not mocks.
 Each step gets one or more commits (conventional commits, one logical change
 each) and leaves `bash .agents/check` green.
 
+**Where each step runs.** Build on Linux. Nothing here needs .NET or
+Windows to parse C#, because tree-sitter reads the source text. Windows is
+needed twice, marked **[Windows]** below: once to try the tool on real C#
+code (the user's work repos are on the Windows machine), and once for the
+final Windows check. When a **[Windows]** step comes up, stop, tell the user,
+and make sure everything before it is committed and pushed. Bring back only
+generic findings (for example "primary constructors give parse errors"),
+never client code, paths or names. If a C# work repo is cloned on the Linux
+machine, step 7a can run there instead.
+
+**CRLF from the start.** Many Windows repos use CRLF line endings. From step
+2 on, every language's fixtures include at least one CRLF file, with the
+same expected findings and line numbers as its LF twin.
+
 1. **Spike the grammars.** Create the uv project. Write a test that parses
    one sample per language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua,
    Rust, T-SQL) with no ERROR nodes, and record each language's node type
@@ -313,8 +327,22 @@ each) and leaves `bash .agents/check` green.
    AGENTS.md definition-of-done line. Checked by `test-hooks.sh` and a live
    run in a scratch repo.
 7. **Languages, one commit each:** C#, JS/JSX/TSX, bash, PowerShell, Lua,
-   Rust, SQL. Each needs fixtures for every smell, plus `<script>` handling
-   where it applies. Checked by pytest.
+   Rust, SQL. C# comes first so step 7a can happen early. Each language
+   needs fixtures for every smell, plus `<script>` handling where it
+   applies. Checked by pytest.
+   - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
+     Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
+     run `code-health review` on about 10 C# files from real work repos. Pick
+     a mix: a large service class, a controller, a DI-heavy constructor,
+     tests, and a file using recent syntax (records, primary constructors,
+     file-scoped namespaces, pattern matching).
+     - Check: no parse errors; the scores match what a reader would expect;
+       no smell fires on almost everything (Excess Function Arguments on DI
+       constructors is the likely one).
+     - Bring back generic notes only, and turn each into a synthetic fixture
+       or a limit change on Linux.
+     - Also try `code-health review` on one T-SQL migration that contains a
+       stored procedure, if SQL has landed by then.
 8. **Config, ignore comments and `accept`.** Checked by pytest, with a test
    that `accept` refuses without a terminal.
 9. **`code-health repo`:** port churn, author density, coupling
@@ -344,9 +372,15 @@ each) and leaves `bash .agents/check` green.
     - Document it in `docs/install.md` and `docs/install-windows.md`.
 
     Checked by running the Linux step.
-12. **Windows check** (on the Windows machine): install, run `safeguard` and
-    the hook in a scratch repo, and confirm CRLF files and Windows paths
-    work. Report anything Linux-only.
+12. **[Windows] Windows check.**
+    - Install through the Windows install script.
+    - Run `safeguard` and the Claude Stop hook in a scratch repo under Git
+      Bash.
+    - Confirm Windows paths, CRLF files and the `accept` terminal prompt in
+      Windows Terminal work.
+    - Run `code-health repo` on the largest C# work repo (about 100k lines)
+      and time it.
+    - Fix anything Linux-only, or report it.
 
 Later: an MCP server wrapping `--json` (tools like `score`, `review`,
 `safeguard`), adapters for other harnesses (OpenCode, Codex), duplication and
