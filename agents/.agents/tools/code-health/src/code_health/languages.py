@@ -12,7 +12,19 @@ class Language:
     loops: frozenset[str]
     boolean_operators: frozenset[str]
     parameter_lists: frozenset[str]
+    other_decision_operators: frozenset[str] = frozenset()
+    conditionals: frozenset[str] = frozenset()
+    nesting: frozenset[str] = frozenset()
+    else_clauses: frozenset[str] = frozenset()
+    function_bodies: frozenset[str] = frozenset()
+    classes: frozenset[str] = frozenset()
+    constructor_names: frozenset[str] = frozenset()
+    comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
+
+    @property
+    def decision_operators(self) -> frozenset[str]:
+        return self.boolean_operators | self.other_decision_operators
 
 
 def language_for_path(path: str | PurePath) -> Language | None:
@@ -30,7 +42,14 @@ _JS_FUNCTIONS = frozenset(
 )
 _JS_BRANCHES = frozenset({"if_statement", "switch_case", "catch_clause", "ternary_expression"})
 _JS_LOOPS = frozenset({"for_statement", "for_in_statement", "while_statement", "do_statement"})
-_C_STYLE_BOOLEANS = frozenset({"&&", "||", "??"})
+_C_STYLE_BOOLEANS = frozenset({"&&", "||"})
+_JS_OTHER_DECISIONS = frozenset({"??", "&&=", "||=", "??="})
+_JS_NESTING = _JS_LOOPS | {"if_statement", "switch_statement", "try_statement"}
+_JS_CLASSES = frozenset({"class_declaration", "class"})
+_TS_CLASSES = _JS_CLASSES | {"abstract_class_declaration"}
+_JS_CONDITIONALS = frozenset(
+    {"if_statement", "while_statement", "do_statement", "for_statement", "ternary_expression"}
+)
 
 LANGUAGES = (
     Language(
@@ -62,6 +81,7 @@ LANGUAGES = (
         loops=frozenset({"for_statement", "foreach_statement", "while_statement", "do_statement"}),
         boolean_operators=_C_STYLE_BOOLEANS,
         parameter_lists=frozenset({"parameter_list"}),
+        other_decision_operators=frozenset({"??", "??="}),
     ),
     Language(
         name="typescript",
@@ -72,6 +92,13 @@ LANGUAGES = (
         loops=_JS_LOOPS,
         boolean_operators=_C_STYLE_BOOLEANS,
         parameter_lists=frozenset({"formal_parameters"}),
+        other_decision_operators=_JS_OTHER_DECISIONS,
+        conditionals=_JS_CONDITIONALS,
+        nesting=_JS_NESTING,
+        else_clauses=frozenset({"else_clause"}),
+        function_bodies=frozenset({"statement_block"}),
+        classes=_TS_CLASSES,
+        constructor_names=frozenset({"constructor"}),
     ),
     Language(
         name="tsx",
@@ -82,6 +109,13 @@ LANGUAGES = (
         loops=_JS_LOOPS,
         boolean_operators=_C_STYLE_BOOLEANS,
         parameter_lists=frozenset({"formal_parameters"}),
+        other_decision_operators=_JS_OTHER_DECISIONS,
+        conditionals=_JS_CONDITIONALS,
+        nesting=_JS_NESTING,
+        else_clauses=frozenset({"else_clause"}),
+        function_bodies=frozenset({"statement_block"}),
+        classes=_TS_CLASSES,
+        constructor_names=frozenset({"constructor"}),
     ),
     Language(
         name="javascript",
@@ -92,6 +126,13 @@ LANGUAGES = (
         loops=_JS_LOOPS,
         boolean_operators=_C_STYLE_BOOLEANS,
         parameter_lists=frozenset({"formal_parameters"}),
+        other_decision_operators=_JS_OTHER_DECISIONS,
+        conditionals=_JS_CONDITIONALS,
+        nesting=_JS_NESTING,
+        else_clauses=frozenset({"else_clause"}),
+        function_bodies=frozenset({"statement_block"}),
+        classes=_JS_CLASSES,
+        constructor_names=frozenset({"constructor"}),
     ),
     Language(
         name="bash",
@@ -150,6 +191,7 @@ LANGUAGES = (
         loops=frozenset({"for_expression", "while_expression", "loop_expression"}),
         boolean_operators=frozenset({"&&", "||"}),
         parameter_lists=frozenset({"parameters", "closure_parameters"}),
+        comments=frozenset({"line_comment", "block_comment"}),
     ),
 )
 

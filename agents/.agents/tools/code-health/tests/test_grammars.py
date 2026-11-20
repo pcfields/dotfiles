@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 import tree_sitter_language_pack as pack
-
 from code_health.languages import LANGUAGES, language_for_path
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -27,12 +26,21 @@ def test_every_language_has_a_sample():
 def test_recorded_node_types_exist_in_the_grammar(language):
     grammar = pack.get_language(language.grammar)
     named = (
-        language.functions | language.branches | language.loops | language.parameter_lists
+        language.functions
+        | language.branches
+        | language.loops
+        | language.parameter_lists
+        | language.conditionals
+        | language.nesting
+        | language.else_clauses
+        | language.function_bodies
+        | language.classes
+        | language.comments
     )
 
     missing = sorted(kind for kind in named if grammar.id_for_node_kind(kind, True) is None)
     missing += sorted(
-        kind for kind in language.boolean_operators if grammar.id_for_node_kind(kind, False) is None
+        kind for kind in language.decision_operators if grammar.id_for_node_kind(kind, False) is None
     )
 
     assert missing == []
