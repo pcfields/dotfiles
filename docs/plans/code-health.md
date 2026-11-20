@@ -320,7 +320,12 @@ Windows doesn't rewrite their line endings.
    parses badly, **stop and report to the user** with the alternatives (a
    separate grammar package, or a token-based fallback for SQL). Checked by
    pytest.
-2. **Metrics for TypeScript** (functions, CC, nesting, bumps, conditionals,
+2. ✅ **Metrics for TypeScript.** Done: `measure_file()` in `measure.py`.
+   The rules it settled are tested in `tests/test_measure.py`: nested
+   functions are measured on their own, anonymous ones are named
+   `<parent>.<callee> callback` or `<parent>.<anonymous>`, and only `try`
+   (not `catch`) adds a nesting level. Original scope:
+   (functions, CC, nesting, bumps, conditionals,
    params, LOC). TDD with fixtures. Checked by pytest.
 3. **Smells and score for TypeScript**, plus the three calibration fixtures.
    Checked by pytest (v1 ≤ 4.5 < v2 < v3 = 10.0).
