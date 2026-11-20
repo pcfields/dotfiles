@@ -336,7 +336,9 @@ Windows doesn't rewrite their line endings.
    finding per function; Complex Conditional reports the worst condition,
    and Large File is reported against `<file>`.
    Checked by pytest (v1 ≤ 4.5 < v2 < v3 = 10.0).
-4. **`score` and `review`** with text and `--json` output. Add
+4. ✅ **`score` and `review`** with text and `--json` output. Done: the
+   formats are pinned in `tests/test_cli.py`. `.agents/check` prints SKIP
+   when `uv` is missing, until step 11 installs it on Windows. Add
    `uv run --project agents/.agents/tools/code-health pytest` to
    `.agents/check`. Checked by CLI tests.
 5. **`safeguard`** (changes vs HEAD, and `--base`). Checked by tests on
