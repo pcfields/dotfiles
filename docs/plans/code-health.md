@@ -341,7 +341,12 @@ Windows doesn't rewrite their line endings.
    when `uv` is missing, until step 11 installs it on Windows. Add
    `uv run --project agents/.agents/tools/code-health pytest` to
    `.agents/check`. Checked by CLI tests.
-5. **`safeguard`** (changes vs HEAD, and `--base`). Checked by tests on
+5. ✅ **`safeguard`** Done. A changed file that no longer parses is shown as
+   "not scored" and doesn't fail; a baseline that didn't parse counts as
+   empty. A rename only keeps its baseline when git sees it (`git mv`, or a
+   staged delete and add); a plain `mv` shows as a new file. Text output
+   replaces characters the console can't encode. Original scope:
+   (changes vs HEAD, and `--base`). Checked by tests on
    temporary git repos: unchanged, worse, not worse in a red file, new file,
    rename, deleted.
 6. **Claude adapter**, settings entries, `test-hooks.sh` cases and the
