@@ -40,17 +40,17 @@ def format_review(report: FileReport) -> str:
     width = max((len(finding.smell) for finding in report.findings), default=0)
     for finding in report.findings:
         location = f"{finding.function}:{finding.line}"
-        lines.append(f"  {finding.smell:<{width}}  {location}  {_describe(finding)}")
+        lines.append(f"  {finding.smell:<{width}}  {location}  {describe(finding)}")
         lines.append(f"  {'':<{width}}  fix: {FIX_HINTS[finding.smell]}")
     if not report.findings:
         lines.append("  no findings")
     return "\n".join(lines)
 
 
-def _describe(finding: Finding) -> str:
+def describe(finding: Finding, suffix: str = "") -> str:
     unit = _UNITS[finding.smell]
     measured = f"{unit} {finding.value}" if unit in _UNIT_FIRST else f"{finding.value} {unit}"
-    return f"{measured} (limit {finding.limit})"
+    return f"{measured}{suffix} (limit {finding.limit})"
 
 
 _UNITS = {

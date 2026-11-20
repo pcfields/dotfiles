@@ -5,6 +5,7 @@ from pathlib import Path
 
 import tree_sitter_language_pack as pack
 
+from code_health import gitio
 from code_health.report import (
     FileReport,
     format_review,
@@ -12,35 +13,72 @@ from code_health.report import (
     review_source,
     to_json,
 )
+from code_health.safeguard import (
+    FileCheck,
+    check_file,
+    format_safeguard,
+    is_checked,
+    safeguard_json,
+)
+
+SAFEGUARD_FAILED = 2
 
 
 def main(argv: list[str] | None = None) -> int:
+    # A Windows console on a legacy code page can't encode every path name.
+    sys.stdout.reconfigure(errors="replace")
     try:
         args = _parser().parse_args(sys.argv[1:] if argv is None else argv)
     except SystemExit as stop:
         return 0 if stop.code == 0 else 1
     try:
-        reports = _review_files(args.files)
-    except ToolError as error:
+        output, code = _run(args)
+    except (ToolError, gitio.GitError) as error:
         print(f"code-health: {error}", file=sys.stderr)
         return 1
-    print(_render(args.command, reports, as_json=args.json))
-    return 0
+    except pack.Error as error:
+        print(f"code-health: cannot load a grammar (it downloads on first use): {error}", file=sys.stderr)
+        return 1
+    print(output)
+    return code
 
 
 class ToolError(Exception):
     pass
 
 
-def _review_files(paths: list[str]) -> list[FileReport]:
+def _run(args: argparse.Namespace) -> tuple[str, int]:
+    if args.command == "safeguard":
+        checks = _safeguard_checks(Path.cwd(), args.base)
+        verdict = safeguard_json(checks)
+        output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks)
+        return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+    reports = [review_source(path, source) for path, source in _read_files(args.files)]
+    return _render(args.command, reports, as_json=args.json), 0
+
+
+def _safeguard_checks(cwd: Path, base: str | None) -> list[FileCheck]:
+    root = gitio.repo_root(cwd)
+    commit = gitio.base_commit(root, base)
+    checks = []
+    for change in gitio.changed_files(root, commit):
+        if not is_checked(change.path):
+            continue
+        after = _read(root / change.path)
+        before = gitio.read_at(root, commit, change.base_path) if change.base_path else None
+        checks.append(check_file(change.path, before, after))
+    return checks
+
+
+def _read_files(paths: list[str]) -> list[tuple[str, bytes]]:
+    return [(path, _read(Path(path))) for path in paths]
+
+
+def _read(path: Path) -> bytes:
     try:
-        sources = [(path, Path(path).read_bytes()) for path in paths]
+        return path.read_bytes()
     except OSError as error:
         raise ToolError(f"cannot read {error.filename}: {error.strerror}") from error
-    try:
-        return [review_source(path, source) for path, source in sources]
-    except pack.Error as error:
-        raise ToolError(f"cannot load a grammar (it downloads on first use): {error}") from error
 
 
 def _render(command: str, reports: list[FileReport], as_json: bool) -> str:
@@ -58,4 +96,7 @@ def _parser() -> argparse.ArgumentParser:
         command = commands.add_parser(name, help=help_text)
         command.add_argument("files", nargs="+")
         command.add_argument("--json", action="store_true", help="print JSON")
+    safeguard = commands.add_parser("safeguard", help="fail if changed files gained or worsened findings")
+    safeguard.add_argument("--base", help="compare with the merge-base of this ref instead of HEAD")
+    safeguard.add_argument("--json", action="store_true", help="print JSON")
     return parser

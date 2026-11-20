@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -123,3 +124,18 @@ def test_module_entry_point_runs_end_to_end():
     )
 
     assert (result.returncode, result.stdout) == (0, f"10.0  green       {V3}\n")
+
+
+def test_text_output_survives_a_console_that_cannot_encode_the_path(tmp_path):
+    source = tmp_path / "café-日本.ts"
+    source.write_text("function f() {}\n")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "code_health", "score", str(source)],
+        capture_output=True,
+        env={**os.environ, "PYTHONIOENCODING": "ascii"},
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.decode("ascii").startswith("10.0  green")
