@@ -104,9 +104,13 @@ Cohesion, Primitive Obsession, and test assertion-block smells.
 Start with this formula and tune its constants against the calibration
 fixtures:
 
-- Each finding's penalty = rule weight × base × (1 + how far over the limit,
-  as a fraction of the limit), capped at 3 × base. Base is 1.0 for most
-  smells, 1.5 for Deep Nested Complexity and 1.25 for Complex Method.
+- Each finding's penalty = rule weight × base × (1 + 2 × how far over the
+  limit, as a fraction of the limit), capped at 4 × base. Base is 1.0 for
+  most smells, 1.5 for Deep Nested Complexity and 1.25 for Complex Method.
+  Tuned in step 3: the starting values (1 × overage, cap 3 × base) scored
+  v1 at 5.3. With 2 × and 4 × it scores 4.1, while one finding at its limit
+  still scores 9.0, so `k` was left at 0.12. The constants are in
+  `score.py`.
 - File score = 1 + 9 × e^(−k × total penalty), rounded to one decimal. Start
   with k ≈ 0.12, so a single just-over-the-limit finding gives about 9.0.
 - No findings = 10.0.
@@ -327,7 +331,10 @@ Windows doesn't rewrite their line endings.
    (not `catch`) adds a nesting level. Original scope:
    (functions, CC, nesting, bumps, conditionals,
    params, LOC). TDD with fixtures. Checked by pytest.
-3. **Smells and score for TypeScript**, plus the three calibration fixtures.
+3. ✅ **Smells and score for TypeScript**, plus the three calibration
+   fixtures. Done: v1 4.1, v2 9.0, v3 10.0. Each smell gives at most one
+   finding per function; Complex Conditional reports the worst condition,
+   and Large File is reported against `<file>`.
    Checked by pytest (v1 ≤ 4.5 < v2 < v3 = 10.0).
 4. **`score` and `review`** with text and `--json` output. Add
    `uv run --project agents/.agents/tools/code-health pytest` to
