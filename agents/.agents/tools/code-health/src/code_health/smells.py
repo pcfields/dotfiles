@@ -43,3 +43,14 @@ def _function_findings(function: FunctionMetrics) -> list[Finding]:
 def _worst_condition(function: FunctionMetrics) -> tuple[int, int]:
     worst = max(function.conditions, key=lambda c: c.operators, default=None)
     return (worst.operators, worst.line) if worst else (0, function.line)
+
+
+FIX_HINTS = {
+    "Complex Method": "Extract Function; Decompose Conditional",
+    "Deep Nested Complexity": "Replace Nested Conditional with Guard Clauses; Extract Function",
+    "Bumpy Road": "Extract Function per bump",
+    "Complex Conditional": "Decompose Conditional; Explaining variable",
+    "Large Method": "Extract Function; Split Phase",
+    "Excess Function Arguments": "Introduce Parameter Object",
+    "Large File": "Split the module by responsibility",
+}
