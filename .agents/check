@@ -17,3 +17,12 @@ for check in "${checks[@]}"; do
   echo "== $check"
   bash "$check"
 done
+
+code_health=agents/.agents/tools/code-health
+echo "== $code_health pytest"
+if command -v uv >/dev/null; then
+  uv run --locked --project "$code_health" pytest -q "$code_health"
+else
+  # uv reaches Windows in step 11 of docs/plans/code-health.md.
+  echo "SKIP: uv is not installed"
+fi
