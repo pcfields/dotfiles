@@ -264,9 +264,10 @@ to an end.
 - Check whether commands the user runs with `!` in Claude Code have a
   terminal. Either way, the guidance tells the user to run `accept` in a
   terminal.
-- In `agents/.agents/AGENTS.md` "Definition of done", replace the
-  `repo-health.sh <file>` line with "run `code-health safeguard`; fix every
-  new or worse finding, or ask the user to accept it".
+- In `agents/.agents/AGENTS.md` "Definition of done", add a line saying
+  `code-health safeguard` flags new or worse smells and only the user may
+  accept one (done in step 6). Remove the `repo-health.sh <file>` line in
+  step 11, once `code-health` is on PATH and scores every language.
 
 ## Layout
 
@@ -349,8 +350,12 @@ Windows doesn't rewrite their line endings.
    (changes vs HEAD, and `--base`). Checked by tests on
    temporary git repos: unchanged, worse, not worse in a red file, new file,
    rename, deleted.
-6. **Claude adapter**, settings entries, `test-hooks.sh` cases and the
-   AGENTS.md definition-of-done line. Checked by `test-hooks.sh` and a live
+6. ✅ **Claude adapter**, settings entries, `test-hooks.sh` cases and the
+   AGENTS.md definition-of-done line. Done: the hook takes 0.17s on a
+   two-file change. It runs `code-health` from PATH, else
+   `uv run --project ~/.agents/tools/code-health`; `CODE_HEALTH_CMD`
+   overrides both. Still open: whether `!` commands in Claude Code get a
+   terminal (the user will check). Checked by `test-hooks.sh` and a live
    run in a scratch repo.
 7. **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
    PowerShell, Lua, Rust. C# comes first so step 7a can happen early, then
@@ -387,7 +392,8 @@ Windows doesn't rewrite their line endings.
 10. **Episodes, global history and token capture,** with episode start and
     end added to the `refactor` skill. Checked by pytest with a synthetic
     transcript and a key-allowlist test on global records.
-11. **Install wiring.**
+11. **Install wiring.** Also remove the `repo-health.sh <file>` line from
+    AGENTS.md "Definition of done" (deferred from step 6).
     - Linux: `uv` is already in `nix/.config/nix/home.nix` (pulled forward
       for step 1). Add an install step that runs
       `uv tool install --editable ~/.agents/tools/code-health`, following
