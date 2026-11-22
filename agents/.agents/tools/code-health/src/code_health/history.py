@@ -83,4 +83,12 @@ def _file_data(f: RepoFile) -> dict:
         "commits": f.commits,
         "authors": f.authors,
         "findings": [asdict(finding) for finding in f.findings],
+        "worst_function": _worst_function(f),
     }
+
+
+def _worst_function(f: RepoFile) -> dict | None:
+    if not f.functions:
+        return None
+    name, line, cc, loc = max(f.functions, key=lambda fn: (fn[2], fn[3]))
+    return {"name": name, "line": line, "cyclomatic": cc, "loc": loc}

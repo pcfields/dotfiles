@@ -1,16 +1,17 @@
-"""Turns the raw tables from `repo-health.sh --data <dir>` into one HTML page:
-a hotspot map, a change-coupling wheel, refactoring targets and charts.
+"""Turns the data `code-health repo` saves into one HTML page: a hotspot map,
+a change-coupling wheel, a health trend, refactoring targets and charts.
 
-usage: python build-report.py <data dir> [--findings <json>] [--out <html>]
+usage: python build-report.py [<data dir>] [--findings <json>] [--out <html>]
 
---findings defaults to <data dir>/findings.json when it exists, and --out to
-<data dir>/report.html. Findings are what the agent concluded after reading the
-code, so the page has no verdict or targets without them:
+The data dir defaults to .code-health/repo, --findings to <data dir>/findings.json
+when it exists, and --out to <data dir>/report.html. Findings are what the agent
+concluded after reading the code, so the page has no verdict or targets without
+them:
 
   {"verdict": "One or two sentences.",
    "targets": [{"path": "src/a.cs", "issues": ["..."], "fix": "..."}]}
 
-Text in findings may mark code with `backticks`.
+Text in findings may mark code with `backticks`. Standard library only.
 """
 import argparse
 import html
@@ -19,74 +20,66 @@ import os
 import sys
 
 TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "report.html")
-TOP_FUNCTIONS = 12
 
 
 def main():
     args = parse_args()
     data = load_data(args.data)
     findings = load_findings(args.findings or os.path.join(args.data, "findings.json"))
+    page_data = to_page(data)
+    findings, dropped = known_targets(findings, {row[0] for row in page_data["files"]})
     out = args.out or os.path.join(args.data, "report.html")
     with open(TEMPLATE, encoding="utf-8") as f:
-        page = render(f.read(), data, findings)
+        page = render(f.read(), page_data, findings)
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(page)
-    print(f"wrote {out} ({len(data['files'])} files, {len(data['coupling'])} coupled pairs, "
-          f"{len(findings.get('targets', []))} targets)")
+    note = f", {dropped} target left out (path not scored)" if dropped == 1 else (
+        f", {dropped} targets left out (paths not scored)" if dropped else "")
+    print(f"wrote {out} ({len(page_data['files'])} files, {len(page_data['coupling'])} coupled pairs, "
+          f"{len(findings.get('targets', []))} targets{note})")
 
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("data")
+    p.add_argument("data", nargs="?", default=os.path.join(".code-health", "repo"))
     p.add_argument("--findings")
     p.add_argument("--out")
     return p.parse_args()
 
 
 def load_data(folder):
-    def rows(name):
-        path = os.path.join(folder, name)
-        if not os.path.exists(path):
-            sys.exit(f"missing {path}: run repo-health.sh with --data {folder} first")
-        with open(path, encoding="utf-8") as f:
-            return [line.rstrip("\n").split("\t") for line in f if line.strip()]
+    path = os.path.join(folder, "data.json")
+    if not os.path.exists(path):
+        sys.exit(f"missing {path}: run code-health repo first")
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
 
-    meta = dict((r + [""])[:2] for r in rows("meta"))
-    churn = {r[0]: (int(r[1]), int(r[2])) for r in rows("churn")}
-    functions = [function_row(r) for r in rows("functions")]
-    commits, authors = (int(v) for v in rows("totals")[0])
+
+def to_page(data):
+    report, meta = data["report"], data["meta"]
     return {
         "title": f"{meta.get('repo', 'Repo')} Code Health",
         "meta": meta,
-        "commits": commits,
-        "authors": authors,
-        "files": file_rows(rows("complexity"), churn, functions),
-        "coupling": [[int(r[0]), int(r[1].rstrip("%")), r[2], r[3]] for r in rows("coupling")],
-        "fns": [[f["ccn"], f["length"], f["name"], f["path"], f["line"]]
-                for f in sorted(functions, key=lambda f: -f["ccn"])[:TOP_FUNCTIONS]],
+        "commits": report["commits"],
+        "authors": report["authors"],
+        "overview": report["overview"],
+        "files": [file_row(f) for f in data["files"]],
+        "coupling": [[c["shared"], c["degree"], c["a"], c["b"]] for c in data["coupling"]],
+        "fns": [[f["cyclomatic"], f["loc"], f["name"], f["path"], f["line"]] for f in data["functions"]],
+        "snapshots": data["snapshots"],
     }
 
 
-def function_row(r):
-    return {"ccn": int(r[0]), "length": int(r[1]), "params": int(r[2]), "name": r[3],
-            "path": r[4], "line": int(r[5]), "level": int(r[6])}
+def file_row(f):
+    w = f.get("worst_function")
+    worst = [w["cyclomatic"], w["loc"], w["name"], w["line"]] if w else None
+    return [f["path"], f["loc"], f["score"], f["band"][0], f["commits"], f["authors"], f["findings"], worst]
 
 
-def file_rows(complexity, churn, functions):
-    flagged, worst = {}, {}
-    for f in functions:
-        if f["level"] > 0:
-            flagged[f["path"]] = flagged.get(f["path"], 0) + 1
-        if f["path"] not in worst or f["ccn"] > worst[f["path"]]["ccn"]:
-            worst[f["path"]] = f
-    result = []
-    for path, lines, weight, depth, grade in complexity:
-        commits, authors = churn.get(path, (0, 0))
-        w = worst.get(path)
-        result.append([path, int(lines), int(weight), int(depth), grade[0], commits, authors,
-                       flagged.get(path, 0),
-                       [w["ccn"], w["length"], w["params"], w["name"], w["line"]] if w else None])
-    return result
+def known_targets(findings, paths):
+    targets = findings.get("targets", [])
+    kept = [t for t in targets if t.get("path") in paths]
+    return {**findings, "targets": kept}, len(targets) - len(kept)
 
 
 def load_findings(path):
