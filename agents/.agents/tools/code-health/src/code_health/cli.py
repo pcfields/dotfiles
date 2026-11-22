@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import tree_sitter_language_pack as pack
@@ -15,6 +16,16 @@ from code_health.config import (
     ConfigError,
     is_excluded,
     parse_config,
+)
+from code_health.repo import (
+    RepoFile,
+    RepoInput,
+    build_report,
+    churn,
+    format_repo,
+    is_binary,
+    is_prose_or_data,
+    parse_log,
 )
 from code_health.report import (
     FileReport,
@@ -61,15 +72,28 @@ class ToolError(Exception):
 
 
 def _run(args: argparse.Namespace) -> tuple[str, int]:
-    if args.command == "mark-turn":
-        return _mark_turn(Path.cwd(), args.session), 0
-    if args.command == "accept":
-        return _accept(Path.cwd(), args)
-    if args.command == "safeguard":
-        checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
-        verdict = safeguard_json(checks, notes)
-        output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
-        return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+    handlers = {
+        "mark-turn": lambda: (_mark_turn(Path.cwd(), args.session), 0),
+        "accept": lambda: _accept(Path.cwd(), args),
+        "repo": lambda: _run_repo(args),
+        "safeguard": lambda: _run_safeguard(args),
+    }
+    return handlers.get(args.command, lambda: _run_files(args))()
+
+
+def _run_repo(args: argparse.Namespace) -> tuple[str, int]:
+    report = _repo_report(Path.cwd(), args)
+    return (json.dumps(report, indent=2) if args.json else format_repo(report)), 0
+
+
+def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
+    checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
+    verdict = safeguard_json(checks, notes)
+    output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
+    return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+
+
+def _run_files(args: argparse.Namespace) -> tuple[str, int]:
     root = _optional_repo_root(Path.cwd())
     config = _working_config(root)
     reports = [
@@ -98,6 +122,42 @@ def _repo_relative(root: Path | None, path: str) -> str:
         return Path(path).resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
         return path
+
+
+def _repo_report(cwd: Path, args: argparse.Namespace) -> dict:
+    root = gitio.repo_root(cwd)
+    pathspec = _repo_relative(root, args.path)
+    pathspec = "" if pathspec == "." else pathspec
+    config = _working_config(root)
+    files, not_scored = [], []
+    for path in gitio.source_files(root, pathspec):
+        scored = _score_repo_file(root, path, config)
+        if isinstance(scored, RepoFile):
+            files.append(scored)
+        elif scored:
+            not_scored.append((path, scored))
+    commits = parse_log(gitio.change_log(root, args.since, pathspec))
+    changes = churn(commits, {f.path for f in files})
+    files = [replace(f, commits=changes.get(f.path, (0, 0))[0], authors=changes.get(f.path, (0, 0))[1]) for f in files]
+    return build_report(RepoInput(args.since, pathspec or ".", commits, files, not_scored, args.top))
+
+
+def _score_repo_file(root: Path, path: str, config: Config) -> RepoFile | str | None:
+    if is_prose_or_data(path):
+        return None
+    try:
+        source = (root / path).read_bytes()
+    except OSError:
+        return None
+    if is_binary(source):
+        return None
+    if is_excluded(config, path):
+        return "excluded"
+    report = review_source(path, source, config)
+    if report.score is None:
+        return report.reason
+    loc = sum(1 for line in source.splitlines() if line.strip())
+    return RepoFile(path, report.score, report.band, loc, findings=report.findings)
 
 
 def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:
@@ -213,6 +273,11 @@ def _parser() -> argparse.ArgumentParser:
     accept.add_argument("--smell", required=True)
     accept.add_argument("--function")
     accept.add_argument("--reason", required=True)
+    repo = commands.add_parser("repo", help="rank the repo's files by change frequency and health")
+    repo.add_argument("path", nargs="?", default=".")
+    repo.add_argument("--since", default="12 months ago", help="how far back to read history")
+    repo.add_argument("--top", type=int, default=15, help="rows per table")
+    repo.add_argument("--json", action="store_true", help="print JSON")
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

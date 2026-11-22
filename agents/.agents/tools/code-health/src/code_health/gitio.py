@@ -39,6 +39,18 @@ def changed_files(root: Path, base: str) -> list[ChangedFile]:
     return tracked + [ChangedFile(path, None) for path in untracked if path]
 
 
+def source_files(root: Path, pathspec: str) -> list[str]:
+    output = _git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", pathspec or ".")
+    return sorted({path for path in output.decode().split("\0") if path})
+
+
+def change_log(root: Path, since: str, pathspec: str) -> str:
+    output = _git(
+        root, "log", f"--since={since}", "--no-merges", "--format=%x01%an", "--name-only", "--", pathspec or "."
+    )
+    return output.decode(errors="replace")
+
+
 def read_at(root: Path, ref: str, path: str) -> bytes:
     return _git(root, "show", f"{ref}:{path}")
 
