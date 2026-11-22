@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from code_health.measure import FileMetrics, FunctionMetrics
+from code_health.measure import SCRIPT, FileMetrics, FunctionMetrics
 
 FILE = "<file>"
 
@@ -36,7 +36,7 @@ def _function_findings(function: FunctionMetrics) -> list[Finding]:
     return [
         Finding(smell, function.name, line, value, limit)
         for smell, value, line, limit in measurements
-        if value >= limit
+        if value >= limit and not (smell == "Large Method" and function.name == SCRIPT)
     ]
 
 

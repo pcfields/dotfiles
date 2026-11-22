@@ -6,6 +6,8 @@ from code_health.languages import Language
 from code_health.naming import class_names, disambiguate, function_name, own_name
 from code_health.syntax import body, parameter_groups, parameter_list, text
 
+SCRIPT = "<script>"
+
 
 @dataclass(frozen=True)
 class Condition:
@@ -39,6 +41,8 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
     nodes = [node for node in _descendants(root) if _is_measured(node, language)]
     names = disambiguate([_name(node, language) for node in nodes], nodes, language)
     functions = [_measure(node, name, language, code_rows) for node, name in zip(nodes, names, strict=True)]
+    if language.has_script_body:
+        functions.insert(0, _measure_script(root, nodes, language, code_rows))
     return FileMetrics(
         loc=len(code_rows),
         parse_errors=sum(1 for node in _descendants(root) if node.is_error or node.is_missing),
@@ -107,6 +111,21 @@ def _measure_primary_constructor(node, name: str, language: Language, code_rows)
     )
 
 
+def _measure_script(root, functions: list, language: Language, code_rows) -> FunctionMetrics:
+    function_rows = {row for node in functions for row in range(node.start_point.row, node.end_point.row + 1)}
+    return FunctionMetrics(
+        name=SCRIPT,
+        line=1,
+        loc=len(code_rows - function_rows),
+        is_constructor=False,
+        cyclomatic=1 + _count_decisions(root, language),
+        max_nesting=_max_nesting(root, language),
+        parameters=0,
+        bumps=_count_top_level_bumps(root, language),
+        conditions=_conditions(root, language),
+    )
+
+
 def _loc(node, code_rows: frozenset[int]) -> int:
     return sum(1 for row in range(node.start_point.row, node.end_point.row + 1) if row in code_rows)
 
@@ -115,6 +134,10 @@ def _count_bumps(function, language: Language) -> int:
     block = body(function, language)
     if block is None or block.type not in language.function_bodies:
         return 0
+    return _count_top_level_bumps(block, language)
+
+
+def _count_top_level_bumps(block, language: Language) -> int:
     return sum(
         1
         for statement in block.named_children
@@ -130,9 +153,16 @@ def _conditions(function, language: Language) -> tuple[Condition, ...]:
             operators=_count_boolean_operators(condition, language),
         )
         for node in _own_descendants(function, language)
-        if node.type in language.conditionals
-        and (condition := node.child_by_field_name("condition")) is not None
+        if node.type in language.conditionals and (condition := _condition(node, language)) is not None
     )
+
+
+def _condition(node, language: Language):
+    position = language.condition_positions.get(node.type)
+    if position is None:
+        return node.child_by_field_name("condition")
+    children = node.named_children
+    return children[position] if position < len(children) else None
 
 
 def _count_boolean_operators(node, language: Language) -> int:
@@ -173,7 +203,11 @@ def _count_decisions(function, language: Language) -> int:
 
 def _is_excluded_branch(node, language: Language) -> bool:
     excluded = language.branch_exclusions.get(node.type)
-    return bool(excluded) and any(child.type in excluded for child in node.children)
+    if not excluded:
+        return False
+    first = node.named_children[0] if node.named_child_count else None
+    candidates = [*node.children, *(first.children if first else ())]
+    return any(child.type in excluded for child in candidates)
 
 
 def _own_descendants(node, language: Language):
@@ -184,7 +218,13 @@ def _count_parameters(function, language: Language) -> int:
     params = parameter_list(function, language)
     if params is None:
         return 0
-    return sum(1 for group in parameter_groups(params, language) if not _is_this_parameter(group))
+    return sum(1 for group in parameter_groups(params, language) if _counts_as_parameter(group, language))
+
+
+def _counts_as_parameter(group, language: Language) -> bool:
+    if _is_this_parameter(group) or group[0].type in language.parameter_exclusions:
+        return False
+    return not (len(group) == 1 and text(group[0]) in language.receiver_names)
 
 
 def _is_this_parameter(group) -> bool:

@@ -42,10 +42,9 @@ def own_name(function) -> str | None:
 
 def _assigned_name(function) -> str | None:
     parent = function.parent
-    if parent.type == "assignment_expression":
+    if parent.type in _ASSIGNMENTS:
         left = parent.child_by_field_name("left")
-        member = left.child_by_field_name("property") or left.child_by_field_name("name")
-        return text(member or left)
+        return text(_member_name(left) or left)
     for field in _NAME_FIELDS.get(parent.type, ()):
         if name := parent.child_by_field_name(field):
             return text(name)
@@ -82,13 +81,21 @@ _NAME_FIELDS = {
     "pair": ("key",),
 }
 
+_ASSIGNMENTS = frozenset({"assignment_expression", "assignment"})
+_ARGUMENT_WRAPPERS = frozenset({"argument", "keyword_argument"})
 _ARGUMENT_LISTS = frozenset({"arguments", "argument_list"})
-_MEMBER_ACCESS = frozenset({"member_expression", "member_access_expression"})
+_MEMBER_ACCESS = frozenset({"member_expression", "member_access_expression", "attribute"})
+
+
+def _member_name(node):
+    if node.type not in _MEMBER_ACCESS:
+        return None
+    return next((m for f in ("property", "name", "attribute") if (m := node.child_by_field_name(f))), None)
 
 
 def _callee_name(function) -> str | None:
     parent = function.parent
-    if parent.type == "argument":
+    if parent.type in _ARGUMENT_WRAPPERS:
         parent = parent.parent
     if parent.type not in _ARGUMENT_LISTS:
         return None
@@ -98,9 +105,7 @@ def _callee_name(function) -> str | None:
     )
     if callee is None:
         return None
-    if callee.type in _MEMBER_ACCESS:
-        callee = callee.child_by_field_name("property") or callee.child_by_field_name("name")
-    return text(callee)
+    return text(_member_name(callee) or callee)
 
 
 def _parameter_types(function, language: Language) -> str:

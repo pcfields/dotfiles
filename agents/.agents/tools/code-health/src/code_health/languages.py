@@ -24,6 +24,9 @@ class Language:
     primary_constructor_owners: frozenset[str] = frozenset()
     branch_exclusions: Mapping[str, frozenset[str]] = field(default_factory=dict)
     overloads_by_type: bool = False
+    condition_positions: Mapping[str, int] = field(default_factory=dict)
+    parameter_exclusions: frozenset[str] = frozenset()
+    receiver_names: frozenset[str] = frozenset()
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -207,6 +210,15 @@ LANGUAGES = (
         loops=frozenset({"for_statement", "while_statement", "for_in_clause"}),
         boolean_operators=frozenset({"and", "or"}),
         parameter_lists=frozenset({"parameters", "lambda_parameters"}),
+        conditionals=frozenset({"if_statement", "elif_clause", "while_statement", "conditional_expression"}),
+        condition_positions={"conditional_expression": 1},
+        nesting=frozenset({"if_statement", "for_statement", "while_statement", "try_statement", "match_statement"}),
+        function_bodies=frozenset({"block"}),
+        classes=frozenset({"class_definition"}),
+        constructor_names=frozenset({"__init__"}),
+        branch_exclusions={"case_clause": frozenset({"_"})},
+        parameter_exclusions=frozenset({"positional_separator", "keyword_separator"}),
+        receiver_names=frozenset({"self", "cls"}),
         has_script_body=True,
     ),
     Language(

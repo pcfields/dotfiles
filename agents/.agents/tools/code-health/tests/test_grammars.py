@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 import tree_sitter_language_pack as pack
+
 from code_health.languages import LANGUAGES, language_for_path
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -25,7 +26,19 @@ def test_every_language_has_a_sample():
 @pytest.mark.parametrize("language", LANGUAGES, ids=lambda language: language.name)
 def test_recorded_node_types_exist_in_the_grammar(language):
     grammar = pack.get_language(language.grammar)
-    named = (
+    named = _named_kinds(language)
+    anonymous = language.decision_operators
+    either = {kind for kinds in language.branch_exclusions.values() for kind in kinds}
+
+    missing = [kind for kind in named if grammar.id_for_node_kind(kind, True) is None]
+    missing += [kind for kind in anonymous if grammar.id_for_node_kind(kind, False) is None]
+    missing += [kind for kind in either if not _exists_either_way(grammar, kind)]
+
+    assert sorted(missing) == []
+
+
+def _named_kinds(language):
+    return (
         language.functions
         | language.branches
         | language.loops
@@ -39,20 +52,13 @@ def test_recorded_node_types_exist_in_the_grammar(language):
         | language.constructors
         | language.primary_constructor_owners
         | frozenset(language.branch_exclusions)
+        | frozenset(language.condition_positions)
+        | language.parameter_exclusions
     )
 
-    missing = sorted(kind for kind in named if grammar.id_for_node_kind(kind, True) is None)
-    missing += sorted(
-        kind for kind in language.decision_operators if grammar.id_for_node_kind(kind, False) is None
-    )
-    excluding = {kind for kinds in language.branch_exclusions.values() for kind in kinds}
-    missing += sorted(
-        kind
-        for kind in excluding
-        if grammar.id_for_node_kind(kind, True) is None and grammar.id_for_node_kind(kind, False) is None
-    )
 
-    assert missing == []
+def _exists_either_way(grammar, kind):
+    return grammar.id_for_node_kind(kind, True) is not None or grammar.id_for_node_kind(kind, False) is not None
 
 
 @pytest.mark.parametrize(
