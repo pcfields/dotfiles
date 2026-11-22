@@ -62,10 +62,17 @@ def class_names(node, language: Language) -> list[str]:
     names = []
     node = node.parent
     while node is not None:
-        if node.type in language.classes and (name := name_node(node, language) or node.child_by_field_name("type")):
-            names.insert(0, text(name))
+        if name := _class_name(node, language):
+            names.insert(0, name)
         node = node.parent
     return names
+
+
+def _class_name(node, language: Language) -> str | None:
+    if node.type not in language.classes:
+        return None
+    name = name_node(node, language) or node.child_by_field_name("type")
+    return text(name) if name else None
 
 
 def _accessor_name(accessor) -> str:
