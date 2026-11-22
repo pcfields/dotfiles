@@ -179,3 +179,10 @@ def test_report_data_is_saved_for_the_page(history, capsys):
     hot = next(f for f in data["files"] if f["path"] == "src/hot.ts")
     assert (hot["score"], hot["commits"], hot["findings"][0]["smell"]) == (8.5, 4, "Deep Nested Complexity")
     assert data["functions"][0]["cyclomatic"] >= data["functions"][-1]["cyclomatic"]
+
+
+def test_hotspot_health_does_not_depend_on_top(history, capsys):
+    _, wide = repo_json(capsys)
+    _, narrow = repo_json(capsys, "--top", "1")
+
+    assert narrow["overview"]["hotspot_health"] == wide["overview"]["hotspot_health"]

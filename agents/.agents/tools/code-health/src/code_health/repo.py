@@ -8,6 +8,8 @@ from code_health.smells import Finding
 
 MAX_COMMIT_FILES = 50
 MIN_SHARED_COMMITS = 3
+# Fixed, so hotspot health compares across runs with different --top.
+HOTSPOT_COUNT = 10
 
 
 @dataclass(frozen=True)
@@ -157,7 +159,7 @@ def _overview(data: RepoInput) -> dict:
         "files_not_scored": len(data.not_scored),
         "bands": {name: sum(1 for f in files if f.band == name) for name in ("green", "yellow", "red")},
         "average_health": average_health(files),
-        "hotspot_health": hotspot_health(files, data.top),
+        "hotspot_health": hotspot_health(files, HOTSPOT_COUNT),
         "worst_file": {"path": worst.path, "score": worst.score} if worst else None,
     }
 
@@ -184,7 +186,7 @@ def _overview_lines(report: dict) -> list[str]:
         ),
         (
             f"average health: {_number(overview['average_health'])} (weighted by lines)   "
-            f"hotspot health: {_number(overview['hotspot_health'])} (busiest files, weighted by commits)"
+            f"hotspot health: {_number(overview['hotspot_health'])} (10 busiest files, weighted by commits)"
         ),
         f"worst file: {worst['path']} {worst['score']}" if worst else "worst file: -",
     ]
