@@ -222,3 +222,49 @@ def test_outside_a_git_repo_is_a_tool_error(tmp_path, capsys, monkeypatch):
 
     assert code == 1
     assert err.startswith("code-health: ")
+
+
+@pytest.fixture
+def state(tmp_path, monkeypatch):
+    folder = tmp_path / "state"
+    monkeypatch.setenv("CODE_HEALTH_STATE_DIR", str(folder))
+    return folder
+
+
+def test_since_turn_catches_a_regression_committed_during_the_turn(repo, state, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    assert main(["mark-turn", "--session", "s1"]) == 0
+    commit(repo, {"src/app.ts": nested(4)})
+
+    assert safeguard(capsys)[0] == 0
+    assert safeguard(capsys, "--since-turn", "--session", "s1")[0] == 2
+
+
+def test_since_turn_without_a_mark_compares_with_head(repo, state, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    commit(repo, {"src/app.ts": nested(4)})
+
+    assert safeguard(capsys, "--since-turn", "--session", "unmarked")[0] == 0
+
+
+def test_turn_marks_are_kept_per_session(repo, state, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    main(["mark-turn", "--session", "early"])
+    commit(repo, {"src/app.ts": nested(4)})
+    main(["mark-turn", "--session", "late"])
+
+    assert safeguard(capsys, "--since-turn", "--session", "early")[0] == 2
+    assert safeguard(capsys, "--since-turn", "--session", "late")[0] == 0
+
+
+def test_mark_turn_in_a_repo_without_commits_is_harmless(repo, state, capsys):
+    write(repo, "src/app.ts", nested(4))
+
+    assert main(["mark-turn", "--session", "s1"]) == 0
+    assert safeguard(capsys, "--since-turn", "--session", "s1")[0] == 2
+
+
+def test_since_turn_and_base_cannot_be_combined(repo, state, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+
+    assert safeguard(capsys, "--since-turn", "--base", "main")[0] == 1

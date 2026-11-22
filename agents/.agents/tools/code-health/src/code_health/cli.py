@@ -5,7 +5,7 @@ from pathlib import Path
 
 import tree_sitter_language_pack as pack
 
-from code_health import gitio
+from code_health import gitio, state
 from code_health.report import (
     FileReport,
     format_review,
@@ -39,7 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     except pack.Error as error:
         print(f"code-health: cannot load a grammar (it downloads on first use): {error}", file=sys.stderr)
         return 1
-    print(output)
+    if output:
+        print(output)
     return code
 
 
@@ -48,8 +49,10 @@ class ToolError(Exception):
 
 
 def _run(args: argparse.Namespace) -> tuple[str, int]:
+    if args.command == "mark-turn":
+        return _mark_turn(Path.cwd(), args.session), 0
     if args.command == "safeguard":
-        checks = _safeguard_checks(Path.cwd(), args.base)
+        checks = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
         verdict = safeguard_json(checks)
         output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks)
         return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
@@ -57,9 +60,16 @@ def _run(args: argparse.Namespace) -> tuple[str, int]:
     return _render(args.command, reports, as_json=args.json), 0
 
 
-def _safeguard_checks(cwd: Path, base: str | None) -> list[FileCheck]:
+def _mark_turn(cwd: Path, session: str) -> str:
     root = gitio.repo_root(cwd)
-    commit = gitio.base_commit(root, base)
+    if head := gitio.head_commit(root):
+        state.write_turn_base(root, session, head)
+    return ""
+
+
+def _safeguard_checks(cwd: Path, base: str | None, turn_session: str | None) -> list[FileCheck]:
+    root = gitio.repo_root(cwd)
+    commit = _turn_base(root, turn_session) if turn_session else gitio.base_commit(root, base)
     checks = []
     for change in gitio.changed_files(root, commit):
         if not is_checked(change.path):
@@ -68,6 +78,16 @@ def _safeguard_checks(cwd: Path, base: str | None) -> list[FileCheck]:
         before = gitio.read_at(root, commit, change.base_path) if change.base_path else None
         checks.append(check_file(change.path, before, after))
     return checks
+
+
+def _turn_base(root: Path, session: str) -> str:
+    recorded = state.read_turn_base(root, session)
+    if recorded:
+        try:
+            return gitio.base_commit(root, recorded)
+        except gitio.GitError:
+            pass
+    return gitio.base_commit(root, None)
 
 
 def _read_files(paths: list[str]) -> list[tuple[str, bytes]]:
@@ -97,6 +117,11 @@ def _parser() -> argparse.ArgumentParser:
         command.add_argument("files", nargs="+")
         command.add_argument("--json", action="store_true", help="print JSON")
     safeguard = commands.add_parser("safeguard", help="fail if changed files gained or worsened findings")
-    safeguard.add_argument("--base", help="compare with the merge-base of this ref instead of HEAD")
+    since = safeguard.add_mutually_exclusive_group()
+    since.add_argument("--base", help="compare with the merge-base of this ref instead of HEAD")
+    since.add_argument("--since-turn", action="store_true", help="compare with the commit mark-turn recorded")
+    safeguard.add_argument("--session", default="default", help="the session mark-turn recorded for")
     safeguard.add_argument("--json", action="store_true", help="print JSON")
+    mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
+    mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

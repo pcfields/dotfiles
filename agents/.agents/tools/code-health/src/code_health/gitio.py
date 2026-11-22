@@ -23,10 +23,14 @@ def repo_root(cwd: Path) -> Path:
 def base_commit(root: Path, base: str | None) -> str:
     if base is not None:
         return _git(root, "merge-base", base, "HEAD").decode().strip()
+    return head_commit(root) or EMPTY_TREE
+
+
+def head_commit(root: Path) -> str | None:
     try:
         return _git(root, "rev-parse", "--verify", "--quiet", "HEAD").decode().strip()
     except GitError:
-        return EMPTY_TREE
+        return None
 
 
 def changed_files(root: Path, base: str) -> list[ChangedFile]:
