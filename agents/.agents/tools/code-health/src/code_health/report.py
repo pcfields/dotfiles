@@ -1,10 +1,17 @@
 from dataclasses import asdict, dataclass
 
 from code_health.config import DEFAULT_CONFIG, Config, rules_for
+from code_health.ignores import Ignore, find_ignores, suppresses
 from code_health.languages import language_for_path
 from code_health.measure import measure_file
 from code_health.score import SCORER_VERSION, band, score_file
-from code_health.smells import FIX_HINTS, Finding, find_smells
+from code_health.smells import (
+    FIX_HINTS,
+    INVALID_IGNORE,
+    NEW_IGNORE,
+    Finding,
+    find_smells,
+)
 
 
 @dataclass(frozen=True)
@@ -14,6 +21,8 @@ class FileReport:
     band: str
     findings: tuple[Finding, ...] = ()
     reason: str | None = None
+    ignores: tuple[Ignore, ...] = ()
+    ignored: tuple[Ignore, ...] = ()
 
 
 def review_source(
@@ -26,9 +35,29 @@ def review_source(
     if metrics.parse_errors:
         return _not_scored(path, "parse errors")
     limits, weights = rules_for(config, match_path or path)
-    findings = find_smells(metrics, limits)
+    ignores, invalid = find_ignores(source, metrics.functions)
+    kept, ignored = _apply_ignores(find_smells(metrics, limits), ignores)
+    findings = (*kept, *invalid)
     score = score_file(findings, weights)
-    return FileReport(path=path, score=score, band=band(score), findings=findings)
+    return FileReport(
+        path=path,
+        score=score,
+        band=band(score),
+        findings=findings,
+        ignores=tuple(ignores),
+        ignored=tuple(ignored),
+    )
+
+
+def _apply_ignores(findings, ignores: list[Ignore]) -> tuple[list[Finding], list[Ignore]]:
+    kept, ignored = [], []
+    for finding in findings:
+        ignore = next((i for i in ignores if suppresses(i, finding)), None)
+        if ignore is None:
+            kept.append(finding)
+        else:
+            ignored.append(Ignore(finding.smell, finding.function, finding.line, ignore.reason))
+    return kept, ignored
 
 
 def format_score_line(report: FileReport) -> str:
@@ -46,12 +75,15 @@ def format_review(report: FileReport) -> str:
         location = f"{finding.function}:{finding.line}"
         lines.append(f"  {finding.smell:<{width}}  {location}  {describe(finding)}")
         lines.append(f"  {'':<{width}}  fix: {FIX_HINTS[finding.smell]}")
-    if not report.findings:
+    lines += [f"  ~ ignored  {i.smell}  {i.function}:{i.line}  {i.reason}" for i in report.ignored]
+    if not report.findings and not report.ignored:
         lines.append("  no findings")
     return "\n".join(lines)
 
 
 def describe(finding: Finding, suffix: str = "") -> str:
+    if note := _NOTES.get(finding.smell):
+        return note
     unit = _UNITS[finding.smell]
     measured = f"{unit} {finding.value}" if unit in _UNIT_FIRST else f"{finding.value} {unit}"
     return f"{measured}{suffix} (limit {finding.limit})"
@@ -67,6 +99,10 @@ _UNITS = {
     "Large File": "lines",
 }
 _UNIT_FIRST = {"complexity", "depth"}
+_NOTES = {
+    INVALID_IGNORE: "needs `code-health: ignore <Smell> -- <reason>`",
+    NEW_IGNORE: "new ignore comment",
+}
 
 
 def to_json(reports: list[FileReport], include_findings: bool) -> dict:
@@ -81,6 +117,7 @@ def _file_json(report: FileReport, include_findings: bool) -> dict:
         data["findings"] = [
             {**asdict(finding), "fix": FIX_HINTS[finding.smell]} for finding in report.findings
         ]
+        data["ignored"] = [asdict(ignore) for ignore in report.ignored]
     return data
 
 

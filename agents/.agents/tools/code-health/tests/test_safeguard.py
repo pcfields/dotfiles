@@ -326,3 +326,35 @@ def test_test_files_weigh_large_methods_at_half(repo, capsys):
     out, _ = capsys.readouterr()
 
     assert [line.split()[0] for line in out.splitlines()] == ["8.7", "9.3"]
+
+
+BRANCHY = "export function f(a) {\n" + "".join(f"  if (a === {i}) return {i};\n" for i in range(10)) + "  return 0;\n}\n"
+IGNORE = "// code-health: ignore Complex Method -- lookup table\n"
+
+
+def test_new_ignore_comment_fails_until_accepted(repo, capsys):
+    commit(repo, {"src/app.ts": BRANCHY})
+    write(repo, "src/app.ts", IGNORE + BRANCHY)
+
+    code, out, _ = safeguard(capsys)
+
+    assert code == 2
+    assert "  x new       Ignore Comment  f:1  new ignore comment" in out.splitlines()
+    assert '  code-health accept src/app.ts --smell "Ignore Comment" --function f --reason "<why>"' in out.splitlines()
+
+
+def test_committed_ignore_comment_passes(repo, capsys):
+    commit(repo, {"src/app.ts": IGNORE + BRANCHY})
+    write(repo, "src/app.ts", IGNORE + BRANCHY.replace("return 0;", "return -1;"))
+
+    assert safeguard(capsys)[0] == 0
+
+
+def test_new_invalid_ignore_comment_fails(repo, capsys):
+    commit(repo, {"src/app.ts": BRANCHY})
+    write(repo, "src/app.ts", "// code-health: ignore Complex Method\n" + BRANCHY)
+
+    code, out, _ = safeguard(capsys)
+
+    assert code == 2
+    assert "Invalid Ignore Comment" in out

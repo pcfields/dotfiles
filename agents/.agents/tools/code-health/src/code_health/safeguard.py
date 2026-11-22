@@ -5,7 +5,7 @@ from code_health.delta import FAILING, Change, compare, fails
 from code_health.languages import language_for_path
 from code_health.report import describe, review_source
 from code_health.score import SCORER_VERSION
-from code_health.smells import FIX_HINTS
+from code_health.smells import FIX_HINTS, NEW_IGNORE, Finding
 
 
 @dataclass(frozen=True)
@@ -30,8 +30,17 @@ def check_file(
         return FileCheck(path, None, None, "not scored", reason=after.reason)
     before = review_source(path, before_source, config) if before_source is not None else None
     before_score = before.score if before else None
-    changes = compare(before.findings if before else (), after.findings)
+    changes = compare(before.findings if before else (), after.findings) + _new_ignores(before, after)
     return FileCheck(path, before_score, after.score, _status(changes, before_score, after.score), changes)
+
+
+def _new_ignores(before, after) -> tuple[Change, ...]:
+    existing = {(i.smell, i.function) for i in before.ignores} if before else set()
+    return tuple(
+        Change("new", Finding(NEW_IGNORE, ignore.function, ignore.line, 1, 1), None)
+        for ignore in after.ignores
+        if (ignore.smell, ignore.function) not in existing
+    )
 
 
 def format_safeguard(checks: list[FileCheck], notes: tuple[str, ...] = ()) -> str:
