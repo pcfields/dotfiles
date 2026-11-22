@@ -1,0 +1,2 @@
+# The code-health tool's test fixtures are smelly on purpose.
+exclude = ["agents/.agents/tools/code-health/tests/fixtures/**"]
