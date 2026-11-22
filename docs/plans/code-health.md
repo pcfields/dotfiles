@@ -430,7 +430,16 @@ Windows doesn't rewrite their line endings.
      `docs/install-windows.md`.
 
    Checked by `bash .agents/check` and a run on this repo.
-10. **Episodes, global history and token capture,** with episode start and
+10. ✅ **Episodes, global history and token capture.** Done. Checked
+    against a real transcript: one message spans several lines with the
+    same usage, so each `message.id` counts once. Subagents write separate
+    transcripts, so their tokens are not counted (a known gap). `iterations`
+    counts Claude turns while the episode is open, starting at 1. `safeguard
+    --episode` counts the turn, opens or closes the `safeguard-fix` episode
+    and flushes ended episodes; bookkeeping errors never change its verdict.
+    Global records need `CODE_HEALTH_HISTORY_DIR` (a private repo the user
+    sets up); without it they are skipped with a one-time note. Original
+    scope: episodes, global history and token capture, with episode start and
     end added to the `refactor` skill. Checked by pytest with a synthetic
     transcript and a key-allowlist test on global records.
 11. **Install wiring.** Also, in one change: remove the `repo-health.sh <file>`
