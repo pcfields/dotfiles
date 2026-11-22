@@ -1,9 +1,13 @@
+from dataclasses import replace
+
 from code_health.delta import Change, compare, fails
 from code_health.smells import Finding
 
+BASE = Finding(smell="Complex Method", function="f", line=1, value=12, limit=10)
 
-def finding(smell="Complex Method", function="f", value=12, limit=10, line=1):
-    return Finding(smell=smell, function=function, line=line, value=value, limit=limit)
+
+def finding(**overrides):
+    return replace(BASE, **overrides)
 
 
 def test_unchanged_findings_are_existing_and_pass():

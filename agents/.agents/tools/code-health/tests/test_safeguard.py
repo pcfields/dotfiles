@@ -2,6 +2,7 @@ import json
 import subprocess
 
 import pytest
+
 from code_health.cli import main
 
 CLEAN = "export function f(a) {\n  return a;\n}\n"

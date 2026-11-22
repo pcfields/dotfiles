@@ -1,4 +1,5 @@
 import pytest
+
 from code_health.score import band, score_file
 from code_health.smells import Finding
 

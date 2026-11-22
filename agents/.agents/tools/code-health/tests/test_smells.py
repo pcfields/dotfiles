@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 import pytest
+
 from code_health.measure import Condition, FileMetrics, FunctionMetrics
 from code_health.smells import Finding, find_smells
 
