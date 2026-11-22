@@ -1,48 +1,8 @@
 import json
-import subprocess
 
-import pytest
+from gitrepo import CLEAN, commit, git, nested, write
 
 from code_health.cli import main
-
-CLEAN = "export function f(a) {\n  return a;\n}\n"
-
-
-def nested(depth: int, name: str = "f") -> str:
-    opening = "".join(f"{'  ' * (i + 1)}if (a{i}) {{\n" for i in range(depth))
-    closing = "".join(f"{'  ' * (i + 1)}}}\n" for i in reversed(range(depth)))
-    return f"export function {name}(a) {{\n{opening}{'  ' * (depth + 1)}return 1;\n{closing}  return 0;\n}}\n"
-
-
-@pytest.fixture
-def repo(tmp_path, monkeypatch):
-    root = tmp_path / "repo"
-    root.mkdir()
-    git(root, "init", "-q", "-b", "main")
-    monkeypatch.chdir(root)
-    return root
-
-
-def git(root, *args):
-    subprocess.run(
-        ["git", "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", *args],
-        cwd=root,
-        check=True,
-        capture_output=True,
-    )
-
-
-def write(root, path, text):
-    target = root / path
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(text)
-
-
-def commit(root, files: dict[str, str]):
-    for path, text in files.items():
-        write(root, path, text)
-    git(root, "add", "-A")
-    git(root, "commit", "-q", "-m", "change")
 
 
 def safeguard(capsys, *args):
@@ -222,13 +182,6 @@ def test_outside_a_git_repo_is_a_tool_error(tmp_path, capsys, monkeypatch):
 
     assert code == 1
     assert err.startswith("code-health: ")
-
-
-@pytest.fixture
-def state(tmp_path, monkeypatch):
-    folder = tmp_path / "state"
-    monkeypatch.setenv("CODE_HEALTH_STATE_DIR", str(folder))
-    return folder
 
 
 def test_since_turn_catches_a_regression_committed_during_the_turn(repo, state, capsys):
