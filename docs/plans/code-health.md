@@ -37,9 +37,10 @@ any machine, in any project, and open to any agent harness.
 | Platforms | Everything works on Linux and Windows: the CLI, tests, adapters and install. Use `pathlib`, handle CRLF, and resolve home and cache dirs per platform. A Linux-only part is a bug, or a named gap with a step that closes it. | The user works on both machines from one tree. |
 | Score | 1.0-10.0 per file. Bands: green ≥ 9, yellow ≥ 4, red < 4. | Matches CodeScene's scale. The bands are from memory of CodeScene, not a published source. |
 | When the safeguard fails | A changed file gains a **new** finding, an existing finding gets **worse**, or a new ignore comment is added. Findings that were already there and not made worse are reported but don't fail. | Comparing findings is precise and gives the agent a to-do list. A fixed bar (say 9.5) would either let small regressions through in green files or block every edit to a red legacy file. Any drop in score comes from a new or worse finding, so this catches it. |
-| Approving a failure for now | Only the user can approve, with `code-health accept`. It needs an interactive terminal and a typed `yes`, and Claude's settings also deny it to the agent. The agent is told to ask the user and shows the exact command. | The agent must never be able to approve its own regression. Requiring a terminal works the same in every harness, because agents' shell calls have no terminal. |
+| Approving a failure for now | Only the user can approve, with `code-health accept`. It needs an interactive terminal and a typed `yes`, and writes to a per-user state folder outside the repo (`$XDG_STATE_HOME`/`~/.local/state` or `%LOCALAPPDATA%`, `code-health/<repo key>/`), which the agent's sandbox can't write. Claude's settings also deny it to the agent. The agent is told to ask the user and shows the exact command. | The agent must never be able to approve its own regression. The terminal check alone isn't airtight (an agent can fake one with `script` or `pty`), so the write location is the real lock on Linux and macOS. Windows has no Claude sandbox: there it rests on the deny rules and the terminal check. |
+| What the safeguard compares with | The commit at the start of the agent's turn: a `UserPromptSubmit` hook runs `code-health mark-turn`, and the Stop hook runs `safeguard --since-turn`. Without a mark it falls back to HEAD. The mark is kept in the same state folder. | Comparing with HEAD misses everything the agent commits during its turn. Added in step 8. |
 | Durable exceptions | A comment above the function, `code-health: ignore <Smell> -- <reason>`, with the reason required. Adding one counts as a finding until the user accepts it. | It sits with the code and shows up in review. |
-| Per-repo config | `.code-health.toml` at the repo root: excluded paths, plus rule weights and thresholds per path pattern. | Like CodeScene's `.codescene/code-health-rules.json`. |
+| Per-repo config | `.code-health.toml` at the repo root: excluded paths, plus rule weights and thresholds per path pattern. `score` and `review` read the working copy; `safeguard` reads the base commit's copy and notes when the working copy differs. Claude asks before editing it. | Like CodeScene's `.codescene/code-health-rules.json`. Reading the base commit's copy stops an agent loosening a limit and passing in the same turn. |
 | Project history | Local to each project, in `<repo>/.code-health/`, added to `.git/info/exclude`. Never committed. | Project repos are shared with clients and teams. |
 | Global history | Generic records only, in a **separate private repo** (this repo is public). The location comes from `CODE_HEALTH_HISTORY_DIR`. When that isn't set, the tool skips writing and says so once; it never fails because of it. | The records are for estimating client costs ("1,000 lines from 4 to 10 took 20k tokens"). Even with names stripped, that is commercially sensitive. |
 
@@ -178,7 +179,7 @@ they can run, in a terminal:
 
 - `accept` refuses unless stdin is a terminal and the user types `yes` at a
   prompt that shows the finding.
-- It appends to `<repo>/.code-health/accepted.jsonl`: file, smell, function,
+- It appends to `accepted.jsonl` in the per-user state folder (see Decisions): file, smell, function,
   a hash of the function's current text, the reason and the date. When the
   function's text changes, the acceptance no longer matches and lapses.
 - In Claude's `settings.json`, deny `Bash(code-health accept:*)` and
@@ -200,7 +201,6 @@ through `.git/info/exclude`. This replaces `.repo-health/`.
   - the worst file and its score
   - a map of every file's score
 - `episodes.jsonl`: full refactoring-cost records, including paths.
-- `accepted.jsonl`: see above.
 - `repo/`: the data tables for the HTML report.
 
 The HTML report gains a trend chart of average health, hotspot health and
@@ -260,6 +260,10 @@ to an end.
 - Register it as a second `Stop` hook in `claude/.claude/settings.json`
   (timeout 60), next to `run-check-on-stop.sh`. Add the deny rules from
   "Approvals and suppressions".
+- `claude/.claude/hooks/code-health-turn-start.sh` (`UserPromptSubmit`)
+  records the turn's base with `code-health mark-turn --session <id>`; the
+  Stop hook passes `--since-turn --session <id>` (added in step 8). Both
+  find the command through `code-health-command.sh`.
 - Add cases to `claude/.claude/hooks/test-hooks.sh`.
 - Check whether commands the user runs with `!` in Claude Code have a
   terminal. Either way, the guidance tells the user to run `accept` in a
@@ -281,7 +285,9 @@ agents/.agents/tools/code-health/
     score.py              # calculation: findings -> score, band
     delta.py              # calculation: before/after findings -> verdict
     config.py             # .code-health.toml + defaults
-    ignores.py            # ignore comments, accepted.jsonl matching
+    ignores.py            # ignore comments
+    accept.py             # accept: choosing the finding, records, matching
+    state.py              # per-user state folder: turn marks, accepted.jsonl
     history.py            # action: snapshots, episodes, global records
     repo.py               # port of repo-health.sh: churn, authors, coupling, hotspots
     gitio.py              # action: git calls
@@ -398,7 +404,10 @@ Windows doesn't rewrite their line endings.
        constructors is the likely one).
      - Bring back generic notes only, and turn each into a synthetic fixture
        or a limit change on Linux.
-8. **Config, ignore comments and `accept`.** Checked by pytest, with a test
+8. ✅ **Config, ignore comments and `accept`.** Done in four parts:
+   8a turn-start base (`mark-turn`, `--since-turn`, the `UserPromptSubmit`
+   hook); 8b `.code-health.toml`; 8c ignore comments; 8d `accept`, tested
+   with a real pseudo-terminal on Linux. Original scope: checked by pytest, with a test
    that `accept` refuses without a terminal.
 9. **`code-health repo`:** port churn, author density, coupling
    (`MAX_COMMIT_FILES=50`, `MIN_SHARED_COMMITS=3`) and hotspots, and add
