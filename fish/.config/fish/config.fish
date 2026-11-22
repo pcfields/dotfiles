@@ -81,3 +81,7 @@ alias mv='mv -i'
 
 source /home/pcfields/.nix-profile/etc/profile.d/nix.fish
 set -xa PATH /home/pcfields/.nix-profile/bin $PATH
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/pcfields/.local/bin" $PATH
