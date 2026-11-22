@@ -311,3 +311,14 @@ def test_new_invalid_ignore_comment_fails(repo, capsys):
 
     assert code == 2
     assert "Invalid Ignore Comment" in out
+
+
+def test_crlf_config_is_not_reported_as_changed(repo, capsys):
+    (repo / ".code-health.toml").write_bytes(LOOSE_NESTING.replace("\n", "\r\n").encode())
+    commit(repo, {"src/app.ts": CLEAN})
+    write(repo, "src/app.ts", CLEAN.replace("a;", "a + 1;"))
+
+    code, out, _ = safeguard(capsys)
+
+    assert code == 0
+    assert "changed; it takes effect once committed" not in out

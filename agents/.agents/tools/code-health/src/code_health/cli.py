@@ -152,10 +152,16 @@ def _config_at(root: Path, commit: str) -> str | None:
         return None
 
 
+def _same_text(a: str | None, b: str | None) -> bool:
+    if a is None or b is None:
+        return a is b
+    return a.replace("\r\n", "\n") == b.replace("\r\n", "\n")
+
+
 def _config_notes(root: Path, base_text: str | None) -> tuple[str, ...]:
     path = root / CONFIG_FILE
-    working = path.read_text(encoding="utf-8") if path.is_file() else None
-    if working == base_text:
+    working = path.read_bytes().decode("utf-8") if path.is_file() else None
+    if _same_text(working, base_text):
         return ()
     return (f"{CONFIG_FILE} changed; it takes effect once committed",)
 
