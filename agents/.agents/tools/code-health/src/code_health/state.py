@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import re
 import sys
@@ -43,3 +44,29 @@ def write_turn_base(root: Path, session: str, commit: str) -> None:
 def _turn_file(root: Path, session: str) -> Path:
     safe_session = re.sub(r"[^A-Za-z0-9_.-]", "_", session) or "default"
     return state_dir() / repo_key(root) / "turns" / f"{safe_session}.base"
+
+
+def read_accepted(root: Path) -> list[dict]:
+    try:
+        lines = _accepted_file(root).read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    records = []
+    for line in lines:
+        try:
+            records.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return records
+
+
+def append_accepted(root: Path, record: dict) -> Path:
+    path = _accepted_file(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(record) + "\n")
+    return path
+
+
+def _accepted_file(root: Path) -> Path:
+    return state_dir() / repo_key(root) / "accepted.jsonl"

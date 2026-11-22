@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import dataclass
 
 import tree_sitter_language_pack as pack
@@ -26,6 +27,7 @@ class FunctionMetrics:
     parameters: int
     bumps: int
     conditions: tuple[Condition, ...]
+    digest: str = ""
 
 
 @dataclass(frozen=True)
@@ -33,6 +35,7 @@ class FileMetrics:
     loc: int
     parse_errors: int
     functions: tuple[FunctionMetrics, ...]
+    digest: str = ""
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
@@ -47,6 +50,7 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         loc=len(code_rows),
         parse_errors=sum(1 for node in _descendants(root) if node.is_error or node.is_missing),
         functions=tuple(functions),
+        digest=digest(source),
     )
 
 
@@ -91,6 +95,7 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         parameters=_count_parameters(node, language),
         bumps=_count_bumps(node, language),
         conditions=_conditions(node, language),
+        digest=digest(node.text),
     )
 
 
@@ -120,6 +125,7 @@ def _measure_primary_constructor(node, name: str, language: Language, code_rows)
         parameters=_count_parameters(node, language),
         bumps=0,
         conditions=(),
+        digest=digest(params.text),
     )
 
 
@@ -135,7 +141,12 @@ def _measure_script(root, functions: list, language: Language, code_rows) -> Fun
         parameters=0,
         bumps=_count_top_level_bumps(root, language),
         conditions=_conditions(root, language),
+        digest=digest(root.text),
     )
+
+
+def digest(source: bytes) -> str:
+    return hashlib.sha256(source.replace(b"\r\n", b"\n")).hexdigest()[:16]
 
 
 def _loc(node, code_rows: frozenset[int]) -> int:

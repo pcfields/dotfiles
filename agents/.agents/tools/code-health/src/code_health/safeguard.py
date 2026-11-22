@@ -1,5 +1,7 @@
-from dataclasses import asdict, dataclass
+from collections.abc import Iterable, Mapping
+from dataclasses import asdict, dataclass, replace
 
+from code_health.accept import Target, is_accepted
 from code_health.config import DEFAULT_CONFIG, Config
 from code_health.delta import FAILING, Change, compare, fails
 from code_health.languages import language_for_path
@@ -22,16 +24,35 @@ def is_checked(path: str) -> bool:
     return language_for_path(path) is not None
 
 
+@dataclass(frozen=True)
+class CheckContext:
+    config: Config = DEFAULT_CONFIG
+    accepted: tuple[Mapping, ...] = ()
+
+
+NO_CONTEXT = CheckContext()
+
+
 def check_file(
-    path: str, before_source: bytes | None, after_source: bytes, config: Config = DEFAULT_CONFIG
+    path: str, before_source: bytes | None, after_source: bytes, context: CheckContext = NO_CONTEXT
 ) -> FileCheck:
+    config = context.config
     after = review_source(path, after_source, config)
     if after.score is None:
         return FileCheck(path, None, None, "not scored", reason=after.reason)
     before = review_source(path, before_source, config) if before_source is not None else None
     before_score = before.score if before else None
     changes = compare(before.findings if before else (), after.findings) + _new_ignores(before, after)
+    changes = tuple(_with_acceptance(change, path, after, context.accepted) for change in changes)
     return FileCheck(path, before_score, after.score, _status(changes, before_score, after.score), changes)
+
+
+def _with_acceptance(change: Change, path: str, after, accepted: Iterable[Mapping]) -> Change:
+    if change.status not in FAILING:
+        return change
+    if not is_accepted(accepted, Target(path, change.finding, after.digest_for(change.finding.function))):
+        return change
+    return replace(change, status="accepted")
 
 
 def _new_ignores(before, after) -> tuple[Change, ...]:
@@ -73,7 +94,13 @@ def _status(changes: tuple[Change, ...], before: float | None, after: float) -> 
     return "same"
 
 
-_MARKERS = {"new": "x new", "worse": "x worse", "existing": "! existing", "fixed": "ok fixed"}
+_MARKERS = {
+    "new": "x new",
+    "worse": "x worse",
+    "existing": "! existing",
+    "fixed": "ok fixed",
+    "accepted": "ok accepted",
+}
 
 
 def _format_check(check: FileCheck) -> str:

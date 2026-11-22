@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 import tree_sitter_language_pack as pack
 
 from code_health import gitio, state
+from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     CONFIG_FILE,
     DEFAULT_CONFIG,
@@ -16,12 +18,14 @@ from code_health.config import (
 )
 from code_health.report import (
     FileReport,
+    describe,
     format_review,
     format_score_line,
     review_source,
     to_json,
 )
 from code_health.safeguard import (
+    CheckContext,
     FileCheck,
     check_file,
     format_safeguard,
@@ -59,6 +63,8 @@ class ToolError(Exception):
 def _run(args: argparse.Namespace) -> tuple[str, int]:
     if args.command == "mark-turn":
         return _mark_turn(Path.cwd(), args.session), 0
+    if args.command == "accept":
+        return _accept(Path.cwd(), args)
     if args.command == "safeguard":
         checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
         verdict = safeguard_json(checks, notes)
@@ -94,6 +100,26 @@ def _repo_relative(root: Path | None, path: str) -> str:
         return path
 
 
+def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:
+    if not sys.stdin.isatty():
+        raise ToolError("accept needs an interactive terminal: run it yourself, not through an agent")
+    root = gitio.repo_root(cwd)
+    path = _repo_relative(root, args.file)
+    report = review_source(args.file, _read(Path(args.file)), _working_config(root), path)
+    try:
+        finding = select(candidates(report.findings, report.ignores), path, args.smell, args.function)
+    except AcceptError as error:
+        raise ToolError(str(error)) from error
+    print(f"{path}  {finding.smell}  {finding.function}:{finding.line}  {describe(finding)}")
+    print(f"Reason: {args.reason}")
+    if input("Type yes to accept: ").strip() != "yes":
+        return "Not accepted.", 1
+    today = datetime.date.today().isoformat()
+    entry = record(Target(path, finding, report.digest_for(finding.function)), args.reason, today)
+    state.append_accepted(root, entry)
+    return "Accepted.", 0
+
+
 def _mark_turn(cwd: Path, session: str) -> str:
     root = gitio.repo_root(cwd)
     if head := gitio.head_commit(root):
@@ -108,13 +134,14 @@ def _safeguard_checks(
     commit = _turn_base(root, turn_session) if turn_session else gitio.base_commit(root, base)
     base_text = _config_at(root, commit)
     config = parse_config(base_text)
+    context = CheckContext(config, tuple(state.read_accepted(root)))
     checks = []
     for change in gitio.changed_files(root, commit):
         if not is_checked(change.path) or is_excluded(config, change.path):
             continue
         after = _read(root / change.path)
         before = gitio.read_at(root, commit, change.base_path) if change.base_path else None
-        checks.append(check_file(change.path, before, after, config))
+        checks.append(check_file(change.path, before, after, context))
     return checks, _config_notes(root, base_text)
 
 
@@ -175,6 +202,11 @@ def _parser() -> argparse.ArgumentParser:
     since.add_argument("--since-turn", action="store_true", help="compare with the commit mark-turn recorded")
     safeguard.add_argument("--session", default="default", help="the session mark-turn recorded for")
     safeguard.add_argument("--json", action="store_true", help="print JSON")
+    accept = commands.add_parser("accept", help="accept a finding for now (asks in a terminal)")
+    accept.add_argument("file")
+    accept.add_argument("--smell", required=True)
+    accept.add_argument("--function")
+    accept.add_argument("--reason", required=True)
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

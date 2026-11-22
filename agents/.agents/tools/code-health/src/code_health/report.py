@@ -6,6 +6,7 @@ from code_health.languages import language_for_path
 from code_health.measure import measure_file
 from code_health.score import SCORER_VERSION, band, score_file
 from code_health.smells import (
+    FILE,
     FIX_HINTS,
     INVALID_IGNORE,
     NEW_IGNORE,
@@ -23,6 +24,10 @@ class FileReport:
     reason: str | None = None
     ignores: tuple[Ignore, ...] = ()
     ignored: tuple[Ignore, ...] = ()
+    digests: tuple[tuple[str, str], ...] = ()
+
+    def digest_for(self, function: str) -> str:
+        return dict(self.digests).get(function, "")
 
 
 def review_source(
@@ -46,6 +51,7 @@ def review_source(
         findings=findings,
         ignores=tuple(ignores),
         ignored=tuple(ignored),
+        digests=((FILE, metrics.digest), *((f.name, f.digest) for f in metrics.functions)),
     )
 
 
