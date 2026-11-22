@@ -362,6 +362,13 @@ Windows doesn't rewrite their line endings.
    Python so the tool checks its own code. Each language
    needs fixtures for every smell, plus `<script>` handling where it
    applies. Checked by pytest.
+   - ✅ **C#.** Choices tested in `tests/test_measure_csharp.py`:
+     - A primary constructor on a class or struct is a constructor named
+       `<Class>.<primary constructor>`; a positional record's isn't.
+     - Overloads that would share a name get their parameter types, like
+       `C.M(int)`. Other duplicate names, in any language, get `#2`, `#3`.
+     - Pattern `and`/`or` count like `&&`/`||`. `default` sections and `_`
+       arms don't count. Methods without a body are skipped.
    - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
