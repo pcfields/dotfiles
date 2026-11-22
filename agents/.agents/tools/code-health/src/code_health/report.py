@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from code_health.config import DEFAULT_CONFIG, Config, rules_for
 from code_health.ignores import Ignore, find_ignores, suppresses
 from code_health.languages import language_for_path
-from code_health.measure import measure_file
+from code_health.measure import FileMetrics, measure_file
 from code_health.score import SCORER_VERSION, band, score_file
 from code_health.smells import (
     FILE,
@@ -25,6 +25,7 @@ class FileReport:
     ignores: tuple[Ignore, ...] = ()
     ignored: tuple[Ignore, ...] = ()
     digests: tuple[tuple[str, str], ...] = ()
+    metrics: FileMetrics | None = None
 
     def digest_for(self, function: str) -> str:
         return dict(self.digests).get(function, "")
@@ -52,6 +53,7 @@ def review_source(
         ignores=tuple(ignores),
         ignored=tuple(ignored),
         digests=((FILE, metrics.digest), *((f.name, f.digest) for f in metrics.functions)),
+        metrics=metrics,
     )
 
 

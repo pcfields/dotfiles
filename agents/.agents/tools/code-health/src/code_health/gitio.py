@@ -51,6 +51,22 @@ def change_log(root: Path, since: str, pathspec: str) -> str:
     return output.decode(errors="replace")
 
 
+def current_branch(root: Path) -> str:
+    return _git(root, "branch", "--show-current").decode().strip()
+
+
+def ensure_excluded(root: Path, line: str) -> None:
+    exclude = root / _git(root, "rev-parse", "--git-path", "info/exclude").decode().strip()
+    existing = exclude.read_text(encoding="utf-8").splitlines() if exclude.is_file() else []
+    if line in existing:
+        return
+    exclude.parent.mkdir(parents=True, exist_ok=True)
+    with exclude.open("a", encoding="utf-8") as file:
+        if existing and existing[-1] != "":
+            file.write("\n")
+        file.write(line + "\n")
+
+
 def read_at(root: Path, ref: str, path: str) -> bytes:
     return _git(root, "show", f"{ref}:{path}")
 

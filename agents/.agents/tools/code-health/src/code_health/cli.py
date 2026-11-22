@@ -7,7 +7,7 @@ from pathlib import Path
 
 import tree_sitter_language_pack as pack
 
-from code_health import gitio, state
+from code_health import gitio, history, state
 from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     CONFIG_FILE,
@@ -22,6 +22,7 @@ from code_health.repo import (
     RepoInput,
     build_report,
     churn,
+    coupling,
     format_repo,
     is_binary,
     is_prose_or_data,
@@ -139,7 +140,23 @@ def _repo_report(cwd: Path, args: argparse.Namespace) -> dict:
     commits = parse_log(gitio.change_log(root, args.since, pathspec))
     changes = churn(commits, {f.path for f in files})
     files = [replace(f, commits=changes.get(f.path, (0, 0))[0], authors=changes.get(f.path, (0, 0))[1]) for f in files]
-    return build_report(RepoInput(args.since, pathspec or ".", commits, files, not_scored, args.top))
+    report = build_report(RepoInput(args.since, pathspec or ".", commits, files, not_scored, args.top))
+    return _save_run(root, report, files, coupling(commits, {f.path for f in files}))
+
+
+def _save_run(root: Path, report: dict, files: list[RepoFile], couplings) -> dict:
+    run = {
+        "repo": root.name,
+        "date": datetime.date.today().isoformat(),
+        "commit": gitio.head_commit(root) or "",
+        "branch": gitio.current_branch(root),
+    }
+    entry = history.snapshot(report, files, run)
+    previous = history.read_snapshots(root)
+    report = {**report, "trend": history.trend([*previous, entry], report["path"], report["scorer_version"])}
+    gitio.ensure_excluded(root, f"/{history.STATE_DIR}/")
+    history.save_run(root, entry, history.page_data(report, files, couplings, run))
+    return report
 
 
 def _score_repo_file(root: Path, path: str, config: Config) -> RepoFile | str | None:
@@ -156,8 +173,8 @@ def _score_repo_file(root: Path, path: str, config: Config) -> RepoFile | str | 
     report = review_source(path, source, config)
     if report.score is None:
         return report.reason
-    loc = sum(1 for line in source.splitlines() if line.strip())
-    return RepoFile(path, report.score, report.band, loc, findings=report.findings)
+    functions = tuple((f.name, f.line, f.cyclomatic, f.loc) for f in report.metrics.functions)
+    return RepoFile(path, report.score, report.band, report.metrics.loc, findings=report.findings, functions=functions)
 
 
 def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:

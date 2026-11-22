@@ -72,6 +72,7 @@ class RepoFile:
     commits: int = 0
     authors: int = 0
     findings: tuple[Finding, ...] = ()
+    functions: tuple[tuple[str, int, int, int], ...] = ()
 
 
 def refactor_first(files: list[RepoFile], top: int) -> list[RepoFile]:
@@ -200,13 +201,31 @@ def _sections(report: dict) -> list[tuple]:
         ("Author density", ("authors", "commits", "file"),
          [(a["authors"], a["commits"], a["path"]) for a in report["author_density"]]),
         ("Least healthy files", file_header, [_file_cells(r) for r in report["least_healthy"]]),
-        ("Worst findings", ("smell", "location", "value", "limit", "file"),
-         [(f["smell"], f"{f['function']}:{f['line']}", f["value"], f["limit"], f["path"])
-          for f in report["worst_findings"]]),
+        ("Worst findings", ("smell", "location", "value", "limit", "file"), _finding_rows(report)),
         ("Not scored", ("files", "kind", "reason"),
          [(n["count"], n["kind"], n["reason"]) for n in report["not_scored"]]),
+        ("Trend (same path and scorer version)", ("date", "commit", "average", "hotspots", "worst"), _trend_rows(report)),
     ]
     return sections
+
+
+def _finding_rows(report: dict) -> list[tuple]:
+    return [
+        (f["smell"], f"{f['function']}:{f['line']}", f["value"], f["limit"], f["path"]) for f in report["worst_findings"]
+    ]
+
+
+def _trend_rows(report: dict) -> list[tuple]:
+    return [
+        (
+            t["date"],
+            t["commit"][:8],
+            _number(t["average_health"]),
+            _number(t["hotspot_health"]),
+            f"{_number(t['worst_score'])} {t['worst_file'] or ''}".strip(),
+        )
+        for t in report.get("trend", [])
+    ]
 
 
 def _file_row(f: RepoFile) -> dict:
