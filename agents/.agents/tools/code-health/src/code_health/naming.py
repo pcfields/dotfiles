@@ -1,9 +1,9 @@
 from code_health.languages import Language
-from code_health.syntax import parameter_groups, parameter_list, text
+from code_health.syntax import name_node, parameter_groups, parameter_list, text
 
 
 def function_name(function, language: Language) -> str:
-    own = own_name(function)
+    own = own_name(function, language)
     if own is not None:
         return ".".join([*class_names(function, language), own])
     parent = _enclosing_function(function, language)
@@ -30,11 +30,11 @@ def _renamed(name: str, functions: list, language: Language) -> list[str]:
     return [name if n == 0 else f"{name} #{n + 1}" for n in range(len(functions))]
 
 
-def own_name(function) -> str | None:
+def own_name(function, language: Language) -> str | None:
     special = _SPECIAL_NAMES.get(function.type)
     if special:
         return special(function)
-    if name := function.child_by_field_name("name"):
+    if name := name_node(function, language):
         accessor = next((c.type for c in function.children if c.type in ("get", "set")), None)
         return f"{accessor} {text(name)}" if accessor else text(name)
     return _assigned_name(function)
@@ -55,7 +55,7 @@ def class_names(node, language: Language) -> list[str]:
     names = []
     node = node.parent
     while node is not None:
-        if node.type in language.classes and (name := node.child_by_field_name("name")):
+        if node.type in language.classes and (name := name_node(node, language)):
             names.insert(0, text(name))
         node = node.parent
     return names

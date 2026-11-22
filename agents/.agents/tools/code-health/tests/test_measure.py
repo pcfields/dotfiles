@@ -233,3 +233,7 @@ def test_duplicate_callback_names_are_numbered():
     source = "function f() { a.map((x) => x); b.map((y) => y); }"
 
     assert names(source) == ["f", "f.map callback", "f.map callback #2"]
+
+
+def test_bare_arrow_parameter_counts():
+    assert only_function("const f = x => x;").parameters == 1

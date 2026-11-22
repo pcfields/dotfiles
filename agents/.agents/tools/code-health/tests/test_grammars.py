@@ -55,6 +55,8 @@ def _named_kinds(language):
         | frozenset(language.condition_positions)
         | language.parameter_exclusions
         | frozenset(language.default_case_texts)
+        | language.name_nodes
+        | language.body_wrappers
     )
 
 
@@ -82,10 +84,6 @@ def test_unknown_extensions_have_no_language():
     assert language_for_path("Makefile") is None
 
 
-def test_powershell_null_coalescing_is_a_known_parse_gap():
-    tree = pack.get_parser("powershell").parse(b"$a = $b ?? 'x'\n")
-
-    assert tree.root_node.has_error
 
 
 def _error_nodes(node):

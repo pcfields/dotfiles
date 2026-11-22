@@ -63,8 +63,12 @@ def _code_rows(root, language: Language) -> frozenset[int]:
 
 def _is_measured(node, language: Language) -> bool:
     if node.type in language.functions:
-        return body(node, language) is not None
+        return node.is_named and not _is_signature(node, language)
     return _primary_constructor(node, language) is not None
+
+
+def _is_signature(node, language: Language) -> bool:
+    return body(node, language) is None and node.child_count > 0 and node.children[-1].type == ";"
 
 
 def _name(node, language: Language) -> str:
@@ -81,13 +85,21 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         name=name,
         line=node.start_point.row + 1,
         loc=_loc(node, code_rows),
-        is_constructor=node.type in language.constructors or own_name(node) in language.constructor_names,
+        is_constructor=_is_constructor(node, language),
         cyclomatic=1 + _count_decisions(node, language),
         max_nesting=_max_nesting(node, language),
         parameters=_count_parameters(node, language),
         bumps=_count_bumps(node, language),
         conditions=_conditions(node, language),
     )
+
+
+def _is_constructor(node, language: Language) -> bool:
+    own = own_name(node, language)
+    if node.type in language.constructors or own in language.constructor_names:
+        return True
+    enclosing = class_names(node, language)
+    return language.constructor_named_after_class and bool(enclosing) and own == enclosing[-1]
 
 
 def _primary_constructor(node, language: Language):
@@ -140,10 +152,18 @@ def _count_bumps(function, language: Language) -> int:
 def _count_top_level_bumps(block, language: Language) -> int:
     return sum(
         1
-        for statement in block.named_children
+        for statement in _statements(block, language)
         if statement.type not in language.functions
         and _max_nesting(statement, language, _adds_nesting(statement, block, language)) >= 2
     )
+
+
+def _statements(block, language: Language):
+    for child in block.named_children:
+        if child.type in language.body_wrappers:
+            yield from _statements(child, language)
+        else:
+            yield child
 
 
 def _conditions(function, language: Language) -> tuple[Condition, ...]:
@@ -219,7 +239,7 @@ def _own_descendants(node, language: Language):
 def _count_parameters(function, language: Language) -> int:
     params = parameter_list(function, language)
     if params is None:
-        return 0
+        return 1 if function.child_by_field_name("parameter") else 0
     return sum(1 for group in parameter_groups(params, language) if _counts_as_parameter(group, language))
 
 

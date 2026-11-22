@@ -28,6 +28,10 @@ class Language:
     parameter_exclusions: frozenset[str] = frozenset()
     receiver_names: frozenset[str] = frozenset()
     default_case_texts: Mapping[str, frozenset[str]] = field(default_factory=dict)
+    name_nodes: frozenset[str] = frozenset()
+    constructor_named_after_class: bool = False
+    nested_parameter_lists: bool = False
+    body_wrappers: frozenset[str] = frozenset()
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -194,7 +198,26 @@ LANGUAGES = (
         ),
         loops=frozenset({"for_statement", "foreach_statement", "while_statement", "do_statement"}),
         boolean_operators=frozenset({"-and", "-or", "-xor"}),
-        parameter_lists=frozenset({"param_block", "parameter_list", "class_method_parameter_list"}),
+        parameter_lists=frozenset({"parameter_list", "class_method_parameter_list"}),
+        conditionals=frozenset({"if_statement", "elseif_clause", "while_statement", "do_statement"}),
+        nesting=frozenset(
+            {
+                "if_statement",
+                "for_statement",
+                "foreach_statement",
+                "while_statement",
+                "do_statement",
+                "switch_statement",
+                "try_statement",
+            }
+        ),
+        function_bodies=frozenset({"script_block"}),
+        classes=frozenset({"class_statement"}),
+        default_case_texts={"switch_clause": frozenset({"default"})},
+        name_nodes=frozenset({"function_name", "simple_name"}),
+        constructor_named_after_class=True,
+        nested_parameter_lists=True,
+        body_wrappers=frozenset({"script_block_body", "statement_list"}),
         has_script_body=True,
     ),
     Language(
