@@ -266,6 +266,15 @@ LANGUAGES = (
         boolean_operators=frozenset({"&&", "||"}),
         parameter_lists=frozenset({"parameters", "closure_parameters"}),
         comments=frozenset({"line_comment", "block_comment"}),
+        conditionals=frozenset({"if_expression", "while_expression"}),
+        nesting=frozenset(
+            {"if_expression", "match_expression", "for_expression", "while_expression", "loop_expression"}
+        ),
+        else_clauses=frozenset({"else_clause"}),
+        function_bodies=frozenset({"block"}),
+        classes=frozenset({"impl_item", "trait_item"}),
+        branch_exclusions={"match_arm": frozenset({"_"})},
+        parameter_exclusions=frozenset({"self_parameter"}),
     ),
 )
 

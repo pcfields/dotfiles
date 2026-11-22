@@ -62,7 +62,7 @@ def class_names(node, language: Language) -> list[str]:
     names = []
     node = node.parent
     while node is not None:
-        if node.type in language.classes and (name := name_node(node, language)):
+        if node.type in language.classes and (name := name_node(node, language) or node.child_by_field_name("type")):
             names.insert(0, text(name))
         node = node.parent
     return names
@@ -87,13 +87,21 @@ _NAME_FIELDS = {
     "field_definition": ("property",),
     "pair": ("key",),
     "field": ("name",),
+    "let_declaration": ("pattern",),
 }
 
 _ASSIGNMENTS = frozenset({"assignment_expression", "assignment"})
 _ARGUMENT_WRAPPERS = frozenset({"argument", "keyword_argument"})
 _ARGUMENT_LISTS = frozenset({"arguments", "argument_list"})
 _MEMBER_ACCESS = frozenset(
-    {"member_expression", "member_access_expression", "attribute", "dot_index_expression", "method_index_expression"}
+    {
+        "member_expression",
+        "member_access_expression",
+        "attribute",
+        "dot_index_expression",
+        "method_index_expression",
+        "field_expression",
+    }
 )
 
 
