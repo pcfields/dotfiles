@@ -165,9 +165,17 @@ def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
     checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
     verdict = safeguard_json(checks, notes)
     if args.episode:
-        _track_safeguard_episode(gitio.repo_root(Path.cwd()), args, checks)
+        _track_episode_safely(args, checks)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+
+
+def _track_episode_safely(args: argparse.Namespace, checks: list[FileCheck]) -> None:
+    # Bookkeeping must never change the safeguard's verdict.
+    try:
+        _track_safeguard_episode(gitio.repo_root(Path.cwd()), args, checks)
+    except (OSError, ValueError, gitio.GitError) as error:
+        print(f"code-health: episode not recorded: {error}", file=sys.stderr)
 
 
 def _track_safeguard_episode(root: Path, args: argparse.Namespace, checks: list[FileCheck]) -> None:

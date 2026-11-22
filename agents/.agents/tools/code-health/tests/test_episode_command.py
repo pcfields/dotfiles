@@ -169,3 +169,14 @@ def test_further_failures_count_as_iterations(repo, global_dir, capsys):
     safeguard_episode(capsys)
 
     assert records(global_dir / "episodes.jsonl")[0]["iterations"] == 3
+
+
+def test_episode_errors_never_change_the_safeguard_verdict(repo, tmp_path, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    write(repo, "src/app.ts", nested(5))
+
+    code = main(["safeguard", "--session", "s1", "--episode", "--transcript", str(tmp_path / "gone.jsonl")])
+    _, err = capsys.readouterr()
+
+    assert code == 2
+    assert "episode not recorded" in err
