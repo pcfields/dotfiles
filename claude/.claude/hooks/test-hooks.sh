@@ -97,6 +97,22 @@ export CODE_HEALTH_CMD=false
 expect 0 "$H" "$(health_event false)" "code-health: tool error fails open" "code-health-on-stop: skipped"
 unset CODE_HEALTH_CMD
 
+# Turn base: a regression committed during the turn is still caught.
+T=code-health-turn-start.sh
+health_state="$(mktemp -d)"
+trap "rm -rf '$repo' '$health' '$health_state'" EXIT
+export CODE_HEALTH_STATE_DIR="$health_state"
+turn_event() { jq -cn --arg d "$health" --arg e "$1" '{hook_event_name:$e,cwd:$d,session_id:"t1",stop_hook_active:false}'; }
+health_git checkout -q -- app.ts
+expect 0 "$T" "$(turn_event UserPromptSubmit)" "code-health: turn start records the base"
+printf 'export function f(a) {\n  if (a) { if (a.b) { if (a.c) { if (a.d) { return 1; } } } }\n  return 0;\n}\n' >"$health/app.ts"
+health_git add -A && health_git commit -q -m regression
+expect 2 "$H" "$(turn_event Stop)" "code-health: regression committed during the turn is caught" "x new"
+expect 0 "$T" "$(turn_event UserPromptSubmit)" "code-health: next turn starts from the new commit"
+expect 0 "$H" "$(turn_event Stop)" "code-health: committed finding is existing in the next turn"
+expect 0 "$T" "$(jq -cn --arg d "$health/missing" '{cwd:$d}')" "code-health: turn start fails open"
+unset CODE_HEALTH_STATE_DIR
+
 echo
 if ((failures)); then
   echo "$failures failure(s)"
