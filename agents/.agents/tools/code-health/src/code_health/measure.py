@@ -3,7 +3,8 @@ from dataclasses import dataclass
 import tree_sitter_language_pack as pack
 
 from code_health.languages import Language
-from code_health.naming import function_name, own_name
+from code_health.naming import class_names, disambiguate, function_name, own_name
+from code_health.syntax import body, parameter_groups, parameter_list, text
 
 
 @dataclass(frozen=True)
@@ -35,11 +36,9 @@ class FileMetrics:
 def measure_file(source: bytes, language: Language) -> FileMetrics:
     root = pack.get_parser(language.grammar).parse(source).root_node
     code_rows = _code_rows(root, language)
-    functions = [
-        _measure_function(node, language, code_rows)
-        for node in _descendants(root)
-        if node.type in language.functions
-    ]
+    nodes = [node for node in _descendants(root) if _is_measured(node, language)]
+    names = disambiguate([_name(node, language) for node in nodes], nodes, language)
+    functions = [_measure(node, name, language, code_rows) for node, name in zip(nodes, names, strict=True)]
     return FileMetrics(
         loc=len(code_rows),
         parse_errors=sum(1 for node in _descendants(root) if node.is_error or node.is_missing),
@@ -58,12 +57,27 @@ def _code_rows(root, language: Language) -> frozenset[int]:
     )
 
 
-def _measure_function(node, language: Language, code_rows: frozenset[int]) -> FunctionMetrics:
+def _is_measured(node, language: Language) -> bool:
+    if node.type in language.functions:
+        return body(node, language) is not None
+    return _primary_constructor(node, language) is not None
+
+
+def _name(node, language: Language) -> str:
+    if node.type in language.functions:
+        return function_name(node, language)
+    own = text(node.child_by_field_name("name"))
+    return ".".join([*class_names(node, language), own, "<primary constructor>"])
+
+
+def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> FunctionMetrics:
+    if node.type not in language.functions:
+        return _measure_primary_constructor(node, name, language, code_rows)
     return FunctionMetrics(
-        name=function_name(node, language),
+        name=name,
         line=node.start_point.row + 1,
-        loc=sum(1 for row in range(node.start_point.row, node.end_point.row + 1) if row in code_rows),
-        is_constructor=own_name(node) in language.constructor_names,
+        loc=_loc(node, code_rows),
+        is_constructor=node.type in language.constructors or own_name(node) in language.constructor_names,
         cyclomatic=1 + _count_decisions(node, language),
         max_nesting=_max_nesting(node, language),
         parameters=_count_parameters(node, language),
@@ -72,15 +86,40 @@ def _measure_function(node, language: Language, code_rows: frozenset[int]) -> Fu
     )
 
 
+def _primary_constructor(node, language: Language):
+    if node.type not in language.primary_constructor_owners:
+        return None
+    return parameter_list(node, language)
+
+
+def _measure_primary_constructor(node, name: str, language: Language, code_rows) -> FunctionMetrics:
+    params = _primary_constructor(node, language)
+    return FunctionMetrics(
+        name=name,
+        line=node.start_point.row + 1,
+        loc=_loc(params, code_rows),
+        is_constructor=True,
+        cyclomatic=1,
+        max_nesting=0,
+        parameters=_count_parameters(node, language),
+        bumps=0,
+        conditions=(),
+    )
+
+
+def _loc(node, code_rows: frozenset[int]) -> int:
+    return sum(1 for row in range(node.start_point.row, node.end_point.row + 1) if row in code_rows)
+
+
 def _count_bumps(function, language: Language) -> int:
-    body = function.child_by_field_name("body")
-    if body is None or body.type not in language.function_bodies:
+    block = body(function, language)
+    if block is None or block.type not in language.function_bodies:
         return 0
     return sum(
         1
-        for statement in body.named_children
+        for statement in block.named_children
         if statement.type not in language.functions
-        and _max_nesting(statement, language, _adds_nesting(statement, body, language)) >= 2
+        and _max_nesting(statement, language, _adds_nesting(statement, block, language)) >= 2
     )
 
 
@@ -116,7 +155,10 @@ def _max_nesting(node, language: Language, depth: int = 0) -> int:
 
 
 def _adds_nesting(node, parent, language: Language) -> bool:
-    return node.type in language.nesting and parent.type not in language.else_clauses
+    if node.type not in language.nesting:
+        return False
+    is_else_if = parent.type in language.else_clauses or parent.child_by_field_name("alternative") == node
+    return not is_else_if
 
 
 def _count_decisions(function, language: Language) -> int:
@@ -124,8 +166,14 @@ def _count_decisions(function, language: Language) -> int:
     return sum(
         1
         for node in _own_descendants(function, language)
-        if node.type in decisions or (not node.is_named and node.type in language.decision_operators)
+        if (node.type in decisions and not _is_excluded_branch(node, language))
+        or (not node.is_named and node.type in language.decision_operators)
     )
+
+
+def _is_excluded_branch(node, language: Language) -> bool:
+    excluded = language.branch_exclusions.get(node.type)
+    return bool(excluded) and any(child.type in excluded for child in node.children)
 
 
 def _own_descendants(node, language: Language):
@@ -133,14 +181,15 @@ def _own_descendants(node, language: Language):
 
 
 def _count_parameters(function, language: Language) -> int:
-    params = next((c for c in function.children if c.type in language.parameter_lists), None)
+    params = parameter_list(function, language)
     if params is None:
         return 0
-    return sum(1 for p in params.named_children if p.type not in language.comments and not _is_this_parameter(p))
+    return sum(1 for group in parameter_groups(params, language) if not _is_this_parameter(group))
 
 
-def _is_this_parameter(parameter) -> bool:
-    return parameter.named_child_count > 0 and parameter.named_children[0].type == "this"
+def _is_this_parameter(group) -> bool:
+    first = group[0]
+    return first.named_child_count > 0 and first.named_children[0].type == "this"
 
 
 def _descendants(node, enter=lambda child: True):

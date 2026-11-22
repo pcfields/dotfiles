@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import PurePath
 
 
@@ -19,6 +20,10 @@ class Language:
     function_bodies: frozenset[str] = frozenset()
     classes: frozenset[str] = frozenset()
     constructor_names: frozenset[str] = frozenset()
+    constructors: frozenset[str] = frozenset()
+    primary_constructor_owners: frozenset[str] = frozenset()
+    branch_exclusions: Mapping[str, frozenset[str]] = field(default_factory=dict)
+    overloads_by_type: bool = False
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -79,9 +84,31 @@ LANGUAGES = (
             }
         ),
         loops=frozenset({"for_statement", "foreach_statement", "while_statement", "do_statement"}),
-        boolean_operators=_C_STYLE_BOOLEANS,
+        boolean_operators=_C_STYLE_BOOLEANS | {"and", "or"},
         parameter_lists=frozenset({"parameter_list"}),
         other_decision_operators=frozenset({"??", "??="}),
+        conditionals=frozenset(
+            {"if_statement", "while_statement", "do_statement", "for_statement", "conditional_expression"}
+        ),
+        nesting=frozenset(
+            {
+                "if_statement",
+                "for_statement",
+                "foreach_statement",
+                "while_statement",
+                "do_statement",
+                "switch_statement",
+                "try_statement",
+            }
+        ),
+        function_bodies=frozenset({"block"}),
+        classes=frozenset(
+            {"class_declaration", "struct_declaration", "record_declaration", "interface_declaration"}
+        ),
+        constructors=frozenset({"constructor_declaration"}),
+        primary_constructor_owners=frozenset({"class_declaration", "struct_declaration"}),
+        overloads_by_type=True,
+        branch_exclusions={"switch_section": frozenset({"default"}), "switch_expression_arm": frozenset({"discard"})},
     ),
     Language(
         name="typescript",

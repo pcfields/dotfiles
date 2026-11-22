@@ -226,3 +226,9 @@ def test_very_deep_expression_does_not_hit_the_recursion_limit():
     function = only_function(f"function f() {{ return {chain}; }}")
 
     assert (function.cyclomatic, function.max_nesting) == (1, 0)
+
+
+def test_duplicate_callback_names_are_numbered():
+    source = "function f() { a.map((x) => x); b.map((y) => y); }"
+
+    assert names(source) == ["f", "f.map callback", "f.map callback #2"]

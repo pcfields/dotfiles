@@ -36,11 +36,20 @@ def test_recorded_node_types_exist_in_the_grammar(language):
         | language.function_bodies
         | language.classes
         | language.comments
+        | language.constructors
+        | language.primary_constructor_owners
+        | frozenset(language.branch_exclusions)
     )
 
     missing = sorted(kind for kind in named if grammar.id_for_node_kind(kind, True) is None)
     missing += sorted(
         kind for kind in language.decision_operators if grammar.id_for_node_kind(kind, False) is None
+    )
+    excluding = {kind for kinds in language.branch_exclusions.values() for kind in kinds}
+    missing += sorted(
+        kind
+        for kind in excluding
+        if grammar.id_for_node_kind(kind, True) is None and grammar.id_for_node_kind(kind, False) is None
     )
 
     assert missing == []
