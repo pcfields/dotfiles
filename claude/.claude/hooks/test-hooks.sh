@@ -116,7 +116,18 @@ expect 0 "$T" "$(jq -cn --arg d "$health/missing" '{cwd:$d}')" "code-health: tur
 transcript="$health_state/transcript.jsonl"
 : >"$transcript"
 episode_event() { jq -cn --arg d "$health" --arg t "$transcript" --argjson active "$1" '{hook_event_name:"Stop",cwd:$d,session_id:"t2",transcript_path:$t,stop_hook_active:$active}'; }
-episodes_recorded() { [[ -f "$health/.code-health/episodes.jsonl" ]] && wc -l <"$health/.code-health/episodes.jsonl" || echo 0; }
+episodes_recorded() {
+  if [[ -f "$health/.code-health/episodes.jsonl" ]]; then wc -l <"$health/.code-health/episodes.jsonl"; else echo 0; fi
+}
+# expect_episodes <count> <label>: checks how many episodes were written.
+expect_episodes() {
+  if [[ "$(episodes_recorded)" == "$1" ]]; then
+    printf 'ok    %s\n' "$2"
+  else
+    printf 'FAIL  %s (want %s, got %s)\n' "$2" "$1" "$(episodes_recorded)"
+    failures=$((failures + 1))
+  fi
+}
 clean_app() { printf 'export function f(a) {\n  return a;\n}\n' >"$health/app.ts"; }
 deep_app() { printf 'export function f(a) {\n  if (a) { if (a.b) { if (a.c) { if (a.d) { return 1; } } } }\n  return 0;\n}\n' >"$health/app.ts"; }
 clean_app && health_git commit -qam clean
@@ -127,11 +138,11 @@ expect 2 "$H" "$(episode_event false)" "code-health: failure opens an episode" "
 jq -cn --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" '{type:"assistant",timestamp:$ts,message:{id:"m1",model:"m",usage:{output_tokens:9}}}' >>"$transcript"
 clean_app
 expect 0 "$H" "$(episode_event false)" "code-health: the fix closes and records the episode"
-[[ "$(episodes_recorded)" == $((before + 1)) ]] && printf 'ok    code-health: episode written\n' || { printf 'FAIL  code-health: episode written\n'; failures=$((failures + 1)); }
+expect_episodes $((before + 1)) "code-health: episode written"
 deep_app
 expect 2 "$H" "$(episode_event false)" "code-health: second failure opens another episode"
 expect 0 "$H" "$(episode_event true)" "code-health: second stop closes it and lets Claude stop"
-[[ "$(episodes_recorded)" == $((before + 2)) ]] && printf 'ok    code-health: second episode written\n' || { printf 'FAIL  code-health: second episode written\n'; failures=$((failures + 1)); }
+expect_episodes $((before + 2)) "code-health: second episode written"
 unset CODE_HEALTH_STATE_DIR
 
 echo
