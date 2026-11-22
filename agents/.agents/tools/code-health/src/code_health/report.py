@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass
 
+from code_health.config import DEFAULT_CONFIG, Config, rules_for
 from code_health.languages import language_for_path
 from code_health.measure import measure_file
 from code_health.score import SCORER_VERSION, band, score_file
@@ -15,15 +16,18 @@ class FileReport:
     reason: str | None = None
 
 
-def review_source(path: str, source: bytes) -> FileReport:
+def review_source(
+    path: str, source: bytes, config: Config = DEFAULT_CONFIG, match_path: str | None = None
+) -> FileReport:
     language = language_for_path(path)
     if language is None:
         return _not_scored(path, "unsupported language")
     metrics = measure_file(source, language)
     if metrics.parse_errors:
         return _not_scored(path, "parse errors")
-    findings = find_smells(metrics)
-    score = score_file(findings)
+    limits, weights = rules_for(config, match_path or path)
+    findings = find_smells(metrics, limits)
+    score = score_file(findings, weights)
     return FileReport(path=path, score=score, band=band(score), findings=findings)
 
 

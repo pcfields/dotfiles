@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from code_health.measure import SCRIPT, FileMetrics, FunctionMetrics
@@ -14,24 +15,34 @@ class Finding:
     limit: int
 
 
-def find_smells(metrics: FileMetrics) -> tuple[Finding, ...]:
-    findings = [finding for function in metrics.functions for finding in _function_findings(function)]
-    if metrics.loc >= LARGE_FILE_LIMIT:
-        findings.append(Finding("Large File", FILE, 1, metrics.loc, LARGE_FILE_LIMIT))
+DEFAULT_LIMITS = {
+    "Complex Method": 10,
+    "Deep Nested Complexity": 4,
+    "Bumpy Road": 2,
+    "Complex Conditional": 2,
+    "Large Method": 70,
+    "Excess Function Arguments": 5,
+    "Excess Function Arguments (constructor)": 8,
+    "Large File": 1000,
+}
+
+
+def find_smells(metrics: FileMetrics, limits: Mapping[str, float] = DEFAULT_LIMITS) -> tuple[Finding, ...]:
+    findings = [finding for function in metrics.functions for finding in _function_findings(function, limits)]
+    if metrics.loc >= limits["Large File"]:
+        findings.append(Finding("Large File", FILE, 1, metrics.loc, limits["Large File"]))
     return tuple(findings)
 
 
-LARGE_FILE_LIMIT = 1000
-
-
-def _function_findings(function: FunctionMetrics) -> list[Finding]:
+def _function_findings(function: FunctionMetrics, limits: Mapping[str, float]) -> list[Finding]:
+    arguments = "Excess Function Arguments (constructor)" if function.is_constructor else "Excess Function Arguments"
     measurements = [
-        ("Complex Method", function.cyclomatic, function.line, 10),
-        ("Deep Nested Complexity", function.max_nesting, function.line, 4),
-        ("Bumpy Road", function.bumps, function.line, 2),
-        ("Complex Conditional", *_worst_condition(function), 2),
-        ("Large Method", function.loc, function.line, 70),
-        ("Excess Function Arguments", function.parameters, function.line, 8 if function.is_constructor else 5),
+        ("Complex Method", function.cyclomatic, function.line, limits["Complex Method"]),
+        ("Deep Nested Complexity", function.max_nesting, function.line, limits["Deep Nested Complexity"]),
+        ("Bumpy Road", function.bumps, function.line, limits["Bumpy Road"]),
+        ("Complex Conditional", *_worst_condition(function), limits["Complex Conditional"]),
+        ("Large Method", function.loc, function.line, limits["Large Method"]),
+        ("Excess Function Arguments", function.parameters, function.line, limits[arguments]),
     ]
     return [
         Finding(smell, function.name, line, value, limit)
@@ -54,3 +65,5 @@ FIX_HINTS = {
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
 }
+
+SMELLS = frozenset(FIX_HINTS)

@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass
 
+from code_health.config import DEFAULT_CONFIG, Config
 from code_health.delta import FAILING, Change, compare, fails
 from code_health.languages import language_for_path
 from code_health.report import describe, review_source
@@ -21,33 +22,36 @@ def is_checked(path: str) -> bool:
     return language_for_path(path) is not None
 
 
-def check_file(path: str, before_source: bytes | None, after_source: bytes) -> FileCheck:
-    after = review_source(path, after_source)
+def check_file(
+    path: str, before_source: bytes | None, after_source: bytes, config: Config = DEFAULT_CONFIG
+) -> FileCheck:
+    after = review_source(path, after_source, config)
     if after.score is None:
         return FileCheck(path, None, None, "not scored", reason=after.reason)
-    before = review_source(path, before_source) if before_source is not None else None
+    before = review_source(path, before_source, config) if before_source is not None else None
     before_score = before.score if before else None
     changes = compare(before.findings if before else (), after.findings)
     return FileCheck(path, before_score, after.score, _status(changes, before_score, after.score), changes)
 
 
-def format_safeguard(checks: list[FileCheck]) -> str:
+def format_safeguard(checks: list[FileCheck], notes: tuple[str, ...] = ()) -> str:
     worse = sum(1 for check in checks if check.status == "worse")
     count = f"{len(checks)} file{'' if len(checks) == 1 else 's'} checked"
     if not worse:
         header = f"code-health safeguard: PASS ({count})"
     else:
         header = f"code-health safeguard: FAIL ({count}, {worse} got worse)"
-    blocks = [header, *(_format_check(check) for check in checks)]
+    blocks = [header, *(["\n".join(f"! {note}" for note in notes)] if notes else []), *map(_format_check, checks)]
     if worse:
         blocks.append(_footer(checks))
     return "\n\n".join(blocks)
 
 
-def safeguard_json(checks: list[FileCheck]) -> dict:
+def safeguard_json(checks: list[FileCheck], notes: tuple[str, ...] = ()) -> dict:
     return {
         "verdict": "fail" if any(check.status == "worse" for check in checks) else "pass",
         "scorer_version": SCORER_VERSION,
+        "notes": list(notes),
         "files": [_check_json(check) for check in checks],
     }
 

@@ -268,3 +268,61 @@ def test_since_turn_and_base_cannot_be_combined(repo, state, capsys):
     commit(repo, {"src/app.ts": CLEAN})
 
     assert safeguard(capsys, "--since-turn", "--base", "main")[0] == 1
+
+
+LOOSE_NESTING = '[[rules]]\npaths = ["src/**"]\nlimits = { "Deep Nested Complexity" = 9 }\n'
+
+
+def test_review_uses_the_repo_config(repo, capsys):
+    commit(repo, {"src/app.ts": nested(4), ".code-health.toml": LOOSE_NESTING})
+
+    code = main(["review", "src/app.ts"])
+    out, _ = capsys.readouterr()
+
+    assert (code, out.splitlines()[1]) == (0, "  no findings")
+
+
+def test_safeguard_uses_the_config_from_the_base_commit(repo, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    write(repo, ".code-health.toml", LOOSE_NESTING)
+    write(repo, "src/app.ts", nested(4))
+
+    code, out, _ = safeguard(capsys)
+
+    assert code == 2
+    assert "! .code-health.toml changed; it takes effect once committed" in out.splitlines()
+
+
+def test_committed_config_applies_from_the_next_base(repo, capsys):
+    commit(repo, {"src/app.ts": CLEAN, ".code-health.toml": LOOSE_NESTING})
+    write(repo, "src/app.ts", nested(4))
+
+    assert safeguard(capsys)[0] == 0
+
+
+def test_excluded_files_are_not_checked(repo, capsys):
+    commit(repo, {".code-health.toml": 'exclude = ["gen/**"]\n'})
+    write(repo, "gen/client.ts", nested(5))
+    write(repo, "node_modules/lib/index.js", nested(5))
+
+    assert safeguard(capsys)[:2] == (0, "code-health safeguard: PASS (0 files checked)\n")
+
+
+def test_invalid_config_is_a_tool_error(repo, capsys):
+    commit(repo, {".code-health.toml": "exclude = [", "src/app.ts": CLEAN})
+    write(repo, "src/app.ts", nested(4))
+
+    code, _, err = safeguard(capsys)
+
+    assert code == 1
+    assert "not valid TOML" in err
+
+
+def test_test_files_weigh_large_methods_at_half(repo, capsys):
+    body = "".join(f"  x += {i};\n" for i in range(80))
+    commit(repo, {"src/a.ts": f"function f(x) {{\n{body}}}\n", "src/a.test.ts": f"function f(x) {{\n{body}}}\n"})
+
+    main(["score", "src/a.ts", "src/a.test.ts"])
+    out, _ = capsys.readouterr()
+
+    assert [line.split()[0] for line in out.splitlines()] == ["8.7", "9.3"]
