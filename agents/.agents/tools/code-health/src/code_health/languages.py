@@ -229,6 +229,9 @@ LANGUAGES = (
         loops=frozenset({"for_statement", "while_statement", "repeat_statement"}),
         boolean_operators=frozenset({"and", "or"}),
         parameter_lists=frozenset({"parameters"}),
+        conditionals=frozenset({"if_statement", "elseif_statement", "while_statement", "repeat_statement"}),
+        nesting=frozenset({"if_statement", "for_statement", "while_statement", "repeat_statement"}),
+        function_bodies=frozenset({"block"}),
         has_script_body=True,
     ),
     Language(

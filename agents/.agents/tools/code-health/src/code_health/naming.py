@@ -48,7 +48,14 @@ def _assigned_name(function) -> str | None:
     for field in _NAME_FIELDS.get(parent.type, ()):
         if name := parent.child_by_field_name(field):
             return text(name)
-    return None
+    return _positional_assignment_name(parent)
+
+
+def _positional_assignment_name(values):
+    if values.type != "expression_list" or values.parent.type != "assignment_statement":
+        return None
+    targets = next((c for c in values.parent.named_children if c.type == "variable_list"), None)
+    return text(targets.named_children[0]) if targets and targets.named_child_count else None
 
 
 def class_names(node, language: Language) -> list[str]:
@@ -79,18 +86,22 @@ _NAME_FIELDS = {
     "public_field_definition": ("name",),
     "field_definition": ("property",),
     "pair": ("key",),
+    "field": ("name",),
 }
 
 _ASSIGNMENTS = frozenset({"assignment_expression", "assignment"})
 _ARGUMENT_WRAPPERS = frozenset({"argument", "keyword_argument"})
 _ARGUMENT_LISTS = frozenset({"arguments", "argument_list"})
-_MEMBER_ACCESS = frozenset({"member_expression", "member_access_expression", "attribute"})
+_MEMBER_ACCESS = frozenset(
+    {"member_expression", "member_access_expression", "attribute", "dot_index_expression", "method_index_expression"}
+)
 
 
 def _member_name(node):
     if node.type not in _MEMBER_ACCESS:
         return None
-    return next((m for f in ("property", "name", "attribute") if (m := node.child_by_field_name(f))), None)
+    fields = ("property", "name", "attribute", "field", "method")
+    return next((m for f in fields if (m := node.child_by_field_name(f))), None)
 
 
 def _callee_name(function) -> str | None:
@@ -101,7 +112,8 @@ def _callee_name(function) -> str | None:
         return None
     call = parent.parent
     callee = next(
-        (c for field in ("function", "constructor", "type") if (c := call.child_by_field_name(field))), None
+        (c for field in ("function", "constructor", "type", "name") if (c := call.child_by_field_name(field))),
+        None,
     )
     if callee is None:
         return None

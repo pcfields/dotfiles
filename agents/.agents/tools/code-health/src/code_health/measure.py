@@ -53,7 +53,7 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
 def _code_rows(root, language: Language) -> frozenset[int]:
     return frozenset(
         row
-        for node in _descendants(root)
+        for node in _descendants(root, enter=lambda child: child.type not in language.comments)
         if node.child_count == 0
         and node.type not in language.comments
         and node.end_byte > node.start_byte
