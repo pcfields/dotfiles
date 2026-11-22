@@ -85,9 +85,9 @@ Language notes:
   Comprehension `for` and `if` clauses count as loops and branches.
 - Node type names per language are in `src/code_health/languages.py`
   (recorded in step 1). JSX uses the `javascript` grammar.
-- PowerShell: the grammar doesn't parse the PowerShell 7 `??` operator
-  (found in step 1). Files using it are "not scored". Check `?.` and `??=`
-  when PowerShell lands in step 7.
+- PowerShell grammar gaps, pinned in `test_known_parse_gaps`: the
+  PowerShell 7 `??` operator and `? :` ternary, and a `switch` with several
+  clauses on one line. Files using them are "not scored".
 - Test files (`**/*.test.*`, `**/*.spec.*`, `**/tests/**`, `**/*Tests/**`)
   give Large Method half weight by default.
 - Default exclusions: `*.min.js`, `*.min.css`, `vendor/`, `node_modules/`,
@@ -375,6 +375,18 @@ Windows doesn't rewrite their line endings.
      Large Method, because modules are mostly data and definitions; Large
      File still applies. Revisit that at calibration. The tool's own code
      scores 10.0.
+   - ✅ **JS, JSX, TSX.** Smell fixtures; generator expressions added;
+     `&&` and `?:` in JSX count as decisions.
+   - ✅ **bash.** `*)` doesn't count; functions take no declared
+     parameters, so Excess Function Arguments never applies.
+   - ✅ **PowerShell.** Names come from `function_name`/`simple_name`; a
+     class method named after its class is the constructor; parameters are
+     found in `param(...)` or `function F($a)`. Pipeline script blocks
+     (`ForEach-Object { }`) count toward the enclosing function.
+   - ✅ **Lua.** `M.f` and `M:g` keep their table prefix; comment lines
+     are no longer counted as code in any language.
+   - ✅ **Rust.** Methods are qualified by their `impl` or `trait` type;
+     `self` isn't a parameter; `_` arms don't count; `?` isn't a decision.
    - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
