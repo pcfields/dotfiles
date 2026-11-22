@@ -51,8 +51,10 @@ No baseline, re-measuring or playbook entry.
 Take one file (or one function) at a time. If the user named no target, run
 the `repo-health` skill and propose the worst hotspot.
 
-Record the starting numbers with `code-health review <file>` (until it is on
-PATH: `uv run --project ~/.agents/tools/code-health code-health review <file>`).
+Record the starting numbers with `code-health review <file>`, and open an
+episode so the uplift's cost is recorded:
+`code-health episode start --kind uplift <file>`. Until `code-health` is on
+PATH, run both as `uv run --project ~/.agents/tools/code-health code-health …`.
 
 ### 2. Safety net
 
@@ -90,9 +92,12 @@ same step, stop and ask.
 
 ### 6. Re-measure and stop
 
-Run `code-health review <file>` again and compare with the baseline. Re-read the code: stop
-when the problems from step 3 are gone or the next step would not make the
-code easier to change. Lower numbers with worse readability is a failure.
+Run `code-health review <file>` again and compare with the baseline. Re-read
+the code: stop when the problems from step 3 are gone or the next step would
+not make the code easier to change. Lower numbers with worse readability is a
+failure. Then close the episode with
+`code-health episode end --kind uplift --tests-passed yes` (or `no`); the
+harness adds the token cost when the turn ends.
 
 ### 7. Record what worked
 
