@@ -129,6 +129,10 @@ applied through it.
   `bash ~/.agents/skills/repo-health/scripts/repo-health.sh <file>`. If it
   grades yellow or red, clean up what this change added, or say why it was
   left.
+- `code-health safeguard` flags changed files that gained or worsened a code
+  smell; some harnesses run it for you when you finish. Fix every `x` line it
+  reports, or ask the user to accept that finding. Only the user may run
+  `code-health accept`.
 - Evidence before claims: never say "should pass" or "looks correct". Run the
   verification command, read the output, and quote it before claiming
   completion.
