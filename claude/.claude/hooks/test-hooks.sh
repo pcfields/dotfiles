@@ -5,15 +5,18 @@ set -euo pipefail
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 failures=0
 
-# expect <want-exit> <hook> <raw-json-input> <label>
+# expect <want-exit> <hook> <raw-json-input> <label> [<text expected on stderr>]
 expect() {
-  local want="$1" hook="$2" input="$3" label="$4" got=0
-  printf '%s' "$input" | bash "$HOOK_DIR/$hook" >/dev/null 2>&1 || got=$?
-  if [[ "$got" == "$want" ]]; then
-    printf 'ok    %s\n' "$label"
-  else
+  local want="$1" hook="$2" input="$3" label="$4" text="${5:-}" got=0 stderr
+  stderr="$(printf '%s' "$input" | bash "$HOOK_DIR/$hook" 2>&1 >/dev/null)" || got=$?
+  if [[ "$got" != "$want" ]]; then
     printf 'FAIL  %s (want %s, got %s)\n' "$label" "$want" "$got"
     failures=$((failures + 1))
+  elif [[ -n "$text" && "$stderr" != *"$text"* ]]; then
+    printf 'FAIL  %s (stderr lacks "%s")\n' "$label" "$text"
+    failures=$((failures + 1))
+  else
+    printf 'ok    %s\n' "$label"
   fi
 }
 
@@ -70,6 +73,29 @@ expect 0 "$C" "$(stop_event true)" "stop: second stop is let through"
 expect 0 "$C" "$(jq -cn --arg d "$repo/missing" '{cwd:$d}')" "stop: unknown directory fails open"
 echo 'exit 0' >"$repo/.agents/check"
 expect 0 "$C" "$(stop_event false)" "stop: passing check lets Claude stop"
+
+# Code-health Stop hook: the real tool on a throwaway repo.
+H=code-health-on-stop.sh
+health="$(mktemp -d)"
+trap "rm -rf '$repo' '$health'" EXIT
+health_git() { git -C "$health" -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false "$@"; }
+health_event() { jq -cn --arg d "$health" --argjson active "$1" '{hook_event_name:"Stop",cwd:$d,stop_hook_active:$active}'; }
+health_git init -q
+printf 'export function f(a) {\n  return a;\n}\n' >"$health/app.ts"
+health_git add -A && health_git commit -q -m init
+expect 0 "$H" "$(health_event false)" "code-health: clean tree lets Claude stop"
+printf 'export function f(a) {\n  return a + 1;\n}\n' >"$health/app.ts"
+expect 0 "$H" "$(health_event false)" "code-health: change with no new findings lets Claude stop"
+printf 'export function f(a) {\n  if (a) { if (a.b) { if (a.c) { if (a.d) { return 1; } } } }\n  return 0;\n}\n' >"$health/app.ts"
+expect 2 "$H" "$(health_event false)" "code-health: new finding sends Claude back" "x new"
+expect 0 "$H" "$(health_event true)" "code-health: second stop is let through"
+expect 0 "$H" "$(jq -cn --arg d "$health/missing" '{cwd:$d}')" "code-health: unknown directory fails open"
+expect 0 "$H" "$(jq -cn --arg d "$(dirname "$health")" '{cwd:$d}')" "code-health: not a git repo is skipped"
+export CODE_HEALTH_CMD="$health/no-such-command"
+expect 0 "$H" "$(health_event false)" "code-health: missing tool fails open" "code-health-on-stop: skipped"
+export CODE_HEALTH_CMD=false
+expect 0 "$H" "$(health_event false)" "code-health: tool error fails open" "code-health-on-stop: skipped"
+unset CODE_HEALTH_CMD
 
 echo
 if ((failures)); then
