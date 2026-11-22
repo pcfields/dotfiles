@@ -409,7 +409,14 @@ Windows doesn't rewrite their line endings.
    hook); 8b `.code-health.toml`; 8c ignore comments; 8d `accept`, tested
    with a real pseudo-terminal on Linux. Original scope: checked by pytest, with a test
    that `accept` refuses without a terminal.
-9. **`code-health repo`:** port churn, author density, coupling
+9. ✅ **`code-health repo`.** Done. Changes from the original scope:
+   the page data is one `.code-health/repo/data.json`, not TSV tables;
+   hotspot health is over a fixed 10 busiest files, so it compares across
+   runs with different `--top`; `repo-health.sh` and the lizard paragraph
+   in `docs/install-windows.md` stay until step 11, which swaps the
+   AGENTS.md line in the same change. This repo's `.code-health.toml`
+   excludes the tool's smelly test fixtures. Original scope: port churn,
+   author density, coupling
    (`MAX_COMMIT_FILES=50`, `MIN_SHARED_COMMITS=3`) and hotspots, and add
    snapshots and the trend chart.
    - Refactor-first ranking: commits × (10 − score). Keep a plain
@@ -426,8 +433,10 @@ Windows doesn't rewrite their line endings.
 10. **Episodes, global history and token capture,** with episode start and
     end added to the `refactor` skill. Checked by pytest with a synthetic
     transcript and a key-allowlist test on global records.
-11. **Install wiring.** Also remove the `repo-health.sh <file>` line from
-    AGENTS.md "Definition of done" (deferred from step 6).
+11. **Install wiring.** Also, in one change: remove the `repo-health.sh <file>`
+    line from AGENTS.md "Definition of done" (deferred from step 6), delete
+    `repo-health.sh`, and drop the lizard paragraph from
+    `docs/install-windows.md` (both deferred from step 9).
     - Linux: `uv` is already in `nix/.config/nix/home.nix` (pulled forward
       for step 1). Add an install step that runs
       `uv tool install --editable ~/.agents/tools/code-health`, following
