@@ -51,8 +51,8 @@ No baseline, re-measuring or playbook entry.
 Take one file (or one function) at a time. If the user named no target, run
 the `repo-health` skill and propose the worst hotspot.
 
-Record the starting numbers:
-`bash ~/.agents/skills/repo-health/scripts/repo-health.sh <file>`.
+Record the starting numbers with `code-health review <file>` (until it is on
+PATH: `uv run --project ~/.agents/tools/code-health code-health review <file>`).
 
 ### 2. Safety net
 
@@ -90,7 +90,7 @@ same step, stop and ask.
 
 ### 6. Re-measure and stop
 
-Run the script again and compare with the baseline. Re-read the code: stop
+Run `code-health review <file>` again and compare with the baseline. Re-read the code: stop
 when the problems from step 3 are gone or the next step would not make the
 code easier to change. Lower numbers with worse readability is a failure.
 

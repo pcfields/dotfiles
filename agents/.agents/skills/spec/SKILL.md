@@ -30,8 +30,8 @@ Find where this lands in the existing code:
 - What already exists that does part of it. Reuse comes before new code.
 - The project's conventions for this kind of thing (a similar feature is the
   best guide).
-- The files it will touch. If the `repo-health` script grades one yellow or
-  red, plan a tidy first with the `refactor` skill.
+- The files it will touch. If `code-health review` scores one yellow or red,
+  plan a tidy first with the `refactor` skill.
 
 When the plan depends on something outside the repo (a library's API, a
 service's limits, a standard), read the official docs or the source, not

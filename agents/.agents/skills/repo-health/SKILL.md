@@ -7,34 +7,43 @@ description: Repo health report, code health, hotspots, which files change most,
 
 Read GOTCHAS.md before step 1.
 
-From the repo, run
-`bash ~/.agents/skills/repo-health/scripts/repo-health.sh --data .repo-health`.
-Options: `--since "3 months ago"` (default 12 months; use about 1 month for a
-repo mostly edited by agents), `--top <n>` rows per table, and a path to limit
-the report to one directory. `--data` saves the raw tables in `.repo-health/`
-at the repo root for the visual report, and adds that folder to
-`.git/info/exclude` so it stays out of `git status`.
+From the repo, run `code-health repo`. Until it is on PATH, use
+`uv run --project ~/.agents/tools/code-health code-health repo`. Options:
+`--since "3 months ago"` (default 12 months; use about 1 month for a repo
+mostly edited by agents), `--top <n>` rows per table, `--json`, and a path to
+limit the report to one directory.
+
+Every run also saves a snapshot and the page data in `.code-health/` at the
+repo root, which it keeps out of `git status` through `.git/info/exclude`.
 
 It prints:
 
-- **Hotspots**: files ranked by commits x complexity. This is where unhealthy
-  code costs the most, because it is changed the most.
+- **Overview**: the window, commits, files scored, the green/yellow/red
+  counts, average health (weighted by lines), hotspot health (the 10 busiest
+  files, weighted by commits) and the worst file.
+- **Refactor first**: changed files ranked by commits x (10 - score), with
+  the smells found in each. This is where unhealthy code costs the most.
+- **Change frequency**: the most-changed files with their scores.
+- **Healthy but busy**: frequently changed files scoring 9 or more.
 - **Change coupling**: files that keep changing in the same commit.
 - **Author density**: files many authors edit. Empty for a solo repo.
 - **Least healthy files**: yellow and red files, whether or not they change.
-- **Functions over the limits**: functions that are long, branchy (`ccn` is
-  cyclomatic complexity) or take many parameters. Needs `lizard`; without it
-  the section says so, and you find these by reading.
+- **Worst findings**: the smells with the biggest penalty, with
+  `function:line`, value and limit.
+- **Not scored**: files skipped as unsupported, unparseable or excluded.
+- **Trend**: earlier runs of the same path and scorer version.
 
-Complexity comes from indentation. Grades use rough thresholds on file length,
-nesting depth and, with `lizard`, the worst function. They rank files; they
-are not a calibrated score. Lockfiles, JSON, Markdown and other data are left
-out.
+Scores run from 1 to 10 (green 9 and up, yellow 4 and up, red below 4) and
+come from the smells tree-sitter finds: Complex Method, Deep Nested
+Complexity, Bumpy Road, Complex Conditional, Large Method, Excess Function
+Arguments and Large File. They are not yet calibrated against other tools.
+`.code-health.toml` at the repo root can exclude paths and change limits or
+weights per path; `code-health review <file>` shows one file's findings.
 
 ## Investigate
 
-The numbers say where to look, not what is wrong. Read the top 3-5 hotspots
-(more if the user asks) and look for:
+The numbers say where to look, not what is wrong. Read the top 3-5 refactor
+targets (more if the user asks) and look for:
 
 - **Mixed responsibilities**: one function or file doing several unrelated
   jobs; a file that every feature has to touch (god class).
@@ -45,6 +54,9 @@ The numbers say where to look, not what is wrong. Read the top 3-5 hotspots
 - **Magic numbers** and unexplained literals.
 - **A comment block beside a special-case `if`**: usually a separate
   responsibility that wants its own function.
+- **Tests that mock the repo's own modules** (`vi.mock('./…')`,
+  `jest.mock('../…')`): don't dismiss a red test file as mattering less;
+  report the mocks as a design smell, since those tests block refactoring.
 
 For each coupled pair, work out why they change together: a shared concept
 split across files, or one file reaching into the other's details. Coupling
@@ -57,27 +69,27 @@ problem. Say so instead of inventing findings.
 
 Lead with the verdict in a sentence or two, then:
 
-1. **Overview**: the window, commits, and the green/yellow/red counts.
+1. **Overview**: the window, commits, average and hotspot health, the
+   green/yellow/red counts, and the trend if there are earlier runs.
 2. **Refactor first**: up to five files, worst first. For each: the numbers
-   from the script, what is wrong with a `file:line` reference, and the named
+   from the tool, what is wrong with a `file:line` reference, and the named
    refactoring that would fix it (Extract Function, Replace Nested Conditional
    with Guard Clauses, Extract Class, Introduce Parameter Object, ...).
 3. **Coupling worth acting on**, if any.
 4. **Healthy but busy**: hotspots that need no work.
-5. **Not measured**: anything the script skipped that matters here, and
-   whether function metrics were available.
+5. **Not measured**: anything under "Not scored" that matters here.
 
 Report only. Don't refactor anything unless the user asks; when they do, use
 the `refactor` skill.
 
 ## Visual report
 
-After the written report, build the interactive page: a hotspot map (files as
-circles sized by lines, nested by folder, coloured by change frequency or
-grade), a change-coupling wheel, the refactor-first targets, the worst
-functions and the hotspot ranking.
+After the written report, build the interactive page: a health trend, a
+hotspot map (files as circles sized by lines, nested by folder, coloured by
+change frequency or score band), a change-coupling wheel, the refactor-first
+targets, the branchiest functions and the hotspot ranking.
 
-1. Write `.repo-health/findings.json` from the report, in the same words:
+1. Write `.code-health/repo/findings.json` from the report, in the same words:
 
    ```json
    {"verdict": "The one- or two-sentence verdict.",
@@ -86,11 +98,12 @@ functions and the hotspot ranking.
                  "fix": "The named refactoring."}]}
    ```
 
-   Targets go worst first. Each `path` must be exactly as the script printed
-   it, or that target is left off the page.
-2. Run `python ~/.agents/skills/repo-health/scripts/build-report.py .repo-health`
-   from the repo root (`python3` where `python` is missing). It writes
-   `.repo-health/report.html`, with the data inlined.
+   Targets go worst first. Each `path` must be exactly as the tool printed
+   it, or that target is left off the page (the script says how many).
+2. From the repo root, run
+   `uv run --project ~/.agents/tools/code-health python ~/.agents/skills/repo-health/scripts/build-report.py`
+   (any Python 3 works; uv's avoids broken shims). It writes
+   `.code-health/repo/report.html`, with the data inlined.
 3. Give the user the path. Where the Artifact tool is available, also publish
    that file as a private artifact (icon `chart`). On a later run in the same
    conversation, republish to the same URL. Say that the page is a snapshot of
