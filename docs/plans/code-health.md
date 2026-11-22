@@ -369,6 +369,12 @@ Windows doesn't rewrite their line endings.
        `C.M(int)`. Other duplicate names, in any language, get `#2`, `#3`.
      - Pattern `and`/`or` count like `&&`/`||`. `default` sections and `_`
        arms don't count. Methods without a body are skipped.
+   - ✅ **Python.** `self`/`cls` and the `/` and `*` separators aren't
+     parameters; `__init__` is the constructor; `case _:` doesn't count.
+     `<script>` (top-level code, all script languages) is exempt from
+     Large Method, because modules are mostly data and definitions; Large
+     File still applies. Revisit that at calibration. The tool's own code
+     scores 10.0.
    - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
