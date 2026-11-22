@@ -17,22 +17,30 @@ class TokenCount:
 
 
 def count_tokens(lines: Iterable[str], start: datetime, end: datetime) -> TokenCount:
+    messages = _messages_in_window(lines, start, end)
+    usages = [usage for usage, _ in messages]
+    models = Counter(model for _, model in messages if model)
+    return TokenCount(
+        input=_total(usages, "input_tokens"),
+        output=_total(usages, "output_tokens"),
+        cache_creation=_total(usages, "cache_creation_input_tokens"),
+        cache_read=_total(usages, "cache_read_input_tokens"),
+        model=models.most_common(1)[0][0] if models else None,
+    )
+
+
+def _messages_in_window(lines: Iterable[str], start: datetime, end: datetime) -> list[tuple[dict, str | None]]:
     seen: dict[str, tuple[dict, str | None]] = {}
     for message in _assistant_messages(lines):
         when = _timestamp(message)
-        if when is None or not start <= when <= end:
-            continue
-        inner = message.get("message", {})
-        seen.setdefault(inner.get("id") or f"line-{len(seen)}", (inner.get("usage") or {}, inner.get("model")))
-    usages = [usage for usage, _ in seen.values()]
-    models = Counter(model for _, model in seen.values() if model)
-    return TokenCount(
-        input=sum(u.get("input_tokens", 0) for u in usages),
-        output=sum(u.get("output_tokens", 0) for u in usages),
-        cache_creation=sum(u.get("cache_creation_input_tokens", 0) for u in usages),
-        cache_read=sum(u.get("cache_read_input_tokens", 0) for u in usages),
-        model=models.most_common(1)[0][0] if models else None,
-    )
+        if when is not None and start <= when <= end:
+            inner = message.get("message", {})
+            seen.setdefault(inner.get("id") or f"line-{len(seen)}", (inner.get("usage") or {}, inner.get("model")))
+    return list(seen.values())
+
+
+def _total(usages: list[dict], field: str) -> int:
+    return sum(usage.get(field, 0) for usage in usages)
 
 
 def _assistant_messages(lines: Iterable[str]):

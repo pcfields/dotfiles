@@ -1,13 +1,15 @@
 import argparse
 import datetime
 import json
+import os
 import sys
+from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 
 import tree_sitter_language_pack as pack
 
-from code_health import gitio, history, state
+from code_health import episodes, gitio, history, state
 from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     CONFIG_FILE,
@@ -17,6 +19,8 @@ from code_health.config import (
     is_excluded,
     parse_config,
 )
+from code_health.harness import claude
+from code_health.languages import language_for_path
 from code_health.repo import (
     RepoFile,
     RepoInput,
@@ -77,9 +81,82 @@ def _run(args: argparse.Namespace) -> tuple[str, int]:
         "mark-turn": lambda: (_mark_turn(Path.cwd(), args.session), 0),
         "accept": lambda: _accept(Path.cwd(), args),
         "repo": lambda: _run_repo(args),
+        "episode": lambda: (_run_episode(Path.cwd(), args), 0),
         "safeguard": lambda: _run_safeguard(args),
     }
     return handlers.get(args.command, lambda: _run_files(args))()
+
+
+def _run_episode(cwd: Path, args: argparse.Namespace) -> str:
+    root = gitio.repo_root(cwd)
+    gitio.ensure_excluded(root, f"/{history.STATE_DIR}/")
+    pending = history.read_pending(root)
+    now = datetime.datetime.now(datetime.UTC)
+    if args.action == "start":
+        states = _file_states(root, args.files)
+        pending = episodes.start_episode(pending, episodes.Step(args.kind, args.session, states, now))
+    elif args.action == "end":
+        episode = next((e for e in episodes.still_open(pending) if e["kind"] == args.kind and e["session"] == args.session), None)
+        if episode is not None:
+            tests = {"yes": True, "no": False}.get(args.tests_passed)
+            step = episodes.Step(args.kind, args.session, _file_states(root, episode["files"]), now, tests)
+            pending = episodes.end_episode(pending, step)
+    else:
+        pending = _flush(root, pending, args.session, args.transcript)
+    history.write_pending(root, pending)
+    return ""
+
+
+def _flush(root: Path, pending: list[dict], session: str, transcript: str | None) -> list[dict]:
+    lines = Path(transcript).read_text(encoding="utf-8", errors="replace").splitlines() if transcript else None
+    global_dir = os.environ.get(history.HISTORY_ENV)
+    if not global_dir and episodes.ended(pending):
+        _note_missing_history_dir()
+    for episode in episodes.ended(pending):
+        record = _episode_record(episode, lines, session)
+        history.append_local_episode(root, {**record, "files": episode["files"], "session": episode["session"],
+                                            "started": episode["started"], "ended": episode["ended"]})
+        if global_dir:
+            history.append_global_episode(Path(global_dir), record)
+    return episodes.still_open(pending)
+
+
+def _note_missing_history_dir() -> None:
+    if state.note_once("history-dir"):
+        print(f"code-health: {history.HISTORY_ENV} is not set, so episodes are recorded only in this repo", file=sys.stderr)
+
+
+def _episode_record(episode: dict, lines: list[str] | None, session: str) -> dict:
+    if lines is None:
+        return episodes.generic_record(episode, None, token_method="none", harness="unknown")
+    window = (datetime.datetime.fromisoformat(episode["started"]), datetime.datetime.fromisoformat(episode["ended"]))
+    tokens = claude.count_tokens(lines, *window)
+    method = "claude-transcript-window" if episode["session"] == session else "partial"
+    return episodes.generic_record(episode, tokens, token_method=method, harness=claude.HARNESS)
+
+
+def _file_states(root: Path, paths: list[str]) -> list[dict]:
+    config = _working_config(root)
+    states = []
+    for path in paths:
+        relative = _repo_relative(root, path)
+        try:
+            source = (root / relative).read_bytes()
+        except OSError:
+            continue
+        report = review_source(relative, source, config)
+        if report.score is None:
+            continue
+        functions = [f for f in report.metrics.functions if f.name != "<script>"]
+        states.append({
+            "path": relative,
+            "language": language_for_path(relative).name,
+            "score": report.score,
+            "loc": report.metrics.loc,
+            "functions": len(functions),
+            "findings": dict(Counter(f.smell for f in report.findings)),
+        })
+    return states
 
 
 def _run_repo(args: argparse.Namespace) -> tuple[str, int]:
@@ -295,6 +372,13 @@ def _parser() -> argparse.ArgumentParser:
     repo.add_argument("--since", default="12 months ago", help="how far back to read history")
     repo.add_argument("--top", type=int, default=15, help="rows per table")
     repo.add_argument("--json", action="store_true", help="print JSON")
+    episode = commands.add_parser("episode", help="record a stretch of refactoring work and what it cost")
+    episode.add_argument("action", choices=("start", "end", "flush"))
+    episode.add_argument("files", nargs="*")
+    episode.add_argument("--kind", choices=episodes.KINDS, default="uplift")
+    episode.add_argument("--session", default="default")
+    episode.add_argument("--tests-passed", choices=("yes", "no"))
+    episode.add_argument("--transcript", help="a Claude Code transcript, to count tokens")
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

@@ -92,3 +92,33 @@ def _worst_function(f: RepoFile) -> dict | None:
         return None
     name, line, cc, loc = max(f.functions, key=lambda fn: (fn[2], fn[3]))
     return {"name": name, "line": line, "cyclomatic": cc, "loc": loc}
+
+
+HISTORY_ENV = "CODE_HEALTH_HISTORY_DIR"
+
+
+def read_pending(root: Path) -> list[dict]:
+    try:
+        return json.loads((root / STATE_DIR / "pending.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def write_pending(root: Path, pending: list[dict]) -> None:
+    folder = root / STATE_DIR
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "pending.json").write_text(json.dumps(pending, indent=2), encoding="utf-8")
+
+
+def append_local_episode(root: Path, record: dict) -> None:
+    _append(root / STATE_DIR / "episodes.jsonl", record)
+
+
+def append_global_episode(folder: Path, record: dict) -> None:
+    _append(folder / "episodes.jsonl", record)
+
+
+def _append(path: Path, record: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(record) + "\n")

@@ -65,8 +65,9 @@ def test_deleted_files_are_left_out():
     assert all("old.ts" not in (c.a, c.b) for c in coupling(parse_log(LOG), {"a.ts", "b.ts"}, min_shared=1))
 
 
-def repo_file(path, score, commits=0, loc=100, authors=1, findings=()):
-    return RepoFile(path=path, score=score, band=band(score), loc=loc, commits=commits, authors=authors, findings=findings)
+def repo_file(path, score, **overrides):
+    fields = {"loc": 100, "commits": 0, "authors": 1, **overrides}
+    return RepoFile(path=path, score=score, band=band(score), **fields)
 
 
 FILES = [

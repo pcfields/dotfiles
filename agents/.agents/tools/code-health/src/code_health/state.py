@@ -46,6 +46,18 @@ def _turn_file(root: Path, session: str) -> Path:
     return state_dir() / repo_key(root) / "turns" / f"{safe_session}.base"
 
 
+def note_once(name: str) -> bool:
+    marker = state_dir() / "notes" / name
+    if marker.exists():
+        return False
+    try:
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.touch()
+    except OSError:
+        pass
+    return True
+
+
 def read_accepted(root: Path) -> list[dict]:
     try:
         lines = _accepted_file(root).read_text(encoding="utf-8").splitlines()
