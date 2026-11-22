@@ -54,6 +54,7 @@ def _named_kinds(language):
         | frozenset(language.branch_exclusions)
         | frozenset(language.condition_positions)
         | language.parameter_exclusions
+        | frozenset(language.default_case_texts)
     )
 
 

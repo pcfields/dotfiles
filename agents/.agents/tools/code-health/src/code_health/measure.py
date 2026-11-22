@@ -202,10 +202,12 @@ def _count_decisions(function, language: Language) -> int:
 
 
 def _is_excluded_branch(node, language: Language) -> bool:
+    first = node.named_children[0] if node.named_child_count else None
+    if first is not None and text(first) in language.default_case_texts.get(node.type, ()):
+        return True
     excluded = language.branch_exclusions.get(node.type)
     if not excluded:
         return False
-    first = node.named_children[0] if node.named_child_count else None
     candidates = [*node.children, *(first.children if first else ())]
     return any(child.type in excluded for child in candidates)
 

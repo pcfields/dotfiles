@@ -27,6 +27,7 @@ class Language:
     condition_positions: Mapping[str, int] = field(default_factory=dict)
     parameter_exclusions: frozenset[str] = frozenset()
     receiver_names: frozenset[str] = frozenset()
+    default_case_texts: Mapping[str, frozenset[str]] = field(default_factory=dict)
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -174,6 +175,13 @@ LANGUAGES = (
         loops=frozenset({"for_statement", "c_style_for_statement", "while_statement"}),
         boolean_operators=frozenset({"&&", "||"}),
         parameter_lists=frozenset(),
+        conditionals=frozenset({"if_statement", "elif_clause", "while_statement"}),
+        condition_positions={"elif_clause": 0},
+        nesting=frozenset(
+            {"if_statement", "for_statement", "c_style_for_statement", "while_statement", "case_statement"}
+        ),
+        function_bodies=frozenset({"compound_statement"}),
+        default_case_texts={"case_item": frozenset({"*"})},
         has_script_body=True,
     ),
     Language(
