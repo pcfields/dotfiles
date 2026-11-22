@@ -127,3 +127,45 @@ def test_state_folder_is_kept_out_of_git(repo, capsys):
     episode(capsys, "start", "--kind", "uplift", "--session", "s1", "src/app.ts")
 
     assert "/.code-health/" in (repo / ".git" / "info" / "exclude").read_text().splitlines()
+
+
+def safeguard_episode(capsys, *args):
+    code = main(["safeguard", "--since-turn", "--session", "s1", "--episode", *args])
+    capsys.readouterr()
+    return code
+
+
+def test_safeguard_fix_episode_runs_from_failure_to_pass(repo, global_dir, tmp_path, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    main(["mark-turn", "--session", "s1"])
+    write(repo, "src/app.ts", nested(5))
+    assert safeguard_episode(capsys) == 2
+    path = transcript(tmp_path, (0, 30))
+    write(repo, "src/app.ts", CLEAN)
+
+    assert safeguard_episode(capsys, "--transcript", path) == 0
+
+    (generic,) = records(global_dir / "episodes.jsonl")
+    assert (generic["kind"], generic["iterations"], generic["score_before"], generic["score_after"]) == (
+        "safeguard-fix", 2, 7.9, 10.0,
+    )
+    assert (generic["tokens"]["output"], generic["token_method"]) == (30, "claude-transcript-window")
+
+
+def test_passing_safeguard_without_an_episode_records_nothing(repo, global_dir, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    write(repo, "src/app.ts", CLEAN.replace("a;", "a + 1;"))
+
+    assert safeguard_episode(capsys) == 0
+    assert records(global_dir / "episodes.jsonl") == []
+
+
+def test_further_failures_count_as_iterations(repo, global_dir, capsys):
+    commit(repo, {"src/app.ts": CLEAN})
+    write(repo, "src/app.ts", nested(5))
+    safeguard_episode(capsys)
+    safeguard_episode(capsys)
+    write(repo, "src/app.ts", CLEAN)
+    safeguard_episode(capsys)
+
+    assert records(global_dir / "episodes.jsonl")[0]["iterations"] == 3

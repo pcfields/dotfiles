@@ -96,11 +96,8 @@ def _run_episode(cwd: Path, args: argparse.Namespace) -> str:
         states = _file_states(root, args.files)
         pending = episodes.start_episode(pending, episodes.Step(args.kind, args.session, states, now))
     elif args.action == "end":
-        episode = next((e for e in episodes.still_open(pending) if e["kind"] == args.kind and e["session"] == args.session), None)
-        if episode is not None:
-            tests = {"yes": True, "no": False}.get(args.tests_passed)
-            step = episodes.Step(args.kind, args.session, _file_states(root, episode["files"]), now, tests)
-            pending = episodes.end_episode(pending, step)
+        tests = {"yes": True, "no": False}.get(args.tests_passed)
+        pending = _end_open(root, pending, episodes.Step(args.kind, args.session, [], now, tests))
     else:
         pending = _flush(root, pending, args.session, args.transcript)
     history.write_pending(root, pending)
@@ -167,8 +164,29 @@ def _run_repo(args: argparse.Namespace) -> tuple[str, int]:
 def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
     checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
     verdict = safeguard_json(checks, notes)
+    if args.episode:
+        _track_safeguard_episode(gitio.repo_root(Path.cwd()), args, checks)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+
+
+def _track_safeguard_episode(root: Path, args: argparse.Namespace, checks: list[FileCheck]) -> None:
+    gitio.ensure_excluded(root, f"/{history.STATE_DIR}/")
+    pending = episodes.tick(history.read_pending(root), args.session)
+    now = datetime.datetime.now(datetime.UTC)
+    worse = [check.path for check in checks if check.status == "worse"]
+    if worse:
+        pending = episodes.start_episode(pending, episodes.Step("safeguard-fix", args.session, _file_states(root, worse), now))
+    else:
+        pending = _end_open(root, pending, episodes.Step("safeguard-fix", args.session, [], now))
+    history.write_pending(root, _flush(root, pending, args.session, args.transcript))
+
+
+def _end_open(root: Path, pending: list[dict], step) -> list[dict]:
+    episode = next((e for e in episodes.still_open(pending) if e["kind"] == step.kind and e["session"] == step.session), None)
+    if episode is None:
+        return pending
+    return episodes.end_episode(pending, replace(step, states=_file_states(root, episode["files"])))
 
 
 def _run_files(args: argparse.Namespace) -> tuple[str, int]:
@@ -362,6 +380,8 @@ def _parser() -> argparse.ArgumentParser:
     since.add_argument("--since-turn", action="store_true", help="compare with the commit mark-turn recorded")
     safeguard.add_argument("--session", default="default", help="the session mark-turn recorded for")
     safeguard.add_argument("--json", action="store_true", help="print JSON")
+    safeguard.add_argument("--episode", action="store_true", help="track a safeguard-fix episode for this session")
+    safeguard.add_argument("--transcript", help="a Claude Code transcript, to count an episode's tokens")
     accept = commands.add_parser("accept", help="accept a finding for now (asks in a terminal)")
     accept.add_argument("file")
     accept.add_argument("--smell", required=True)
