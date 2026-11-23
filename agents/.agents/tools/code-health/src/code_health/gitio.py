@@ -67,6 +67,34 @@ def ensure_excluded(root: Path, line: str) -> None:
         file.write(line + "\n")
 
 
+def sync_history(folder: Path, message: str) -> bool:
+    repo_root(folder)
+    upstream = _has_upstream(folder)
+    if upstream:
+        _git(folder, "pull", "-q", "--rebase", "--autostash")
+    records = sorted(path.name for path in folder.glob("episodes*.jsonl"))
+    if records:
+        _git(folder, "add", "-A", "--", *records)
+    changed = _git_ok(folder, "diff", "--cached", "--quiet") is False
+    if changed:
+        _git(folder, "commit", "-q", "-m", message)
+    if changed and upstream:
+        _git(folder, "push", "-q")
+    return changed
+
+
+def _has_upstream(folder: Path) -> bool:
+    return _git_ok(folder, "rev-parse", "--abbrev-ref", "@{upstream}")
+
+
+def _git_ok(cwd: Path, *args: str) -> bool:
+    try:
+        _git(cwd, *args)
+    except GitError:
+        return False
+    return True
+
+
 def read_at(root: Path, ref: str, path: str) -> bytes:
     return _git(root, "show", f"{ref}:{path}")
 

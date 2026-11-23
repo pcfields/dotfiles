@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from code_health import (
     episode_command,
     episodes,
     gitio,
+    history,
     repo_command,
     safeguard_command,
     state,
@@ -73,6 +75,7 @@ def _run(args: argparse.Namespace) -> tuple[str, int]:
         "episode": lambda: (episode_command.run_episode(Path.cwd(), args), 0),
         "safeguard": lambda: _run_safeguard(args),
         "grammars": lambda: (_download_grammars(), 0),
+        "history": lambda: (_run_history(args), 0),
     }
     return handlers.get(args.command, lambda: _run_files(args))()
 
@@ -90,6 +93,15 @@ def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
         episode_command.track_safely(Path.cwd(), args.session, args.transcript, worse)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+
+
+def _run_history(args: argparse.Namespace) -> str:
+    folder = os.environ.get(history.HISTORY_ENV)
+    if not folder:
+        raise ToolError(f"{history.HISTORY_ENV} is not set: point it at your private history repo")
+    message = f"history: {history.machine_name()} {datetime.date.today().isoformat()}"
+    committed = gitio.sync_history(Path(folder), message)
+    return f"history sync: {'committed and shared new records' if committed else 'nothing new'}"
 
 
 def _download_grammars() -> str:
@@ -192,6 +204,8 @@ def _parser() -> argparse.ArgumentParser:
     episode.add_argument("--tests-passed", choices=("yes", "no"))
     episode.add_argument("--transcript", help="a Claude Code transcript, to count tokens")
     commands.add_parser("grammars", help="download every supported language's grammar ahead of time")
+    history_command = commands.add_parser("history", help="the cross-machine history in $CODE_HEALTH_HISTORY_DIR")
+    history_command.add_argument("action", choices=("sync",))
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser
