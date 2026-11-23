@@ -167,7 +167,7 @@ def _overview(data: RepoInput) -> dict:
 def format_repo(report: dict) -> str:
     lines = ["## Overview", *_overview_lines(report)]
     for title, header, rows in _sections(report):
-        lines += ["", f"## {title}", *_table(header, rows)]
+        lines += ["", f"## {title}", *format_table(header, rows)]
     return "\n".join(lines)
 
 
@@ -255,7 +255,7 @@ def _not_scored_summary(not_scored: list[tuple[str, str]]) -> list[dict]:
     return [{"kind": kind, "reason": reason, "count": count} for (kind, reason), count in sorted(counts.items())]
 
 
-def _table(header: tuple, rows: list[tuple]) -> list[str]:
+def format_table(header: tuple, rows: list[tuple]) -> list[str]:
     if not rows:
         return ["(none)"]
     cells = [[str(c) for c in row] for row in [header, *rows]]

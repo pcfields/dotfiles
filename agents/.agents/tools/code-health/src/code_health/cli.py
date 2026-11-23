@@ -23,6 +23,7 @@ from code_health.config import (
 from code_health.languages import LANGUAGES
 from code_health.repo import (
     format_repo,
+    format_table,
 )
 from code_health.report import (
     FileReport,
@@ -99,9 +100,21 @@ def _run_history(args: argparse.Namespace) -> str:
     folder = os.environ.get(history.HISTORY_ENV)
     if not folder:
         raise ToolError(f"{history.HISTORY_ENV} is not set: point it at your private history repo")
+    if args.action == "summary":
+        return _history_summary(Path(folder), as_json=args.json)
     message = f"history: {history.machine_name()} {datetime.date.today().isoformat()}"
     committed = gitio.sync_history(Path(folder), message)
     return f"history sync: {'committed and shared new records' if committed else 'nothing new'}"
+
+
+def _history_summary(folder: Path, as_json: bool) -> str:
+    rows = episodes.summarize(history.read_global_episodes(folder))
+    if as_json:
+        return json.dumps(rows, indent=2)
+    header = ("kind", "language", "size", "episodes", "tokens", "output", "minutes", "before", "after", "iterations")
+    keys = ("kind", "language", "loc_band", "episodes", "median_tokens", "median_output_tokens", "median_minutes",
+            "median_score_before", "median_score_after", "average_iterations")
+    return "\n".join(format_table(header, [tuple(row[k] for k in keys) for row in rows]))
 
 
 def _download_grammars() -> str:
@@ -205,7 +218,8 @@ def _parser() -> argparse.ArgumentParser:
     episode.add_argument("--transcript", help="a Claude Code transcript, to count tokens")
     commands.add_parser("grammars", help="download every supported language's grammar ahead of time")
     history_command = commands.add_parser("history", help="the cross-machine history in $CODE_HEALTH_HISTORY_DIR")
-    history_command.add_argument("action", choices=("sync",))
+    history_command.add_argument("action", nargs="?", default="summary", choices=("summary", "sync"))
+    history_command.add_argument("--json", action="store_true", help="print JSON")
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

@@ -121,6 +121,17 @@ def append_global_episode(folder: Path, record: dict) -> None:
     _append(folder / f"episodes-{machine_name()}.jsonl", record)
 
 
+def read_global_episodes(folder: Path) -> list[dict]:
+    records = []
+    for path in sorted(folder.glob("episodes*.jsonl")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                records.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return records
+
+
 def machine_name(hostname: str | None = None) -> str:
     name = socket.gethostname() if hostname is None else hostname
     return re.sub(r"[^a-z0-9.-]+", "-", name.lower()).strip("-") or "unknown"

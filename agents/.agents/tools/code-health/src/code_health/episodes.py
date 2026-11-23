@@ -123,3 +123,34 @@ def _combined(states: list[dict]) -> dict:
         "findings": dict(sorted(findings.items())),
         "language": languages.most_common(1)[0][0] if languages else None,
     }
+
+
+def summarize(records: list[dict]) -> list[dict]:
+    groups: dict[tuple, list[dict]] = {}
+    for r in records:
+        groups.setdefault((r.get("kind"), r.get("language"), r.get("loc_band")), []).append(r)
+    return [_summary_row(key, group) for key, group in sorted(groups.items(), key=lambda item: tuple(map(str, item[0])))]
+
+
+def _summary_row(key: tuple, group: list[dict]) -> dict:
+    kind, language, band = key
+    return {
+        "kind": kind,
+        "language": language,
+        "loc_band": band,
+        "episodes": len(group),
+        "median_tokens": _median(sum(r["tokens"].values()) for r in group),
+        "median_output_tokens": _median(r["tokens"]["output"] for r in group),
+        "median_minutes": round(_median(r["duration_s"] for r in group) / 60, 1),
+        "median_score_before": _median(r["score_before"] for r in group if r["score_before"] is not None),
+        "median_score_after": _median(r["score_after"] for r in group if r["score_after"] is not None),
+        "average_iterations": round(sum(r["iterations"] for r in group) / len(group), 1),
+    }
+
+
+def _median(values) -> float | None:
+    ordered = sorted(values)
+    if not ordered:
+        return None
+    middle = len(ordered) // 2
+    return ordered[middle] if len(ordered) % 2 else (ordered[middle - 1] + ordered[middle]) / 2

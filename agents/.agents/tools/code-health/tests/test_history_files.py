@@ -72,3 +72,28 @@ def test_sync_without_the_variable_is_an_error(capsys, monkeypatch):
 
     assert code == 1
     assert "CODE_HEALTH_HISTORY_DIR" in err
+
+
+def episode_line(kind, output):
+    return json.dumps({
+        "kind": kind, "language": "csharp", "loc_band": "<100", "duration_s": 120, "iterations": 1,
+        "score_before": 5.0, "score_after": 10.0,
+        "tokens": {"input": 10, "output": output, "cache_creation": 0, "cache_read": 0},
+    }) + "\n"
+
+
+def test_history_summarizes_every_machine(tmp_path, capsys, monkeypatch):
+    (tmp_path / "episodes-a.jsonl").write_text(episode_line("uplift", 100))
+    (tmp_path / "episodes-b.jsonl").write_text(episode_line("uplift", 300) + "not json\n")
+    monkeypatch.setenv("CODE_HEALTH_HISTORY_DIR", str(tmp_path))
+
+    assert main(["history", "--json"]) == 0
+    (row,) = json.loads(capsys.readouterr().out)
+    assert (row["episodes"], row["median_output_tokens"]) == (2, 200)
+
+    assert main(["history"]) == 0
+    out = capsys.readouterr().out
+    assert out.splitlines()[0].split() == [
+        "kind", "language", "size", "episodes", "tokens", "output", "minutes", "before", "after", "iterations",
+    ]
+    assert "uplift" in out
