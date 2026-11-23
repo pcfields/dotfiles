@@ -37,7 +37,7 @@ any machine, in any project, and open to any agent harness.
 | Platforms | Everything works on Linux and Windows: the CLI, tests, adapters and install. Use `pathlib`, handle CRLF, and resolve home and cache dirs per platform. A Linux-only part is a bug, or a named gap with a step that closes it. | The user works on both machines from one tree. |
 | Score | 1.0-10.0 per file. Bands: green ≥ 9, yellow ≥ 4, red < 4. | Matches CodeScene's scale. The bands are from memory of CodeScene, not a published source. |
 | When the safeguard fails | A changed file gains a **new** finding, an existing finding gets **worse**, or a new ignore comment is added. Findings that were already there and not made worse are reported but don't fail. | Comparing findings is precise and gives the agent a to-do list. A fixed bar (say 9.5) would either let small regressions through in green files or block every edit to a red legacy file. Any drop in score comes from a new or worse finding, so this catches it. |
-| Approving a failure for now | Only the user can approve, with `code-health accept`. It needs an interactive terminal and a typed `yes`, and writes to a per-user state folder outside the repo (`$XDG_STATE_HOME`/`~/.local/state` or `%LOCALAPPDATA%`, `code-health/<repo key>/`), which the agent's sandbox can't write. Claude's settings also deny it to the agent. The agent is told to ask the user and shows the exact command. | The agent must never be able to approve its own regression. The terminal check alone isn't airtight (an agent can fake one with `script` or `pty`), so the write location is the real lock on Linux and macOS. Windows has no Claude sandbox: there it rests on the deny rules and the terminal check. |
+| Approving a failure for now | Only the user can approve, with `code-health accept`. It needs an interactive terminal and a typed `yes`, and writes to a per-user state folder outside the repo (`$XDG_STATE_HOME`, else `~/.local/state`, on every platform: `code-health/<repo key>/`), which the agent's sandbox can't write. Claude's settings also deny it to the agent. The agent is told to ask the user and shows the exact command. | The agent must never be able to approve its own regression. The terminal check alone isn't airtight (an agent can fake one with `script` or `pty`), so the write location is the real lock on Linux and macOS. Windows has no Claude sandbox: there it rests on the deny rules and the terminal check. |
 | What the safeguard compares with | The commit at the start of the agent's turn: a `UserPromptSubmit` hook runs `code-health mark-turn`, and the Stop hook runs `safeguard --since-turn`. Without a mark it falls back to HEAD. The mark is kept in the same state folder. | Comparing with HEAD misses everything the agent commits during its turn. Added in step 8. |
 | Durable exceptions | A comment above the function, `code-health: ignore <Smell> -- <reason>`, with the reason required. Adding one counts as a finding until the user accepts it. | It sits with the code and shows up in review. |
 | Per-repo config | `.code-health.toml` at the repo root: excluded paths, plus rule weights and thresholds per path pattern. `score` and `review` read the working copy; `safeguard` reads the base commit's copy and notes when the working copy differs. Claude asks before editing it. | Like CodeScene's `.codescene/code-health-rules.json`. Reading the base commit's copy stops an agent loosening a limit and passing in the same turn. |
@@ -580,9 +580,9 @@ Windows doesn't rewrite their line endings.
       module.
 15. **[Windows] Windows check for 13 and 14,** folded into step 12.
 
-16. **Move the Windows state folder out of AppData.** Proposed, not agreed:
-    it changes the "Approving a failure for now" decision, so confirm with
-    the user first.
+16. ✅ **Move the Windows state folder out of AppData.** Done; agreed with
+    the user. Still to check on Windows (with step 12): `accept` in Windows
+    Terminal, and the Stop hook in Claude Desktop sees it.
     - **Problem.** The state folder (`accepted.jsonl`, turn marks) is
       `%LOCALAPPDATA%\code-health` on Windows. The hooks run inside Claude
       Desktop, so they read and write the app's private copy; `accept` run

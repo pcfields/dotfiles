@@ -133,6 +133,11 @@ junctions don't resolve
 ([astral-sh/uv#19622](https://github.com/astral-sh/uv/issues/19622)). The
 symptom is `Missing expected target directory for Python minor version link`.
 
+For the same reason, code-health keeps its state (acceptances from
+`code-health accept`, and turn marks) in `%USERPROFILE%\.local\state\code-health`,
+not AppData, so the Claude hooks and a normal terminal see the same folder.
+Older versions used `%LOCALAPPDATA%\code-health`; that folder can be deleted.
+
 `packages/pip-packages.txt` is kept for Python-based tools without a scoop
 manifest, and is empty at the moment.
 
