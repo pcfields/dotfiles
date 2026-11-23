@@ -73,12 +73,17 @@ def _own_module_mocks(root, language: Language) -> tuple[int, ...]:
 
 def _mocks_relative_path(call, language: Language) -> bool:
     callee = call.child_by_field_name("function")
-    arguments = call.child_by_field_name("arguments")
-    if callee is None or arguments is None or text(callee) not in language.mock_calls:
+    if callee is None or text(callee) not in language.mock_calls:
         return False
-    first = next(iter(arguments.named_children), None)
-    target = text(first).strip("'\"`") if first is not None and first.type in ("string", "template_string") else ""
-    return target.startswith(("./", "../"))
+    return _first_string_argument(call).startswith(("./", "../"))
+
+
+def _first_string_argument(call) -> str:
+    arguments = call.child_by_field_name("arguments")
+    first = next(iter(arguments.named_children), None) if arguments is not None else None
+    if first is None or first.type not in ("string", "template_string"):
+        return ""
+    return text(first).strip("'\"`")
 
 
 def _parse(source: bytes, language: Language):
