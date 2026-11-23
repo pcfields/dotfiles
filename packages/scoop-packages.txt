@@ -6,6 +6,7 @@
 # ── Core CLI (needed for config/aliases to work) ────────
 git
 mise                    # runtime manager; provides Node (mise use -g node@26)
+uv                      # pins its own Python; installs the code-health tool
 nvim
 eza
 bat
