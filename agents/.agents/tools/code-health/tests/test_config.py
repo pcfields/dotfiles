@@ -102,3 +102,11 @@ weights = { "Bumpy Road" = 0 }
 def test_invalid_config_is_an_error(text, message):
     with pytest.raises(ConfigError, match=re.escape(message)):
         parse_config(text)
+
+
+def test_hand_written_scripts_in_build_and_bin_folders_are_scored():
+    config = parse_config(None)
+
+    assert not is_excluded(config, "build/deploy.ps1")
+    assert not is_excluded(config, "bin/setup.sh")
+    assert is_excluded(config, "src/App/obj/Debug/App.AssemblyInfo.cs")

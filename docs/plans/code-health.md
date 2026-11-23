@@ -92,7 +92,7 @@ Language notes:
 - Test files (`**/*.test.*`, `**/*.spec.*`, `**/tests/**`, `**/*Tests/**`)
   give Large Method half weight by default.
 - Default exclusions: `*.min.js`, `*.min.css`, `vendor/`, `node_modules/`,
-  `dist/`, `build/`, `bin/`, `obj/`, `*.Designer.cs`, `*.g.cs`,
+  `dist/`, `obj/`, `*.Designer.cs`, `*.g.cs`,
   `*.generated.*` and lockfiles.
 - A file with tree-sitter ERROR nodes is "not scored" (with a reason), never
   10.

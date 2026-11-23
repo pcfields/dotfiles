@@ -13,8 +13,6 @@ DEFAULT_EXCLUDES = (
     "vendor/",
     "node_modules/",
     "dist/",
-    "build/",
-    "bin/",
     "obj/",
     "*.Designer.cs",
     "*.g.cs",
