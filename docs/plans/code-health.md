@@ -539,7 +539,7 @@ Windows doesn't rewrite their line endings.
       files changed, language, size band, score before and after, findings
       before and after, and the turn's tokens. Same allowlisted keys as
       episodes, `kind: "change"`.
-14. **More smells.** Each with a fix hint, base 1.0, its own commit, and a
+14. ✅ **More smells.** Each with a fix hint, base 1.0, its own commit, and a
     scorer version bump. Limits are starting values, checked against eShop,
     london-sync-music and this repo before landing.
     - **Code Duplication:** a run of at least 10 code lines that appears
@@ -561,9 +561,11 @@ Windows doesn't rewrite their line endings.
       property accessors and methods that touch no fields are left out
       (each accessor touches only its own field, so every property became
       a group).
-    - **Primitive Obsession (typed languages):** at least 4 parameters
+    - **Primitive Obsession (typed languages):** at least 5 parameters
       typed as primitives (string, number, int, bool, ...). Fix: Introduce
-      Parameter Object or a value type.
+      Parameter Object or a value type. Calibrated: at 4, half of eShop's
+      hits were message-event constructors and overloads; at 5 its 10 hits
+      are real (an address of five strings, a command of 11 primitives).
     - **Overall Code Complexity:** a file with at least 5 functions whose
       average complexity is at least 6 (4 flagged ordinary, readable files
       in this repo and eShop; the real cases averaged 7.6 and 8). Fix: Extract Function; split the
