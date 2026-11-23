@@ -491,20 +491,72 @@ Windows doesn't rewrite their line endings.
     - Document it in `docs/install.md` and `docs/install-windows.md`.
 
     Checked by running the Linux step.
-12. **[Windows] Windows check.**
-    - Install through the Windows install script.
+12. **[Windows] Windows check.** Partly done (first pass on 2026-11-23).
+    - ✅ Install through the Windows install script. Found: Claude Desktop
+      is an MSIX app, so a terminal inside it (its Terminal tab, or Claude's
+      own Bash tool) writes AppData into a private copy under
+      `%LOCALAPPDATA%\Packages\Claude_*\LocalCache\`. uv's Python
+      minor-version junction made there doesn't resolve, and every `uv run`
+      fails with "Missing expected target directory for Python minor version
+      link" (astral-sh/uv#19622, open; `--reinstall` doesn't repair it).
+      Fixed: the install script sets `UV_PYTHON_INSTALL_DIR` and
+      `UV_TOOL_DIR` under `%USERPROFILE%\.local\share\uv`.
+    - ✅ Grammar cache on Windows:
+      `%LOCALAPPDATA%\tree-sitter-language-pack\<version>\libs`.
+    - ✅ Python 3.15: the pin moved from 3.13 to 3.15, to match the tool,
+      which `uv tool install` puts on the system Python whatever the pin
+      says. tree-sitter went to 0.27.0, because 0.26.1 has no 3.15 wheel
+      for Windows and would need MSVC to build.
+    - ✅ `bash .agents/check` passes on Windows: 484 passed, 7 skipped (the
+      pty tests). The Makefile cases in `test-checks.sh` now skip when
+      `make` is missing, as the npm and timeout cases already did.
+    - ✅ `accept` terminal check: `isatty()` is true for `NUL` on Windows,
+      so input from `NUL` got past the check and crashed at the prompt
+      (nothing was recorded). It now asks Windows for a real console
+      (`GetConsoleMode`). Still to confirm by hand: in Windows Terminal,
+      `code-health accept <a clean file> --smell "Large Method" --reason
+      test` reaches the finding lookup ("no Large Method finding"), not
+      "needs an interactive terminal".
     - Run `safeguard` and the Claude Stop hook in a scratch repo under Git
-      Bash.
-    - Confirm Windows paths, CRLF files and the `accept` terminal prompt in
-      Windows Terminal work.
+      Bash; check Windows paths and CRLF files.
     - Run `code-health repo` on the largest C# work repo (about 100k lines)
       and time it.
     - Fix anything Linux-only, or report it.
+13. **Move the Windows state folder out of AppData.** Proposed, not agreed:
+    it changes the "Approving a failure for now" decision, so confirm with
+    the user first.
+    - **Problem.** The state folder (`accepted.jsonl`, turn marks) is
+      `%LOCALAPPDATA%\code-health` on Windows. The hooks run inside Claude
+      Desktop, so they read and write the app's private copy; `accept` run
+      in Windows Terminal writes the real folder. Seen on the Windows
+      machine: two `code-health\<repo key>\` folders for the same repo, one
+      in each place. An acceptance made in a normal terminal can be
+      invisible to the Stop hook, and turn marks can split the same way.
+    - **Proposal.** Use `~/.local/state/code-health` on every platform:
+      delete the `win32` branch in `state.state_dir()`. MSIX only redirects
+      AppData, so both sides see the same folder, and there is one rule
+      instead of two. `XDG_STATE_HOME` and `CODE_HEALTH_STATE_DIR` still
+      override it. Update the "Approving a failure for now" row to match.
+    - **Migration.** None. Acceptances lapse anyway when a function changes,
+      and turn marks are per session. Say in `docs/install-windows.md` that
+      the old `%LOCALAPPDATA%\code-health` can be deleted.
+    - **Leave alone.** The grammar cache is also under `%LOCALAPPDATA%`, but
+      a split cache only costs a second download.
+    - **Tests.** `state_dir()` already takes `env`, `platform` and `home`,
+      so plain-value tests cover it: `win32` with no overrides →
+      `<home>/.local/state/code-health`; `XDG_STATE_HOME` and
+      `CODE_HEALTH_STATE_DIR` still win. Then the Windows test from step 12:
+      `accept` in Windows Terminal, and the Stop hook in Claude Desktop sees
+      it.
 
 Later: an MCP server wrapping `--json` (tools like `score`, `review`,
 `safeguard`), adapters for other harnesses (OpenCode, Codex), duplication and
 test smells, Brain Class and Low Cohesion, and calibrating against the
-CodeScene trial on about 20 files.
+CodeScene trial on about 20 files. Also the Rust port (see Decisions):
+step 12 found that the Windows install is the fragile part (uv-managed
+Python, an environment, a grammar download), and one binary with the
+grammars compiled in would remove all three. Do it after 7a and 12, once
+the rules stop changing, as its own PR.
 
 ## Revisit: SQL
 
