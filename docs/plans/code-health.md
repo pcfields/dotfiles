@@ -557,7 +557,10 @@ Windows doesn't rewrite their line endings.
       a row in one function. Fix: assert on one object; split the test.
     - **Low Cohesion:** a class whose methods form at least 3 groups that
       share no fields (LCOM4; fields found through `this.`/`self.`, plus C#
-      fields by name). Fix: Extract Class.
+      fields by name). Fix: Extract Class. Calibrated: constructors,
+      property accessors and methods that touch no fields are left out
+      (each accessor touches only its own field, so every property became
+      a group).
     - **Primitive Obsession (typed languages):** at least 4 parameters
       typed as primitives (string, number, int, bool, ...). Fix: Introduce
       Parameter Object or a value type.

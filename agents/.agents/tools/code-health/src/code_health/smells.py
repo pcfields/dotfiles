@@ -11,6 +11,7 @@ MOCKED_OWN_MODULE = "Mocked Own Module"
 LARGE_ASSERTION_BLOCK = "Large Assertion Block"
 OVERALL_COMPLEXITY = "Overall Code Complexity"
 CODE_DUPLICATION = "Code Duplication"
+LOW_COHESION = "Low Cohesion"
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,7 @@ DEFAULT_LIMITS = {
     "Large Assertion Block": 8,
     "Overall Code Complexity": 6,
     "Code Duplication": 10,
+    "Low Cohesion": 3,
 }
 OVERALL_MIN_FUNCTIONS = 5
 
@@ -43,6 +45,11 @@ def find_smells(metrics: FileMetrics, limits: Mapping[str, float] = DEFAULT_LIMI
     findings = [finding for function in metrics.functions for finding in _function_findings(function, limits)]
     findings += _overall_complexity(metrics, limits)
     findings += _duplication(metrics, limits)
+    findings += [
+        Finding(LOW_COHESION, name, line, groups, limits[LOW_COHESION])
+        for name, line, groups in metrics.class_groups
+        if groups >= limits[LOW_COHESION]
+    ]
     if metrics.own_module_mocks:
         first = metrics.own_module_mocks[0]
         findings.append(Finding(MOCKED_OWN_MODULE, FILE, first, len(metrics.own_module_mocks), limits[MOCKED_OWN_MODULE]))
@@ -116,6 +123,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    LOW_COHESION: "Extract Class for each group of methods that share fields",
     CODE_DUPLICATION: "Extract Function for the repeated block; parameterize what differs",
     OVERALL_COMPLEXITY: "Extract Function from the branchiest functions; split the module by responsibility",
     LARGE_ASSERTION_BLOCK: "Assert on one expected object; split the test by behavior",

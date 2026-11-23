@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import tree_sitter_language_pack as pack
 
+from code_health.cohesion import low_cohesion
 from code_health.duplication import duplicated_runs
 from code_health.languages import Language
 from code_health.naming import class_names, disambiguate, function_name, own_name
@@ -46,6 +47,7 @@ class FileMetrics:
     digest: str = ""
     own_module_mocks: tuple[int, ...] = ()
     duplicates: tuple[tuple[int, int], ...] = ()
+    class_groups: tuple[tuple[str, int, int], ...] = ()
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
@@ -63,6 +65,7 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         digest=digest(source),
         own_module_mocks=_own_module_mocks(root, language),
         duplicates=duplicated_runs(root, language),
+        class_groups=low_cohesion(root, language),
     )
 
 

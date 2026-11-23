@@ -34,6 +34,7 @@ class Language:
     body_wrappers: frozenset[str] = frozenset()
     blank_conditional_directives: bool = False
     mock_calls: frozenset[str] = frozenset()
+    bare_member_access: bool = False
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -121,6 +122,7 @@ LANGUAGES = (
         primary_constructor_owners=frozenset({"class_declaration", "struct_declaration"}),
         overloads_by_type=True,
         blank_conditional_directives=True,
+        bare_member_access=True,
         branch_exclusions={"switch_section": frozenset({"default"}), "switch_expression_arm": frozenset({"discard"})},
     ),
     Language(

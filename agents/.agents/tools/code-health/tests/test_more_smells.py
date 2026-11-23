@@ -102,3 +102,54 @@ def test_short_repeats_and_braces_are_fine():
 
     assert smells("a.ts", short) == []
     assert smells("a.ts", braces) == []
+
+
+SPLIT_TS = """class Account {
+  constructor(private repo, private mailer, private clock) {}
+  load(id) { return this.repo.find(id); }
+  save(a) { this.repo.save(a); }
+  welcome(a) { this.mailer.send(a.email); }
+  remind(a) { this.mailer.send(a.email, 'reminder'); }
+  stamp(a) { a.at = this.clock.now(); }
+  age(a) { return this.clock.now() - a.at; }
+  static format(a) { return a.name; }
+}
+"""
+
+
+def test_a_class_with_three_unrelated_groups_has_low_cohesion():
+    assert smells("a.ts", SPLIT_TS) == [("Low Cohesion", "Account", 1, 3, 3)]
+
+
+def test_methods_calling_each_other_belong_together():
+    joined = SPLIT_TS.replace("age(a) { return this.clock.now() - a.at; }", "age(a) { this.save(a); return this.clock.now() - this.welcome(a); }")
+
+    assert smells("a.ts", joined) == []
+
+
+def test_cohesion_in_python_and_csharp():
+    python = (
+        "class Account:\n    def __init__(self, repo, mailer, clock):\n        self.repo = repo\n"
+        "    def load(self, i):\n        return self.repo.find(i)\n"
+        "    def welcome(self, a):\n        self.mailer.send(a)\n"
+        "    def stamp(self, a):\n        a.at = self.clock.now()\n"
+    )
+    csharp = (
+        "class Account {\n  private readonly IRepo _repo; private readonly IMailer _mailer; private readonly IClock _clock;\n"
+        "  public Account Load(int id) { return _repo.Find(id); }\n"
+        "  public void Welcome(Account a) { _mailer.Send(a.Email); }\n"
+        "  public void Stamp(Account a) { a.At = this._clock.Now(); }\n}\n"
+    )
+
+    assert [s[:2] for s in smells("a.py", python)] == [("Low Cohesion", "Account")]
+    assert [s[:2] for s in smells("A.cs", csharp)] == [("Low Cohesion", "Account")]
+
+
+def test_property_accessors_are_not_method_groups():
+    csharp = "class Button {\n" + "".join(
+        f"  public int P{i} {{ get => (int)GetValue(P{i}Property); set => SetValue(P{i}Property, value); }}\n" for i in range(5)
+    ) + "  void Toggle() { P0 = P1; }\n}\n"
+    typescript = "class Box {\n" + "".join(f"  get p{i}() {{ return this._p{i}; }}\n" for i in range(5)) + "}\n"
+
+    assert smells("B.cs", csharp) == []
+    assert smells("b.ts", typescript) == []

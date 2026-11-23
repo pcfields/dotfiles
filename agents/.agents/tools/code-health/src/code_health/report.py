@@ -131,6 +131,7 @@ _UNITS = {
     "Large Assertion Block": "assertions",
     "Overall Code Complexity": "average complexity",
     "Code Duplication": "duplicated lines",
+    "Low Cohesion": "unrelated method groups",
 }
 _UNIT_FIRST = {"complexity", "depth", "average complexity"}
 _NOTES = {
