@@ -14,9 +14,6 @@ def state_dir(env: Mapping[str, str] | None = None, platform: str | None = None,
     home = Path.home() if home is None else home
     if override := env.get("CODE_HEALTH_STATE_DIR"):
         return Path(override)
-    if platform == "win32":
-        base = env.get("LOCALAPPDATA") or str(home / "AppData" / "Local")
-        return Path(base) / "code-health"
     base = env.get("XDG_STATE_HOME") or str(home / ".local" / "state")
     return Path(base) / "code-health"
 

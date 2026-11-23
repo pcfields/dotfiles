@@ -15,10 +15,14 @@ def test_linux_uses_xdg_state_home_or_the_default():
     assert state_dir(env={}, platform="linux", home=Path("/home/u")) == Path("/home/u/.local/state/code-health")
 
 
-def test_windows_uses_local_app_data():
-    path = state_dir(env={"LOCALAPPDATA": "C:\\Users\\u\\AppData\\Local"}, platform="win32", home=Path("/home/u"))
+def test_windows_uses_the_same_folder_as_linux_not_app_data():
+    home = PureWindowsPath("C:\\Users\\u")
+    local = {"LOCALAPPDATA": "C:\\Users\\u\\AppData\\Local"}
 
-    assert PureWindowsPath(path) == PureWindowsPath("C:\\Users\\u\\AppData\\Local\\code-health")
+    assert PureWindowsPath(state_dir(env=local, platform="win32", home=home)) == PureWindowsPath(
+        "C:\\Users\\u\\.local\\state\\code-health"
+    )
+    assert state_dir(env={**local, "XDG_STATE_HOME": "/xdg"}, platform="win32", home=home) == Path("/xdg/code-health")
 
 
 def test_repo_key_is_stable_and_differs_per_repo():
