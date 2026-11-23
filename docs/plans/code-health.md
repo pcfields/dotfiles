@@ -522,7 +522,8 @@ Windows doesn't rewrite their line endings.
     - Run `code-health repo` on the largest C# work repo (about 100k lines)
       and time it.
     - Fix anything Linux-only, or report it.
-13. **History across machines.** One history in a private git repo of
+13. ✅ **History across machines.** Done (13a-13d); change records are
+    written by the Stop hook's `safeguard --episode` run. One history in a private git repo of
     JSONL files (decided over a database: no network or credentials in the
     Stop hook, tiny volume, git gives backup; DuckDB can query JSONL).
     - **13a.** Global records go to `episodes-<host>.jsonl` (sanitized
