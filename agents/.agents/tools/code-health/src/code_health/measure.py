@@ -32,6 +32,7 @@ class FunctionMetrics:
     bumps: int
     conditions: tuple[Condition, ...]
     digest: str = ""
+    wraps_module: bool = False
 
 
 @dataclass(frozen=True)
@@ -106,7 +107,23 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         bumps=_count_bumps(node, language),
         conditions=_conditions(node, language),
         digest=digest(node.text),
+        wraps_module=_is_top_level_iife(node, language),
     )
+
+
+def _is_top_level_iife(node, language: Language) -> bool:
+    callee = node.parent if node.parent.type == "parenthesized_expression" else node
+    call = callee.parent
+    invoked = call is not None and call.type == "call_expression"
+    return invoked and call.child_by_field_name("function") == callee and _is_top_level(call, language)
+
+
+def _is_top_level(node, language: Language) -> bool:
+    while node is not None:
+        if node.type in language.functions:
+            return False
+        node = node.parent
+    return True
 
 
 def _is_constructor(node, language: Language) -> bool:

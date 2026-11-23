@@ -260,3 +260,17 @@ def test_a_long_test_is_still_a_large_method():
 
 def test_import_types_are_a_known_parse_gap():
     assert measure_ts("let x: import('./a').B[] = [];\n").parse_errors > 0
+
+
+def test_a_top_level_iife_is_not_a_large_method():
+    helpers = "".join(f"  function helper{i}() {{\n    return {i};\n  }}\n" for i in range(40))
+    source = f"(function () {{\n{helpers}}})();\n(() => {{\n{helpers}}})();\n"
+
+    assert find_smells(measure_ts(source)) == ()
+
+
+def test_a_long_default_export_is_still_a_large_method():
+    body = "".join(f"  x += {i};\n" for i in range(80))
+    source = f"export default (x) => {{\n{body}  return x;\n}};\n"
+
+    assert [f.smell for f in find_smells(measure_ts(source))] == ["Large Method"]

@@ -92,9 +92,10 @@ Language notes:
   command argument (`${svc}:tag`, seen in an open-source repo). Files using them are "not scored".
 - Test files (`**/*.test.*`, `**/*.spec.*`, `**/tests/**`, `**/*Tests/**`)
   give Large Method half weight by default.
-- Callbacks passed to `describe`, `context` or `suite` skip Large Method
-  (scorer version 3): they are long because they hold tests, and each test
-  is measured on its own.
+- Callbacks passed to `describe`, `context` or `suite` (scorer version 3)
+  and top-level IIFEs, `(function () { … })()` (version 4), skip Large
+  Method: they are long because they hold other functions, each measured
+  on its own.
 - TypeScript grammar gap: `import('…')` used as a type (`typeof import('./x')`,
   `import('./x').T[]`) gives parse errors, so the file is "not scored".
 - Default exclusions: `*.min.js`, `*.min.css`, `vendor/`, `node_modules/`,

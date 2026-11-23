@@ -50,17 +50,17 @@ def _function_findings(function: FunctionMetrics, limits: Mapping[str, float]) -
     return [
         Finding(smell, function.name, line, value, limit)
         for smell, value, line, limit in measurements
-        if value >= limit and not (smell == "Large Method" and _is_container(function.name))
+        if value >= limit and not (smell == "Large Method" and _is_container(function))
     ]
 
 
-# Top-level script code and test-suite blocks are long because they hold
-# other code, each piece of which is measured on its own.
+# Top-level script code, module-wrapping IIFEs and test-suite blocks are long
+# because they hold other code, each piece of which is measured on its own.
 _TEST_GROUP = re.compile(r"(?:^|\.)(?:describe|context|suite) callback(?: #\d+)?$")
 
 
-def _is_container(name: str) -> bool:
-    return name == SCRIPT or _TEST_GROUP.search(name) is not None
+def _is_container(function: FunctionMetrics) -> bool:
+    return function.wraps_module or function.name == SCRIPT or _TEST_GROUP.search(function.name) is not None
 
 
 def _worst_condition(function: FunctionMetrics) -> tuple[int, int]:
