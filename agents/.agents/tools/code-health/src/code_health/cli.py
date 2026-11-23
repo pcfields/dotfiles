@@ -18,6 +18,7 @@ from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     ConfigError,
 )
+from code_health.languages import LANGUAGES
 from code_health.repo import (
     format_repo,
 )
@@ -71,6 +72,7 @@ def _run(args: argparse.Namespace) -> tuple[str, int]:
         "repo": lambda: _run_repo(args),
         "episode": lambda: (episode_command.run_episode(Path.cwd(), args), 0),
         "safeguard": lambda: _run_safeguard(args),
+        "grammars": lambda: (_download_grammars(), 0),
     }
     return handlers.get(args.command, lambda: _run_files(args))()
 
@@ -88,6 +90,12 @@ def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
         episode_command.track_safely(Path.cwd(), args.session, args.transcript, worse)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
+
+
+def _download_grammars() -> str:
+    grammars = sorted({language.grammar for language in LANGUAGES})
+    ready = pack.download(grammars)
+    return f"grammars ready ({ready}): {', '.join(grammars)}\ncache: {pack.cache_dir()}"
 
 
 def _run_files(args: argparse.Namespace) -> tuple[str, int]:
@@ -170,6 +178,7 @@ def _parser() -> argparse.ArgumentParser:
     episode.add_argument("--session", default="default")
     episode.add_argument("--tests-passed", choices=("yes", "no"))
     episode.add_argument("--transcript", help="a Claude Code transcript, to count tokens")
+    commands.add_parser("grammars", help="download every supported language's grammar ahead of time")
     mark = commands.add_parser("mark-turn", help="record HEAD as the start of a turn")
     mark.add_argument("--session", default="default", help="a name for the agent session")
     return parser

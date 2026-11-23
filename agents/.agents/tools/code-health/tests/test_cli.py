@@ -139,3 +139,12 @@ def test_text_output_survives_a_console_that_cannot_encode_the_path(tmp_path):
 
     assert result.returncode == 0
     assert result.stdout.decode("ascii").startswith("10.0  green")
+
+
+def test_grammars_reports_every_language_and_the_cache(capsys):
+    code, out, _ = run(capsys, "grammars")
+
+    assert code == 0
+    for name in ("bash", "csharp", "javascript", "lua", "powershell", "python", "rust", "tsx", "typescript"):
+        assert name in out
+    assert "cache:" in out
