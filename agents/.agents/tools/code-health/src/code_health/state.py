@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import json
 import os
@@ -29,16 +30,29 @@ def repo_key(root: str | Path, platform: str | None = None) -> str:
 
 
 def read_turn_base(root: Path, session: str) -> str | None:
+    lines = _turn_lines(root, session)
+    return lines[0] if lines else None
+
+
+def read_turn_started(root: Path, session: str) -> datetime.datetime | None:
+    lines = _turn_lines(root, session)
     try:
-        return _turn_file(root, session).read_text().strip() or None
-    except OSError:
+        return datetime.datetime.fromisoformat(lines[1]) if len(lines) > 1 else None
+    except ValueError:
         return None
 
 
 def write_turn_base(root: Path, session: str, commit: str) -> None:
     path = _turn_file(root, session)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(commit + "\n")
+    path.write_text(f"{commit}\n{datetime.datetime.now(datetime.UTC).isoformat()}\n")
+
+
+def _turn_lines(root: Path, session: str) -> list[str]:
+    try:
+        return [line.strip() for line in _turn_file(root, session).read_text().splitlines() if line.strip()]
+    except OSError:
+        return []
 
 
 def _turn_file(root: Path, session: str) -> Path:

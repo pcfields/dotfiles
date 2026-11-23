@@ -41,10 +41,11 @@ def episode(capsys, *args):
     return code, out, err
 
 
-def global_records(folder):
+def global_records(folder, kind=None):
     files = sorted(folder.glob("episodes*.jsonl"))
     assert [f.name for f in files] in ([], [f"episodes-{machine_name()}.jsonl"])
-    return [json.loads(line) for f in files for line in f.read_text().splitlines()]
+    records = [json.loads(line) for f in files for line in f.read_text().splitlines()]
+    return [r for r in records if (r["kind"] != "change" if kind is None else r["kind"] == kind)]
 
 
 def records(path):
@@ -187,3 +188,28 @@ def test_episode_errors_never_change_the_safeguard_verdict(repo, tmp_path, capsy
 
     assert code == 2
     assert "episode not recorded" in err
+
+
+def test_each_turn_that_changes_scored_files_is_recorded(repo, global_dir, tmp_path, capsys):
+    commit(repo, {"src/app.ts": CLEAN, "README.md": "hi\n"})
+    main(["mark-turn", "--session", "s1"])
+    path = transcript(tmp_path, (0, 25))
+    write(repo, "src/app.ts", nested(5))
+
+    safeguard_episode(capsys, "--transcript", path)
+
+    (change,) = global_records(global_dir, kind="change")
+    assert set(change) == GLOBAL_KEYS
+    assert (change["score_before"], change["score_after"], change["language"]) == (10.0, 7.9, "typescript")
+    assert change["findings_after"] == {"Deep Nested Complexity": 1}
+    assert (change["tokens"]["output"], change["token_method"]) == (25, "claude-transcript-window")
+
+
+def test_turns_without_scored_changes_are_not_recorded(repo, global_dir, capsys):
+    commit(repo, {"src/app.ts": CLEAN, "README.md": "hi\n"})
+    main(["mark-turn", "--session", "s1"])
+    write(repo, "README.md", "changed\n")
+
+    safeguard_episode(capsys)
+
+    assert global_records(global_dir, kind="change") == []

@@ -18,6 +18,10 @@ class FileCheck:
     status: str
     changes: tuple[Change, ...] = ()
     reason: str | None = None
+    language: str | None = None
+    loc_before: int | None = None
+    loc_after: int | None = None
+    functions: int = 0
 
 
 def is_checked(path: str) -> bool:
@@ -44,7 +48,17 @@ def check_file(
     before_score = before.score if before else None
     changes = compare(before.findings if before else (), after.findings) + _new_ignores(before, after)
     changes = tuple(_with_acceptance(change, path, after, context.accepted) for change in changes)
-    return FileCheck(path, before_score, after.score, _status(changes, before_score, after.score), changes)
+    status = _status(changes, before_score, after.score)
+    return FileCheck(path, before_score, after.score, status, changes, **_file_facts(path, before, after))
+
+
+def _file_facts(path: str, before, after) -> dict:
+    return {
+        "language": language_for_path(path).name,
+        "loc_before": before.metrics.loc if before and before.metrics else None,
+        "loc_after": after.metrics.loc,
+        "functions": sum(1 for f in after.metrics.functions if f.name != "<script>"),
+    }
 
 
 def _with_acceptance(change: Change, path: str, after, accepted: Iterable[Mapping]) -> Change:

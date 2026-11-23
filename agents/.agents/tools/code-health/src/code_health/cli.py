@@ -90,8 +90,7 @@ def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
     checks, notes = safeguard_command.safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
     verdict = safeguard_json(checks, notes)
     if args.episode:
-        worse = [check.path for check in checks if check.status == "worse"]
-        episode_command.track_safely(Path.cwd(), args.session, args.transcript, worse)
+        episode_command.track_safely(Path.cwd(), args.session, args.transcript, checks)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
 

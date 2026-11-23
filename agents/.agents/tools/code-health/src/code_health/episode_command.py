@@ -31,16 +31,12 @@ def run_episode(cwd: Path, args: argparse.Namespace) -> str:
 
 
 def _flush(root: Path, pending: list[dict], session: str, transcript: str | None) -> list[dict]:
-    lines = Path(transcript).read_text(encoding="utf-8", errors="replace").splitlines() if transcript else None
+    lines = _read_transcript(transcript)
     global_dir = os.environ.get(history.HISTORY_ENV)
     if not global_dir and episodes.ended(pending):
         _note_missing_history_dir()
     for episode in episodes.ended(pending):
-        record = _episode_record(episode, lines, session)
-        history.append_local_episode(root, {**record, "files": episode["files"], "session": episode["session"],
-                                            "started": episode["started"], "ended": episode["ended"]})
-        if global_dir:
-            history.append_global_episode(Path(global_dir), record)
+        _append_records(root, episode, _episode_record(episode, lines, session))
     return episodes.still_open(pending)
 
 
@@ -82,10 +78,12 @@ def _file_states(root: Path, paths: list[str]) -> list[dict]:
     return states
 
 
-def track_safely(cwd: Path, session: str, transcript: str | None, worse: list[str]) -> None:
+def track_safely(cwd: Path, session: str, transcript: str | None, checks: list) -> None:
     # Bookkeeping must never change the safeguard's verdict.
     try:
-        _track(gitio.repo_root(cwd), session, transcript, worse)
+        root = gitio.repo_root(cwd)
+        _track(root, session, transcript, [check.path for check in checks if check.status == "worse"])
+        _record_turn(root, session, transcript, checks)
     except (OSError, ValueError, gitio.GitError) as error:
         print(f"code-health: episode not recorded: {error}", file=sys.stderr)
 
@@ -99,6 +97,53 @@ def _track(root: Path, session: str, transcript: str | None, worse: list[str]) -
     else:
         pending = _end_open(root, pending, episodes.Step("safeguard-fix", session, [], now))
     history.write_pending(root, _flush(root, pending, session, transcript))
+
+
+def _record_turn(root: Path, session: str, transcript: str | None, checks: list) -> None:
+    scored = [check for check in checks if check.after is not None]
+    started = state.read_turn_started(root, session)
+    if not scored or started is None:
+        return
+    change = _change(scored, session, started, datetime.datetime.now(datetime.UTC))
+    _append_records(root, change, _episode_record(change, _read_transcript(transcript), session))
+
+
+def _change(scored: list, session: str, started: datetime.datetime, now: datetime.datetime) -> dict:
+    return {
+        "kind": "change",
+        "session": session,
+        "files": [check.path for check in scored],
+        "started": started.isoformat(),
+        "ended": now.isoformat(),
+        "iterations": 1,
+        "baseline": [_state(check, before=True) for check in scored if check.before is not None],
+        "after": [_state(check, before=False) for check in scored],
+        "tests_passed": None,
+    }
+
+
+def _append_records(root: Path, episode: dict, record: dict) -> None:
+    local = {key: episode[key] for key in ("files", "session", "started", "ended")}
+    history.append_local_episode(root, {**record, **local})
+    if global_dir := os.environ.get(history.HISTORY_ENV):
+        history.append_global_episode(Path(global_dir), record)
+
+
+def _state(check, before: bool) -> dict:
+    statuses = ("existing", "worse", "fixed") if before else ("new", "worse", "existing", "accepted")
+    findings = Counter(c.finding.smell for c in check.changes if c.status in statuses)
+    return {
+        "path": check.path,
+        "language": check.language,
+        "score": check.before if before else check.after,
+        "loc": (check.loc_before if before else check.loc_after) or 0,
+        "functions": check.functions,
+        "findings": dict(findings),
+    }
+
+
+def _read_transcript(transcript: str | None) -> list[str] | None:
+    return Path(transcript).read_text(encoding="utf-8", errors="replace").splitlines() if transcript else None
 
 
 def _end_open(root: Path, pending: list[dict], step) -> list[dict]:
