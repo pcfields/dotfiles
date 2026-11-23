@@ -101,8 +101,13 @@ def test_conditions_are_recorded(body):
 
 @pytest.mark.parametrize(
     "source",
-    ["$a = $b ?? 'x'\n", "switch ($a) { 'x' { } 'y' { } }\n", "$x = $a ? 1 : 2\n"],
-    ids=["null coalescing", "one-line switch", "ternary"],
+    [
+        "$a = $b ?? 'x'\n",
+        "switch ($a) { 'x' { } 'y' { } }\n",
+        "$x = $a ? 1 : 2\n",
+        "docker tag ${svc}:latest $registry/${svc}:main\n",
+    ],
+    ids=["null coalescing", "one-line switch", "ternary", "braced variable before a colon"],
 )
 def test_known_parse_gaps(source):
     assert measure_ps(source).parse_errors > 0

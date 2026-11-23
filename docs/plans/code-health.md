@@ -87,8 +87,9 @@ Language notes:
 - Node type names per language are in `src/code_health/languages.py`
   (recorded in step 1). JSX uses the `javascript` grammar.
 - PowerShell grammar gaps, pinned in `test_known_parse_gaps`: the
-  PowerShell 7 `??` operator and `? :` ternary, and a `switch` with several
-  clauses on one line. Files using them are "not scored".
+  PowerShell 7 `??` operator and `? :` ternary, a `switch` with several
+  clauses on one line, and a braced variable followed by a colon in a
+  command argument (`${svc}:tag`, seen in an open-source repo). Files using them are "not scored".
 - Test files (`**/*.test.*`, `**/*.spec.*`, `**/tests/**`, `**/*Tests/**`)
   give Large Method half weight by default.
 - Default exclusions: `*.min.js`, `*.min.css`, `vendor/`, `node_modules/`,
