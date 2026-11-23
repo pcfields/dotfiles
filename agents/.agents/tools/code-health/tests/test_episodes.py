@@ -129,13 +129,16 @@ def test_loc_band(loc, band):
     assert loc_band(loc) == band
 
 
-def record(kind="uplift", language="csharp", band="500-1000", tokens=(1000, 200, 0, 5000), **fields):
-    return {
-        "kind": kind, "language": language, "loc_band": band,
-        "tokens": dict(zip(("input", "output", "cache_creation", "cache_read"), tokens, strict=True)),
-        "duration_s": fields.get("duration_s", 600), "iterations": fields.get("iterations", 2),
-        "score_before": fields.get("score_before", 4.0), "score_after": fields.get("score_after", 9.0),
-    }
+BASE_RECORD = {
+    "kind": "uplift", "language": "csharp", "loc_band": "500-1000",
+    "tokens": {"input": 1000, "output": 200, "cache_creation": 0, "cache_read": 5000},
+    "duration_s": 600, "iterations": 2, "score_before": 4.0, "score_after": 9.0,
+}
+
+
+def record(tokens=None, **overrides):
+    usage = dict(zip(("input", "output", "cache_creation", "cache_read"), tokens, strict=True)) if tokens else None
+    return {**BASE_RECORD, **overrides, **({"tokens": usage} if usage else {})}
 
 
 def test_summary_groups_by_kind_language_and_size():
@@ -143,7 +146,7 @@ def test_summary_groups_by_kind_language_and_size():
         record(tokens=(100, 50, 0, 0), duration_s=60, score_before=4.0),
         record(tokens=(300, 150, 0, 0), duration_s=180, score_before=5.0),
         record(tokens=(200, 100, 0, 0), duration_s=120, score_before=6.0, iterations=4),
-        record(kind="safeguard-fix", language="typescript", band="<100"),
+        record(kind="safeguard-fix", language="typescript", loc_band="<100"),
     ]
 
     rows = summarize(records)
