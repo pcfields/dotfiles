@@ -65,7 +65,7 @@ def test_default_rules_and_test_file_weight():
     assert limits["Excess Function Arguments (constructor)"] == 8
     assert weights == {}
     assert test_limits == limits
-    assert test_weights == {"Large Method": 0.5}
+    assert test_weights == {"Large Method": 0.5, "Code Duplication": 0.5}
 
 
 def test_later_rules_win_for_matching_paths():

@@ -74,3 +74,31 @@ def test_a_file_of_many_middling_functions_is_flagged():
 def test_few_or_ordinary_functions_are_fine():
     assert smells("a.ts", "".join(branchy(f"f{i}", 6) for i in range(4))) == []
     assert smells("a.ts", "".join(branchy(f"f{i}", 4) for i in range(6))) == []
+
+
+SHAPES = [
+    "  const {p}Rows = await load({p}Source);",
+    "  if (!{p}Rows.length) return [];",
+    "  const {p}Totals = {p}Rows.map((row) => row.amount * rate);",
+    "  log.info('loaded', {p}Rows.length);",
+    "  for (const row of {p}Rows) {{ seen.add(row.id); }}",
+]
+
+
+def block(prefix: str, lines: int) -> str:
+    return "".join(SHAPES[i % len(SHAPES)].format(p=prefix) + "\n" for i in range(lines))
+
+
+def test_a_repeated_block_is_flagged_against_the_second_copy():
+    source = f"function first() {{\n{block('a', 10)}}}\n\nfunction second() {{\n{block('b', 10)}}}\n"
+
+    # The matching function headers belong to the run: 1 + 10 lines.
+    assert smells("a.ts", source) == [("Code Duplication", "second", 14, 11, 10)]
+
+
+def test_short_repeats_and_braces_are_fine():
+    short = f"function first() {{\n{block('a', 8)}}}\nfunction second() {{\n{block('b', 8)}}}\n"
+    braces = "".join(f"function f{i}() {{\n  if (x) {{\n  }}\n}}\n" for i in range(12))
+
+    assert smells("a.ts", short) == []
+    assert smells("a.ts", braces) == []

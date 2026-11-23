@@ -49,7 +49,7 @@ def parse_config(text: str | None) -> Config:
     return Config(exclude=DEFAULT_EXCLUDES + exclude, rules=(_TEST_RULE, *rules))
 
 
-_TEST_RULE = Rule(paths=TEST_FILES, weights=(("Large Method", 0.5),))
+_TEST_RULE = Rule(paths=TEST_FILES, weights=(("Large Method", 0.5), ("Code Duplication", 0.5)))
 DEFAULT_CONFIG = Config(exclude=DEFAULT_EXCLUDES, rules=(_TEST_RULE,))
 
 

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import tree_sitter_language_pack as pack
 
+from code_health.duplication import duplicated_runs
 from code_health.languages import Language
 from code_health.naming import class_names, disambiguate, function_name, own_name
 from code_health.syntax import body, parameter_groups, parameter_list, text
@@ -34,6 +35,7 @@ class FunctionMetrics:
     digest: str = ""
     wraps_module: bool = False
     assertion_run: int = 0
+    end_line: int = 0
 
 
 @dataclass(frozen=True)
@@ -43,6 +45,7 @@ class FileMetrics:
     functions: tuple[FunctionMetrics, ...]
     digest: str = ""
     own_module_mocks: tuple[int, ...] = ()
+    duplicates: tuple[tuple[int, int], ...] = ()
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
@@ -59,6 +62,7 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         functions=tuple(functions),
         digest=digest(source),
         own_module_mocks=_own_module_mocks(root, language),
+        duplicates=duplicated_runs(root, language),
     )
 
 
@@ -152,6 +156,7 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         digest=digest(node.text),
         wraps_module=_is_top_level_iife(node, language),
         assertion_run=_longest_assertion_run(node, language),
+        end_line=node.end_point.row + 1,
     )
 
 

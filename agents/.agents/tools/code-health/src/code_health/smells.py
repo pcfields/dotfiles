@@ -10,6 +10,7 @@ NEW_IGNORE = "Ignore Comment"
 MOCKED_OWN_MODULE = "Mocked Own Module"
 LARGE_ASSERTION_BLOCK = "Large Assertion Block"
 OVERALL_COMPLEXITY = "Overall Code Complexity"
+CODE_DUPLICATION = "Code Duplication"
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ DEFAULT_LIMITS = {
     "Mocked Own Module": 1,
     "Large Assertion Block": 8,
     "Overall Code Complexity": 6,
+    "Code Duplication": 10,
 }
 OVERALL_MIN_FUNCTIONS = 5
 
@@ -40,6 +42,7 @@ OVERALL_MIN_FUNCTIONS = 5
 def find_smells(metrics: FileMetrics, limits: Mapping[str, float] = DEFAULT_LIMITS) -> tuple[Finding, ...]:
     findings = [finding for function in metrics.functions for finding in _function_findings(function, limits)]
     findings += _overall_complexity(metrics, limits)
+    findings += _duplication(metrics, limits)
     if metrics.own_module_mocks:
         first = metrics.own_module_mocks[0]
         findings.append(Finding(MOCKED_OWN_MODULE, FILE, first, len(metrics.own_module_mocks), limits[MOCKED_OWN_MODULE]))
@@ -75,6 +78,22 @@ def _is_container(function: FunctionMetrics) -> bool:
     return function.wraps_module or function.name == SCRIPT or _TEST_GROUP.search(function.name) is not None
 
 
+def _duplication(metrics: FileMetrics, limits: Mapping[str, float]) -> list[Finding]:
+    longest: dict[str, tuple[int, int]] = {}
+    for line, length in metrics.duplicates:
+        owner = _innermost_function(metrics.functions, line)
+        name, start = (owner.name, owner.line) if owner else (FILE, 1)
+        if length > longest.get(name, (0, 0))[1]:
+            longest[name] = (start, length)
+    limit = limits[CODE_DUPLICATION]
+    return [Finding(CODE_DUPLICATION, name, line, length, limit) for name, (line, length) in longest.items() if length >= limit]
+
+
+def _innermost_function(functions, line: int):
+    holders = [f for f in functions if f.name != SCRIPT and f.line <= line <= f.end_line]
+    return min(holders, key=lambda f: f.end_line - f.line, default=None)
+
+
 def _overall_complexity(metrics: FileMetrics, limits: Mapping[str, float]) -> list[Finding]:
     functions = [f for f in metrics.functions if f.name != SCRIPT]
     if len(functions) < OVERALL_MIN_FUNCTIONS:
@@ -97,6 +116,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    CODE_DUPLICATION: "Extract Function for the repeated block; parameterize what differs",
     OVERALL_COMPLEXITY: "Extract Function from the branchiest functions; split the module by responsibility",
     LARGE_ASSERTION_BLOCK: "Assert on one expected object; split the test by behavior",
     MOCKED_OWN_MODULE: "Test through the public interface; use an in-memory fake instead of mocking your own module",

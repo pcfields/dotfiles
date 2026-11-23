@@ -130,6 +130,7 @@ _UNITS = {
     "Mocked Own Module": "mocks",
     "Large Assertion Block": "assertions",
     "Overall Code Complexity": "average complexity",
+    "Code Duplication": "duplicated lines",
 }
 _UNIT_FIRST = {"complexity", "depth", "average complexity"}
 _NOTES = {

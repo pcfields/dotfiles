@@ -545,7 +545,10 @@ Windows doesn't rewrite their line endings.
     - **Code Duplication:** a run of at least 10 code lines that appears
       twice in a file, compared after replacing identifiers and literals.
       Reported against the function with the second copy. Fix: Extract
-      Function.
+      Function. Calibrated: a window must mix at least 4 line shapes (a
+      uniform list or table isn't copied logic), and test files weigh it at
+      half, like Large Method (most hits in a client TS repo were repeated
+      test setup).
     - **Mocked Own Module (JS/TS tests):** `vi.mock`, `jest.mock` or
       `mock.module` called with a relative path (`./`, `../`). Reported
       against `<file>`, value the number of such mocks. Fix: test through
