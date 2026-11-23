@@ -42,7 +42,9 @@ def test_lower_weight_softens_the_penalty():
 
 
 def test_score_never_drops_below_one():
-    many = tuple(finding("Complex Method", 1000, 10) for _ in range(50))
+    smells = ["Complex Method", "Deep Nested Complexity", "Bumpy Road", "Complex Conditional",
+              "Large Method", "Excess Function Arguments", "Large File"]
+    many = tuple(finding(smell, 1000, 10) for smell in smells for _ in range(3))
 
     assert score_file(many) == 1.0
 
@@ -53,3 +55,18 @@ def test_score_never_drops_below_one():
 )
 def test_band(score, expected):
     assert band(score) == expected
+
+
+def test_repeats_of_one_smell_count_at_most_twice_its_worst():
+    two = tuple(finding("Excess Function Arguments", 6, 5) for _ in range(2))
+    ten = tuple(finding("Excess Function Arguments", 6, 5) for _ in range(10))
+
+    assert score_file(ten) == score_file(two)
+    assert score_file(ten) >= 6.0
+
+
+def test_different_smells_still_add_up():
+    one_smell = (finding("Large Method", 90, 70),)
+    two_smells = (finding("Large Method", 90, 70), finding("Bumpy Road", 3, 2))
+
+    assert score_file(two_smells) < score_file(one_smell)

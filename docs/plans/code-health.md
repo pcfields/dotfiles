@@ -113,6 +113,10 @@ fixtures:
   v1 at 5.3. With 2 × and 4 × it scores 4.1, while one finding at its limit
   still scores 9.0, so `k` was left at 0.12. The constants are in
   `score.py`.
+- Repeats of one smell in a file (say, ten similar overloads) count at most
+  2 × that smell's worst penalty in the file. Added as scorer version 2,
+  after an open-source C# repo scored a file of animation-helper overloads
+  red (2.4), below a controller with real nesting and branching.
 - File score = 1 + 9 × e^(−k × total penalty), rounded to one decimal. Start
   with k ≈ 0.12, so a single just-over-the-limit finding gives about 9.0.
 - No findings = 10.0.
