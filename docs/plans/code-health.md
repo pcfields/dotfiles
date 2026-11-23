@@ -105,7 +105,15 @@ Language notes:
   10.
 
 Later, not in v1: Code Duplication (DRY), Brain Method/Brain Class, Low
-Cohesion, Primitive Obsession, and test assertion-block smells.
+Cohesion, Primitive Obsession, and test assertion-block smells. Also, from
+Fowler's *Refactoring* (2nd ed.) smells that a syntax tree can detect:
+- **Large Class:** methods and lines per class, not per file.
+- **Data Clumps:** the same group of parameters repeated across functions.
+  The fix is Introduce Parameter Object, as for Primitive Obsession.
+- **Repeated Switches:** a `switch` or `if` chain on the same value in
+  several places.
+- **Message Chains:** long call chains (`a.b().c().d()`). Fluent APIs such
+  as LINQ and builders need exemptions.
 
 ## Score
 
