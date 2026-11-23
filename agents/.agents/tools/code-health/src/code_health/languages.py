@@ -32,6 +32,7 @@ class Language:
     constructor_named_after_class: bool = False
     nested_parameter_lists: bool = False
     body_wrappers: frozenset[str] = frozenset()
+    blank_conditional_directives: bool = False
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -117,6 +118,7 @@ LANGUAGES = (
         constructors=frozenset({"constructor_declaration"}),
         primary_constructor_owners=frozenset({"class_declaration", "struct_declaration"}),
         overloads_by_type=True,
+        blank_conditional_directives=True,
         branch_exclusions={"switch_section": frozenset({"default"}), "switch_expression_arm": frozenset({"discard"})},
     ),
     Language(

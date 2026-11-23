@@ -172,3 +172,38 @@ def test_smell_fixture_reports_each_smell_and_matches_its_crlf_twin():
         ("Large Method", "Orders.Large", 63, 73, 70),
         ("Excess Function Arguments", "Orders.Ship", 137, 5, 5),
     ]
+
+
+def test_conditional_directives_inside_expressions_parse():
+    source = (
+        "class P {\n"
+        "  Builder Build() {\n"
+        "    return builder\n"
+        "      .UseA()\n"
+        "#if !WINDOWS\n"
+        "      .UseB()\n"
+        "#endif\n"
+        "      .Done();\n"
+        "  }\n"
+        "}\n"
+        "class Q : IA\n"
+        "  #if EXTRA\n"
+        "  , IB\n"
+        "  #endif\n"
+        "{\n"
+        "  void M(int a) { if (a > 0) { } }\n"
+        "}\n"
+    )
+
+    metrics = measure_cs(source)
+
+    assert metrics.parse_errors == 0
+    assert [(f.name, f.line) for f in metrics.functions] == [("P.Build", 2), ("Q.M", 16)]
+
+
+def test_directives_inside_methods_still_count_both_branches():
+    source = "class C {\n  void M(int a) {\n#if DEBUG\n    if (a > 0) { }\n#else\n    if (a < 0) { }\n#endif\n  }\n}\n"
+
+    (method,) = measure_cs(source).functions
+
+    assert method.cyclomatic == 3

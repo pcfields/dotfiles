@@ -1,4 +1,5 @@
 import hashlib
+import re
 from dataclasses import dataclass
 
 import tree_sitter_language_pack as pack
@@ -8,6 +9,9 @@ from code_health.naming import class_names, disambiguate, function_name, own_nam
 from code_health.syntax import body, parameter_groups, parameter_list, text
 
 SCRIPT = "<script>"
+# Blanked, keeping the line break, so #if in odd places (inside an expression
+# or a base list) parses and line numbers stay the same.
+_CONDITIONAL_DIRECTIVE = re.compile(rb"(?m)^[ \t]*#[ \t]*(?:if|elif|else|endif)\b[^\r\n]*")
 
 
 @dataclass(frozen=True)
@@ -39,6 +43,8 @@ class FileMetrics:
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
+    if language.blank_conditional_directives:
+        source = _CONDITIONAL_DIRECTIVE.sub(b"", source)
     root = pack.get_parser(language.grammar).parse(source).root_node
     code_rows = _code_rows(root, language)
     nodes = [node for node in _descendants(root) if _is_measured(node, language)]
