@@ -8,9 +8,8 @@ from collections.abc import Mapping
 from pathlib import Path
 
 
-def state_dir(env: Mapping[str, str] | None = None, platform: str | None = None, home: Path | None = None) -> Path:
+def state_dir(env: Mapping[str, str] | None = None, home: Path | None = None) -> Path:
     env = os.environ if env is None else env
-    platform = sys.platform if platform is None else platform
     home = Path.home() if home is None else home
     if override := env.get("CODE_HEALTH_STATE_DIR"):
         return Path(override)
