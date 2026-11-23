@@ -43,9 +43,7 @@ class FileMetrics:
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
-    if language.blank_conditional_directives:
-        source = _CONDITIONAL_DIRECTIVE.sub(b"", source)
-    root = pack.get_parser(language.grammar).parse(source).root_node
+    root = _parse(source, language)
     code_rows = _code_rows(root, language)
     nodes = [node for node in _descendants(root) if _is_measured(node, language)]
     names = disambiguate([_name(node, language) for node in nodes], nodes, language)
@@ -58,6 +56,12 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         functions=tuple(functions),
         digest=digest(source),
     )
+
+
+def _parse(source: bytes, language: Language):
+    if language.blank_conditional_directives:
+        source = _CONDITIONAL_DIRECTIVE.sub(b"", source)
+    return pack.get_parser(language.grammar).parse(source).root_node
 
 
 def _code_rows(root, language: Language) -> frozenset[int]:
