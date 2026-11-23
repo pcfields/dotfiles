@@ -4,6 +4,7 @@ import pytest
 
 from code_health.languages import language_for_path
 from code_health.measure import Condition, measure_file
+from code_health.smells import find_smells
 
 TYPESCRIPT = language_for_path("x.ts")
 
@@ -237,3 +238,25 @@ def test_duplicate_callback_names_are_numbered():
 
 def test_bare_arrow_parameter_counts():
     assert only_function("const f = x => x;").parameters == 1
+
+
+def test_describe_blocks_are_not_large_methods():
+    tests = "".join(f"  it('case {i}', () => {{\n    expect({i}).toBe({i});\n  }});\n" for i in range(30))
+    source = f"describe('suite', () => {{\n{tests}}});\ncontext('more', () => {{\n{tests}}});\n"
+
+    smells = find_smells(measure_ts(source))
+
+    assert [f.smell for f in smells] == []
+
+
+def test_a_long_test_is_still_a_large_method():
+    body = "".join(f"    expect({i}).toBe({i});\n" for i in range(80))
+    source = f"describe('suite', () => {{\n  it('long', () => {{\n{body}  }});\n}});\n"
+
+    assert [(f.smell, f.function) for f in find_smells(measure_ts(source))] == [
+        ("Large Method", "describe callback.it callback"),
+    ]
+
+
+def test_import_types_are_a_known_parse_gap():
+    assert measure_ts("let x: import('./a').B[] = [];\n").parse_errors > 0

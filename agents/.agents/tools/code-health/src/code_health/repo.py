@@ -276,7 +276,7 @@ DATA_SUFFIXES = frozenset(
         ".csproj", ".fsproj", ".vbproj", ".sln", ".slnx", ".slnf", ".props", ".targets",
         ".nuspec", ".ruleset", ".config", ".resx", ".settings", ".pubxml", ".xaml", ".axaml",
         # app manifests and other declarative files
-        ".plist", ".manifest", ".appxmanifest", ".winget", ".jwk", ".http", ".env.example",
+        ".plist", ".manifest", ".appxmanifest", ".winget", ".jwk", ".http", ".example",
     }
 )
 

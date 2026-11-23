@@ -135,3 +135,8 @@ def test_build_and_config_files_are_data(path):
 @pytest.mark.parametrize("path", ["Index.razor", "Home.cshtml", "site.css", "index.html", "basket.proto"])
 def test_code_the_tool_cannot_score_is_still_listed(path):
     assert not is_prose_or_data(path)
+
+
+def test_example_files_are_data():
+    assert is_prose_or_data(".env.example")
+    assert is_prose_or_data("config/settings.example")
