@@ -29,3 +29,32 @@ def test_review_describes_the_new_smells():
     report = review_source("a.test.ts", b"vi.mock('./a');\nvi.mock('./b');\n")
 
     assert "  Mocked Own Module  <file>:1  2 mocks (limit 1)" in format_review(report).splitlines()
+
+
+def asserts(template: str, count: int, indent: str = "  ") -> str:
+    return "".join(indent + template.format(i=i) + "\n" for i in range(count))
+
+
+def test_a_long_run_of_assertions_is_flagged():
+    source = "it('checks', () => {\n" + asserts("expect(row[{i}]).toBe({i});", 9) + "});\n"
+
+    assert smells("a.test.ts", source) == [("Large Assertion Block", "it callback", 1, 9, 8)]
+
+
+def test_a_run_broken_by_other_code_is_fine():
+    source = (
+        "it('checks', () => {\n" + asserts("expect(a[{i}]).toBe({i});", 5) + "  const b = load();\n"
+        + asserts("expect(b[{i}]).toBe({i});", 5) + "});\n"
+    )
+
+    assert smells("a.test.ts", source) == []
+
+
+def test_assertions_in_other_languages():
+    python = "def test_rows():\n" + asserts("assert rows[{i}] == {i}", 8, "    ")
+    csharp = "class T { void Rows() {\n" + asserts("Assert.Equal({i}, rows[{i}]);", 8) + "} }\n"
+    rust = "fn rows() {\n" + asserts("assert_eq!(rows[{i}], {i});", 8) + "}\n"
+
+    assert [s[0] for s in smells("test_a.py", python)] == ["Large Assertion Block"]
+    assert [s[0] for s in smells("T.cs", csharp)] == ["Large Assertion Block"]
+    assert [s[0] for s in smells("a.rs", rust)] == ["Large Assertion Block"]

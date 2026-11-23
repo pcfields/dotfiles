@@ -61,24 +61,31 @@ def uplift(repo, capsys, *end_args, during=lambda: None):
     return result
 
 
-def test_flush_writes_the_local_and_global_records(repo, global_dir, tmp_path, capsys):
+def flushed_uplift(repo, capsys, tmp_path):
     path = uplift(
         repo, capsys, "--tests-passed", "yes", during=lambda: transcript(tmp_path, (-600, 999), (0, 40), (0, 2), (600, 7))
     )
-
     code, _, _ = episode(capsys, "flush", "--session", "s1", "--transcript", path)
-
-    (local,) = records(repo / ".code-health" / "episodes.jsonl")
-    (generic,) = global_records(global_dir)
     assert code == 0
+
+
+def test_flush_writes_a_generic_global_record(repo, global_dir, tmp_path, capsys):
+    flushed_uplift(repo, capsys, tmp_path)
+
+    (generic,) = global_records(global_dir)
     assert set(generic) == GLOBAL_KEYS
     assert (generic["score_before"], generic["score_after"], generic["tests_passed"]) == (7.9, 10.0, True)
-    assert (generic["token_method"], generic["harness"], generic["model"]) == (
-        "claude-transcript-window", "claude-code", "claude-opus-5-5",
+    assert (generic["token_method"], generic["harness"], generic["model"], generic["tokens"]["output"]) == (
+        "claude-transcript-window", "claude-code", "claude-opus-5-5", 42,
     )
-    assert generic["tokens"]["output"] == 42
     assert "src/app.ts" not in json.dumps(generic)
-    assert (local["files"], local["session"], local["tokens"]) == (["src/app.ts"], "s1", generic["tokens"])
+
+
+def test_flush_writes_the_full_local_record_and_empties_the_queue(repo, global_dir, tmp_path, capsys):
+    flushed_uplift(repo, capsys, tmp_path)
+
+    (local,) = records(repo / ".code-health" / "episodes.jsonl")
+    assert (local["files"], local["session"], local["tokens"]["output"]) == (["src/app.ts"], "s1", 42)
     assert json.loads((repo / ".code-health" / "pending.json").read_text()) == []
 
 

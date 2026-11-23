@@ -250,7 +250,7 @@ def test_describe_blocks_are_not_large_methods():
 
 
 def test_a_long_test_is_still_a_large_method():
-    body = "".join(f"    expect({i}).toBe({i});\n" for i in range(80))
+    body = "".join(f"    const value{i} = load({i});\n" for i in range(80))
     source = f"describe('suite', () => {{\n  it('long', () => {{\n{body}  }});\n}});\n"
 
     assert [(f.smell, f.function) for f in find_smells(measure_ts(source))] == [

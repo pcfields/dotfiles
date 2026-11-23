@@ -33,6 +33,7 @@ class FunctionMetrics:
     conditions: tuple[Condition, ...]
     digest: str = ""
     wraps_module: bool = False
+    assertion_run: int = 0
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,21 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         digest=digest(source),
         own_module_mocks=_own_module_mocks(root, language),
     )
+
+
+_ASSERTION = re.compile(
+    r"(?:await\s+)?(?:expect\s*\(|assert\w*!?[\s(]|Assert\.|self\.assert\w*\(|t\.(?:assert|equal|is)\w*\(|\S.*\|\s*Should\b)"
+)
+
+
+def _longest_assertion_run(function, language: Language) -> int:
+    longest = 0
+    for node in [function, *_own_descendants(function, language)]:
+        run = 0
+        for child in node.named_children:
+            run = run + 1 if _ASSERTION.match(text(child)) else 0
+            longest = max(longest, run)
+    return longest
 
 
 def _own_module_mocks(root, language: Language) -> tuple[int, ...]:
@@ -135,6 +151,7 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         conditions=_conditions(node, language),
         digest=digest(node.text),
         wraps_module=_is_top_level_iife(node, language),
+        assertion_run=_longest_assertion_run(node, language),
     )
 
 

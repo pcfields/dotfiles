@@ -8,6 +8,7 @@ FILE = "<file>"
 INVALID_IGNORE = "Invalid Ignore Comment"
 NEW_IGNORE = "Ignore Comment"
 MOCKED_OWN_MODULE = "Mocked Own Module"
+LARGE_ASSERTION_BLOCK = "Large Assertion Block"
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,7 @@ DEFAULT_LIMITS = {
     "Excess Function Arguments (constructor)": 8,
     "Large File": 1000,
     "Mocked Own Module": 1,
+    "Large Assertion Block": 8,
 }
 
 
@@ -51,6 +53,7 @@ def _function_findings(function: FunctionMetrics, limits: Mapping[str, float]) -
         ("Complex Conditional", *_worst_condition(function), limits["Complex Conditional"]),
         ("Large Method", function.loc, function.line, limits["Large Method"]),
         ("Excess Function Arguments", function.parameters, function.line, limits[arguments]),
+        (LARGE_ASSERTION_BLOCK, function.assertion_run, function.line, limits[LARGE_ASSERTION_BLOCK]),
     ]
     return [
         Finding(smell, function.name, line, value, limit)
@@ -81,6 +84,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    LARGE_ASSERTION_BLOCK: "Assert on one expected object; split the test by behavior",
     MOCKED_OWN_MODULE: "Test through the public interface; use an in-memory fake instead of mocking your own module",
     INVALID_IGNORE: "Write `code-health: ignore <Smell> -- <reason>`, or remove it",
     NEW_IGNORE: "Fix the finding instead, or ask the user to accept the ignore comment",

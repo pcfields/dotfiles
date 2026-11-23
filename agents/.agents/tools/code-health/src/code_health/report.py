@@ -128,6 +128,7 @@ _UNITS = {
     "Excess Function Arguments": "parameters",
     "Large File": "lines",
     "Mocked Own Module": "mocks",
+    "Large Assertion Block": "assertions",
 }
 _UNIT_FIRST = {"complexity", "depth"}
 _NOTES = {
