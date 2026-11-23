@@ -12,6 +12,23 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
+# Claude Desktop (an MSIX app) redirects AppData writes from its terminals into
+# a private copy, where uv's Python junctions don't resolve (astral-sh/uv#19622).
+$uvHome = Join-Path $env:USERPROFILE ".local\share\uv"
+$uvDirs = @{
+  UV_PYTHON_INSTALL_DIR = Join-Path $uvHome "python"
+  UV_TOOL_DIR           = Join-Path $uvHome "tools"
+}
+foreach ($name in $uvDirs.Keys) {
+  $current = [Environment]::GetEnvironmentVariable($name, "User")
+  if (-not $current) {
+    $current = $uvDirs[$name]
+    [Environment]::SetEnvironmentVariable($name, $current, "User")
+    Write-Host "Set $name=$current for your user"
+  }
+  Set-Item "Env:$name" $current
+}
+
 $toolDir = Resolve-Path (Join-Path $PSScriptRoot "..\..\agents\.agents\tools\code-health")
 Write-Host "Installing code-health from $toolDir"
 uv tool install --editable --force "$toolDir"

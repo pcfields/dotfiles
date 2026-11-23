@@ -125,6 +125,14 @@ Open a new terminal afterwards, then check it with `code-health grammars`, which
 also prints where the grammars are cached. Re-run the script after the tool's
 dependencies change; code changes take effect without it.
 
+The script also sets `UV_PYTHON_INSTALL_DIR` and `UV_TOOL_DIR` for your user, to
+`%USERPROFILE%\.local\share\uv\python` and `…\tools`, unless they're already
+set. uv's defaults are under `%APPDATA%`, and Claude Desktop is an MSIX app: a
+terminal inside it writes AppData into a private copy, where uv's Python
+junctions don't resolve
+([astral-sh/uv#19622](https://github.com/astral-sh/uv/issues/19622)). The
+symptom is `Missing expected target directory for Python minor version link`.
+
 `packages/pip-packages.txt` is kept for Python-based tools without a scoop
 manifest, and is empty at the moment.
 
