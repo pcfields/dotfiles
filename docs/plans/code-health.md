@@ -522,7 +522,47 @@ Windows doesn't rewrite their line endings.
     - Run `code-health repo` on the largest C# work repo (about 100k lines)
       and time it.
     - Fix anything Linux-only, or report it.
-13. **Move the Windows state folder out of AppData.** Proposed, not agreed:
+13. **History across machines.** One history in a private git repo of
+    JSONL files (decided over a database: no network or credentials in the
+    Stop hook, tiny volume, git gives backup; DuckDB can query JSONL).
+    - **13a.** Global records go to `episodes-<host>.jsonl` (sanitized
+      hostname), so two machines never append to the same file. Readers
+      glob `episodes*.jsonl`.
+    - **13b.** `code-health history sync`: in `$CODE_HEALTH_HISTORY_DIR`,
+      `git pull --rebase --autostash`, commit new lines, push. Manual for
+      now; a daily run from the Stop hook can come later.
+    - **13c.** `code-health history [--json]`: per kind, language and size
+      band: episodes, median tokens, median duration, median score before
+      and after, average iterations.
+    - **13d.** A `change` record per Claude turn that changed scored files:
+      files changed, language, size band, score before and after, findings
+      before and after, and the turn's tokens. Same allowlisted keys as
+      episodes, `kind: "change"`.
+14. **More smells.** Each with a fix hint, base 1.0, its own commit, and a
+    scorer version bump. Limits are starting values, checked against eShop,
+    london-sync-music and this repo before landing.
+    - **Code Duplication:** a run of at least 10 code lines that appears
+      twice in a file, compared after replacing identifiers and literals.
+      Reported against the function with the second copy. Fix: Extract
+      Function.
+    - **Mocked Own Module (JS/TS tests):** `vi.mock`, `jest.mock` or
+      `mock.module` called with a relative path (`./`, `../`). Reported
+      against `<file>`, value the number of such mocks. Fix: test through
+      the public interface; use an in-memory fake (AGENTS.md rule).
+    - **Large Assertion Block (tests):** at least 8 assertion statements in
+      a row in one function. Fix: assert on one object; split the test.
+    - **Low Cohesion:** a class whose methods form at least 3 groups that
+      share no fields (LCOM4; fields found through `this.`/`self.`, plus C#
+      fields by name). Fix: Extract Class.
+    - **Primitive Obsession (typed languages):** at least 4 parameters
+      typed as primitives (string, number, int, bool, ...). Fix: Introduce
+      Parameter Object or a value type.
+    - **Overall Code Complexity:** a file with at least 5 functions whose
+      average complexity is at least 4. Fix: Extract Function; split the
+      module.
+15. **[Windows] Windows check for 13 and 14,** folded into step 12.
+
+16. **Move the Windows state folder out of AppData.** Proposed, not agreed:
     it changes the "Approving a failure for now" decision, so confirm with
     the user first.
     - **Problem.** The state folder (`accepted.jsonl`, turn marks) is
@@ -550,13 +590,12 @@ Windows doesn't rewrite their line endings.
       it.
 
 Later: an MCP server wrapping `--json` (tools like `score`, `review`,
-`safeguard`), adapters for other harnesses (OpenCode, Codex), duplication and
-test smells, Brain Class and Low Cohesion, and calibrating against the
-CodeScene trial on about 20 files. Also the Rust port (see Decisions):
-step 12 found that the Windows install is the fragile part (uv-managed
-Python, an environment, a grammar download), and one binary with the
-grammars compiled in would remove all three. Do it after 7a and 12, once
-the rules stop changing, as its own PR.
+`safeguard`), adapters for other harnesses (OpenCode, Codex), Brain Class,
+duplication across files, and calibrating against the CodeScene trial on
+about 20 files. Also the Rust port (see Decisions): step 12 found that the
+Windows install is the fragile part (uv-managed Python, an environment, a
+grammar download), and one binary with the grammars compiled in would remove
+all three. Do it after 7a and 12, once the rules stop changing, as its own PR.
 
 ## Revisit: SQL
 
