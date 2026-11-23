@@ -7,6 +7,7 @@ from code_health.measure import SCRIPT, FileMetrics, FunctionMetrics
 FILE = "<file>"
 INVALID_IGNORE = "Invalid Ignore Comment"
 NEW_IGNORE = "Ignore Comment"
+MOCKED_OWN_MODULE = "Mocked Own Module"
 
 
 @dataclass(frozen=True)
@@ -27,11 +28,15 @@ DEFAULT_LIMITS = {
     "Excess Function Arguments": 5,
     "Excess Function Arguments (constructor)": 8,
     "Large File": 1000,
+    "Mocked Own Module": 1,
 }
 
 
 def find_smells(metrics: FileMetrics, limits: Mapping[str, float] = DEFAULT_LIMITS) -> tuple[Finding, ...]:
     findings = [finding for function in metrics.functions for finding in _function_findings(function, limits)]
+    if metrics.own_module_mocks:
+        first = metrics.own_module_mocks[0]
+        findings.append(Finding(MOCKED_OWN_MODULE, FILE, first, len(metrics.own_module_mocks), limits[MOCKED_OWN_MODULE]))
     if metrics.loc >= limits["Large File"]:
         findings.append(Finding("Large File", FILE, 1, metrics.loc, limits["Large File"]))
     return tuple(findings)
@@ -76,6 +81,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    MOCKED_OWN_MODULE: "Test through the public interface; use an in-memory fake instead of mocking your own module",
     INVALID_IGNORE: "Write `code-health: ignore <Smell> -- <reason>`, or remove it",
     NEW_IGNORE: "Fix the finding instead, or ask the user to accept the ignore comment",
 }

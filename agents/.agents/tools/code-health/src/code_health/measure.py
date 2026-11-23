@@ -41,6 +41,7 @@ class FileMetrics:
     parse_errors: int
     functions: tuple[FunctionMetrics, ...]
     digest: str = ""
+    own_module_mocks: tuple[int, ...] = ()
 
 
 def measure_file(source: bytes, language: Language) -> FileMetrics:
@@ -56,7 +57,28 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
         parse_errors=sum(1 for node in _descendants(root) if node.is_error or node.is_missing),
         functions=tuple(functions),
         digest=digest(source),
+        own_module_mocks=_own_module_mocks(root, language),
     )
+
+
+def _own_module_mocks(root, language: Language) -> tuple[int, ...]:
+    if not language.mock_calls:
+        return ()
+    return tuple(
+        node.start_point.row + 1
+        for node in _descendants(root)
+        if node.type == "call_expression" and _mocks_relative_path(node, language)
+    )
+
+
+def _mocks_relative_path(call, language: Language) -> bool:
+    callee = call.child_by_field_name("function")
+    arguments = call.child_by_field_name("arguments")
+    if callee is None or arguments is None or text(callee) not in language.mock_calls:
+        return False
+    first = next(iter(arguments.named_children), None)
+    target = text(first).strip("'\"`") if first is not None and first.type in ("string", "template_string") else ""
+    return target.startswith(("./", "../"))
 
 
 def _parse(source: bytes, language: Language):

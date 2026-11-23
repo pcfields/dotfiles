@@ -127,6 +127,7 @@ _UNITS = {
     "Large Method": "lines",
     "Excess Function Arguments": "parameters",
     "Large File": "lines",
+    "Mocked Own Module": "mocks",
 }
 _UNIT_FIRST = {"complexity", "depth"}
 _NOTES = {

@@ -33,6 +33,7 @@ class Language:
     nested_parameter_lists: bool = False
     body_wrappers: frozenset[str] = frozenset()
     blank_conditional_directives: bool = False
+    mock_calls: frozenset[str] = frozenset()
     comments: frozenset[str] = frozenset({"comment"})
     has_script_body: bool = False
 
@@ -61,6 +62,7 @@ _C_STYLE_BOOLEANS = frozenset({"&&", "||"})
 _JS_OTHER_DECISIONS = frozenset({"??", "&&=", "||=", "??="})
 _JS_NESTING = _JS_LOOPS | {"if_statement", "switch_statement", "try_statement"}
 _JS_CLASSES = frozenset({"class_declaration", "class"})
+_JS_MOCK_CALLS = frozenset({"vi.mock", "vi.doMock", "jest.mock", "jest.doMock", "mock.module"})
 _TS_CLASSES = _JS_CLASSES | {"abstract_class_declaration"}
 _JS_CONDITIONALS = frozenset(
     {"if_statement", "while_statement", "do_statement", "for_statement", "ternary_expression"}
@@ -137,6 +139,7 @@ LANGUAGES = (
         function_bodies=frozenset({"statement_block"}),
         classes=_TS_CLASSES,
         constructor_names=frozenset({"constructor"}),
+        mock_calls=_JS_MOCK_CALLS,
     ),
     Language(
         name="tsx",
@@ -154,6 +157,7 @@ LANGUAGES = (
         function_bodies=frozenset({"statement_block"}),
         classes=_TS_CLASSES,
         constructor_names=frozenset({"constructor"}),
+        mock_calls=_JS_MOCK_CALLS,
     ),
     Language(
         name="javascript",
@@ -171,6 +175,7 @@ LANGUAGES = (
         function_bodies=frozenset({"statement_block"}),
         classes=_JS_CLASSES,
         constructor_names=frozenset({"constructor"}),
+        mock_calls=_JS_MOCK_CALLS,
     ),
     Language(
         name="bash",
