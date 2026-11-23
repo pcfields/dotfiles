@@ -1,15 +1,13 @@
 import argparse
 import datetime
 import json
-import os
 import sys
-from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 
 import tree_sitter_language_pack as pack
 
-from code_health import episodes, gitio, history, state
+from code_health import episode_command, episodes, gitio, history, state
 from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     CONFIG_FILE,
@@ -18,8 +16,6 @@ from code_health.config import (
     is_excluded,
     parse_config,
 )
-from code_health.harness import claude
-from code_health.languages import language_for_path
 from code_health.repo import (
     RepoFile,
     RepoInput,
@@ -83,79 +79,10 @@ def _run(args: argparse.Namespace) -> tuple[str, int]:
         "mark-turn": lambda: (_mark_turn(Path.cwd(), args.session), 0),
         "accept": lambda: _accept(Path.cwd(), args),
         "repo": lambda: _run_repo(args),
-        "episode": lambda: (_run_episode(Path.cwd(), args), 0),
+        "episode": lambda: (episode_command.run_episode(Path.cwd(), args), 0),
         "safeguard": lambda: _run_safeguard(args),
     }
     return handlers.get(args.command, lambda: _run_files(args))()
-
-
-def _run_episode(cwd: Path, args: argparse.Namespace) -> str:
-    root = gitio.repo_root(cwd)
-    gitio.ensure_excluded(root, f"/{history.STATE_DIR}/")
-    pending = history.read_pending(root)
-    now = datetime.datetime.now(datetime.UTC)
-    if args.action == "start":
-        states = _file_states(root, args.files)
-        pending = episodes.start_episode(pending, episodes.Step(args.kind, args.session, states, now))
-    elif args.action == "end":
-        tests = {"yes": True, "no": False}.get(args.tests_passed)
-        pending = _end_open(root, pending, episodes.Step(args.kind, args.session, [], now, tests))
-    else:
-        pending = _flush(root, pending, args.session, args.transcript)
-    history.write_pending(root, pending)
-    return ""
-
-
-def _flush(root: Path, pending: list[dict], session: str, transcript: str | None) -> list[dict]:
-    lines = Path(transcript).read_text(encoding="utf-8", errors="replace").splitlines() if transcript else None
-    global_dir = os.environ.get(history.HISTORY_ENV)
-    if not global_dir and episodes.ended(pending):
-        _note_missing_history_dir()
-    for episode in episodes.ended(pending):
-        record = _episode_record(episode, lines, session)
-        history.append_local_episode(root, {**record, "files": episode["files"], "session": episode["session"],
-                                            "started": episode["started"], "ended": episode["ended"]})
-        if global_dir:
-            history.append_global_episode(Path(global_dir), record)
-    return episodes.still_open(pending)
-
-
-def _note_missing_history_dir() -> None:
-    if state.note_once("history-dir"):
-        print(f"code-health: {history.HISTORY_ENV} is not set, so episodes are recorded only in this repo", file=sys.stderr)
-
-
-def _episode_record(episode: dict, lines: list[str] | None, session: str) -> dict:
-    if lines is None:
-        return episodes.generic_record(episode, None, token_method="none", harness="unknown")
-    window = (datetime.datetime.fromisoformat(episode["started"]), datetime.datetime.fromisoformat(episode["ended"]))
-    tokens = claude.count_tokens(lines, *window)
-    method = "claude-transcript-window" if episode["session"] == session else "partial"
-    return episodes.generic_record(episode, tokens, token_method=method, harness=claude.HARNESS)
-
-
-def _file_states(root: Path, paths: list[str]) -> list[dict]:
-    config = working_config(root)
-    states = []
-    for path in paths:
-        relative = repo_relative(root, path)
-        try:
-            source = (root / relative).read_bytes()
-        except OSError:
-            continue
-        report = review_source(relative, source, config)
-        if report.score is None:
-            continue
-        functions = [f for f in report.metrics.functions if f.name != "<script>"]
-        states.append({
-            "path": relative,
-            "language": language_for_path(relative).name,
-            "score": report.score,
-            "loc": report.metrics.loc,
-            "functions": len(functions),
-            "findings": dict(Counter(f.smell for f in report.findings)),
-        })
-    return states
 
 
 def _run_repo(args: argparse.Namespace) -> tuple[str, int]:
@@ -167,36 +94,10 @@ def _run_safeguard(args: argparse.Namespace) -> tuple[str, int]:
     checks, notes = _safeguard_checks(Path.cwd(), args.base, args.session if args.since_turn else None)
     verdict = safeguard_json(checks, notes)
     if args.episode:
-        _track_episode_safely(args, checks)
+        worse = [check.path for check in checks if check.status == "worse"]
+        episode_command.track_safely(Path.cwd(), args.session, args.transcript, worse)
     output = json.dumps(verdict, indent=2) if args.json else format_safeguard(checks, notes)
     return output, SAFEGUARD_FAILED if verdict["verdict"] == "fail" else 0
-
-
-def _track_episode_safely(args: argparse.Namespace, checks: list[FileCheck]) -> None:
-    # Bookkeeping must never change the safeguard's verdict.
-    try:
-        _track_safeguard_episode(gitio.repo_root(Path.cwd()), args, checks)
-    except (OSError, ValueError, gitio.GitError) as error:
-        print(f"code-health: episode not recorded: {error}", file=sys.stderr)
-
-
-def _track_safeguard_episode(root: Path, args: argparse.Namespace, checks: list[FileCheck]) -> None:
-    gitio.ensure_excluded(root, f"/{history.STATE_DIR}/")
-    pending = episodes.tick(history.read_pending(root), args.session)
-    now = datetime.datetime.now(datetime.UTC)
-    worse = [check.path for check in checks if check.status == "worse"]
-    if worse:
-        pending = episodes.start_episode(pending, episodes.Step("safeguard-fix", args.session, _file_states(root, worse), now))
-    else:
-        pending = _end_open(root, pending, episodes.Step("safeguard-fix", args.session, [], now))
-    history.write_pending(root, _flush(root, pending, args.session, args.transcript))
-
-
-def _end_open(root: Path, pending: list[dict], step) -> list[dict]:
-    episode = next((e for e in episodes.still_open(pending) if e["kind"] == step.kind and e["session"] == step.session), None)
-    if episode is None:
-        return pending
-    return episodes.end_episode(pending, replace(step, states=_file_states(root, episode["files"])))
 
 
 def _run_files(args: argparse.Namespace) -> tuple[str, int]:
