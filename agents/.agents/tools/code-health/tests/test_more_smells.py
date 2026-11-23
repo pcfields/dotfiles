@@ -153,3 +153,31 @@ def test_property_accessors_are_not_method_groups():
 
     assert smells("B.cs", csharp) == []
     assert smells("b.ts", typescript) == []
+
+
+def test_many_primitive_parameters_are_flagged():
+    typescript = "function ship(id: string, qty: number, note: string, rush: boolean, code: string) {}\n"
+
+    assert smells("a.ts", typescript) == [
+        ("Excess Function Arguments", "ship", 1, 5, 5),
+        ("Primitive Obsession", "ship", 1, 5, 5),
+    ]
+
+
+def test_primitive_obsession_in_other_typed_languages():
+    cases = {
+        "A.cs": "class A { void Ship(string id, int qty, string note, bool rush, int code) { } }\n",
+        "a.rs": "fn ship(id: &str, qty: u32, note: String, rush: bool, code: i64) {}\n",
+        "a.py": "def ship(id: str, qty: int, note: str, rush: bool, code: int):\n    pass\n",
+    }
+
+    for path, source in cases.items():
+        assert "Primitive Obsession" in [s[0] for s in smells(path, source)], path
+
+
+def test_domain_types_and_untyped_code_are_fine():
+    untyped = smells("a.js", "function ship(id, qty, note, rush, code) {}\n")
+
+    assert smells("a.ts", "function ship(order: Order, to: Address, qty: number, rush: boolean) {}\n") == []
+    assert smells("a.ts", "function ship(id: string, qty: number, note: string, rush: boolean) {}\n") == []
+    assert "Primitive Obsession" not in [s[0] for s in untyped]

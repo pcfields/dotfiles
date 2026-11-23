@@ -37,6 +37,7 @@ class FunctionMetrics:
     wraps_module: bool = False
     assertion_run: int = 0
     end_line: int = 0
+    primitive_parameters: int = 0
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,7 @@ def _measure(node, name: str, language: Language, code_rows: frozenset[int]) -> 
         wraps_module=_is_top_level_iife(node, language),
         assertion_run=_longest_assertion_run(node, language),
         end_line=node.end_point.row + 1,
+        primitive_parameters=_count_primitive_parameters(node, language),
     )
 
 
@@ -337,6 +339,30 @@ def _counts_as_parameter(group, language: Language) -> bool:
     if _is_this_parameter(group) or group[0].type in language.parameter_exclusions:
         return False
     return not (len(group) == 1 and text(group[0]) in language.receiver_names)
+
+
+_PRIMITIVES = frozenset(
+    {
+        "string", "number", "boolean", "bigint", "int", "long", "short", "byte", "sbyte", "uint", "ulong", "ushort", "bool",
+        "double", "float", "decimal", "char", "String", "str", "bytes", "i8", "i16", "i32",
+        "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize", "f32", "f64",
+    }
+)
+
+
+def _count_primitive_parameters(function, language: Language) -> int:
+    params = parameter_list(function, language)
+    if params is None:
+        return 0
+    groups = [g for g in parameter_groups(params, language) if _counts_as_parameter(g, language)]
+    return sum(1 for group in groups if _declared_type(group[0]) in _PRIMITIVES)
+
+
+def _declared_type(parameter) -> str:
+    declared = parameter.child_by_field_name("type")
+    if declared is None:
+        return ""
+    return text(declared).lstrip(":").strip().removeprefix("&").removeprefix("mut ").strip()
 
 
 def _is_this_parameter(group) -> bool:

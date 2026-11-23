@@ -132,6 +132,7 @@ _UNITS = {
     "Overall Code Complexity": "average complexity",
     "Code Duplication": "duplicated lines",
     "Low Cohesion": "unrelated method groups",
+    "Primitive Obsession": "primitive parameters",
 }
 _UNIT_FIRST = {"complexity", "depth", "average complexity"}
 _NOTES = {

@@ -12,6 +12,7 @@ LARGE_ASSERTION_BLOCK = "Large Assertion Block"
 OVERALL_COMPLEXITY = "Overall Code Complexity"
 CODE_DUPLICATION = "Code Duplication"
 LOW_COHESION = "Low Cohesion"
+PRIMITIVE_OBSESSION = "Primitive Obsession"
 
 
 @dataclass(frozen=True)
@@ -37,6 +38,7 @@ DEFAULT_LIMITS = {
     "Overall Code Complexity": 6,
     "Code Duplication": 10,
     "Low Cohesion": 3,
+    "Primitive Obsession": 5,
 }
 OVERALL_MIN_FUNCTIONS = 5
 
@@ -68,6 +70,7 @@ def _function_findings(function: FunctionMetrics, limits: Mapping[str, float]) -
         ("Large Method", function.loc, function.line, limits["Large Method"]),
         ("Excess Function Arguments", function.parameters, function.line, limits[arguments]),
         (LARGE_ASSERTION_BLOCK, function.assertion_run, function.line, limits[LARGE_ASSERTION_BLOCK]),
+        (PRIMITIVE_OBSESSION, function.primitive_parameters, function.line, limits[PRIMITIVE_OBSESSION]),
     ]
     return [
         Finding(smell, function.name, line, value, limit)
@@ -114,7 +117,6 @@ def _worst_condition(function: FunctionMetrics) -> tuple[int, int]:
     worst = max(function.conditions, key=lambda c: c.operators, default=None)
     return (worst.operators, worst.line) if worst else (0, function.line)
 
-
 FIX_HINTS = {
     "Complex Method": "Extract Function; Decompose Conditional",
     "Deep Nested Complexity": "Replace Nested Conditional with Guard Clauses; Extract Function",
@@ -123,6 +125,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    PRIMITIVE_OBSESSION: "Introduce Parameter Object or a value type for the primitives that travel together",
     LOW_COHESION: "Extract Class for each group of methods that share fields",
     CODE_DUPLICATION: "Extract Function for the repeated block; parameterize what differs",
     OVERALL_COMPLEXITY: "Extract Function from the branchiest functions; split the module by responsibility",

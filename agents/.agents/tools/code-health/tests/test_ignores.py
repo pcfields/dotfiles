@@ -33,11 +33,11 @@ def test_without_the_comment_the_finding_counts():
             "A.cs",
             (
                 "class C {\n  /// code-health: ignore Excess Function Arguments -- mirrors the API\n"
-                "  [HttpGet]\n  void F(int a, int b, int c, int d, int e) { }\n}\n"
+                "  [HttpGet]\n  void F(A a, B b, C c, D d, E e) { }\n}\n"
             ),
         ),
         ("a.lua", "-- code-health: ignore Excess Function Arguments -- mirrors the API\nlocal function f(a, b, c, d, e) end\n"),
-        ("a.rs", "// code-health: ignore Excess Function Arguments -- mirrors the API\n#[inline]\nfn f(a: i32, b: i32, c: i32, d: i32, e: i32) {}\n"),
+        ("a.rs", "// code-health: ignore Excess Function Arguments -- mirrors the API\n#[inline]\nfn f(a: A, b: B, c: C, d: D, e: E) {}\n"),
         ("a.ps1", "<# code-health: ignore Excess Function Arguments -- mirrors the API #>\nfunction F($a, $b, $c, $d, $e) { 1 }\n"),
         ("a.ts", "/* code-health: ignore Excess Function Arguments -- mirrors the API */\nfunction f(a, b, c, d, e) {}\n"),
     ],
