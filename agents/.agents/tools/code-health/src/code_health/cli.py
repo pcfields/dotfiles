@@ -13,7 +13,6 @@ from code_health import episodes, gitio, history, state
 from code_health.accept import AcceptError, Target, candidates, record, select
 from code_health.config import (
     CONFIG_FILE,
-    DEFAULT_CONFIG,
     Config,
     ConfigError,
     is_excluded,
@@ -48,6 +47,13 @@ from code_health.safeguard import (
     is_checked,
     safeguard_json,
 )
+from code_health.workspace import (
+    ToolError,
+    optional_repo_root,
+    read_source,
+    repo_relative,
+    working_config,
+)
 
 SAFEGUARD_FAILED = 2
 
@@ -70,10 +76,6 @@ def main(argv: list[str] | None = None) -> int:
     if output:
         print(output)
     return code
-
-
-class ToolError(Exception):
-    pass
 
 
 def _run(args: argparse.Namespace) -> tuple[str, int]:
@@ -133,10 +135,10 @@ def _episode_record(episode: dict, lines: list[str] | None, session: str) -> dic
 
 
 def _file_states(root: Path, paths: list[str]) -> list[dict]:
-    config = _working_config(root)
+    config = working_config(root)
     states = []
     for path in paths:
-        relative = _repo_relative(root, path)
+        relative = repo_relative(root, path)
         try:
             source = (root / relative).read_bytes()
         except OSError:
@@ -198,41 +200,19 @@ def _end_open(root: Path, pending: list[dict], step) -> list[dict]:
 
 
 def _run_files(args: argparse.Namespace) -> tuple[str, int]:
-    root = _optional_repo_root(Path.cwd())
-    config = _working_config(root)
+    root = optional_repo_root(Path.cwd())
+    config = working_config(root)
     reports = [
-        review_source(path, source, config, _repo_relative(root, path)) for path, source in _read_files(args.files)
+        review_source(path, source, config, repo_relative(root, path)) for path, source in _read_files(args.files)
     ]
     return _render(args.command, reports, as_json=args.json), 0
 
 
-def _optional_repo_root(cwd: Path) -> Path | None:
-    try:
-        return gitio.repo_root(cwd)
-    except gitio.GitError:
-        return None
-
-
-def _working_config(root: Path | None) -> Config:
-    if root is None or not (root / CONFIG_FILE).is_file():
-        return DEFAULT_CONFIG
-    return parse_config((root / CONFIG_FILE).read_text(encoding="utf-8"))
-
-
-def _repo_relative(root: Path | None, path: str) -> str:
-    if root is None:
-        return path
-    try:
-        return Path(path).resolve().relative_to(root.resolve()).as_posix()
-    except ValueError:
-        return path
-
-
 def _repo_report(cwd: Path, args: argparse.Namespace) -> dict:
     root = gitio.repo_root(cwd)
-    pathspec = _repo_relative(root, args.path)
+    pathspec = repo_relative(root, args.path)
     pathspec = "" if pathspec == "." else pathspec
-    config = _working_config(root)
+    config = working_config(root)
     files, not_scored = [], []
     for path in gitio.source_files(root, pathspec):
         scored = _score_repo_file(root, path, config)
@@ -284,8 +264,8 @@ def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:
     if not sys.stdin.isatty():
         raise ToolError("accept needs an interactive terminal: run it yourself, not through an agent")
     root = gitio.repo_root(cwd)
-    path = _repo_relative(root, args.file)
-    report = review_source(args.file, _read(Path(args.file)), _working_config(root), path)
+    path = repo_relative(root, args.file)
+    report = review_source(args.file, read_source(Path(args.file)), working_config(root), path)
     try:
         finding = select(candidates(report.findings, report.ignores), path, args.smell, args.function)
     except AcceptError as error:
@@ -319,7 +299,7 @@ def _safeguard_checks(
     for change in gitio.changed_files(root, commit):
         if not is_checked(change.path) or is_excluded(config, change.path):
             continue
-        after = _read(root / change.path)
+        after = read_source(root / change.path)
         before = gitio.read_at(root, commit, change.base_path) if change.base_path else None
         checks.append(check_file(change.path, before, after, context))
     return checks, _config_notes(root, base_text)
@@ -357,14 +337,7 @@ def _turn_base(root: Path, session: str) -> str:
 
 
 def _read_files(paths: list[str]) -> list[tuple[str, bytes]]:
-    return [(path, _read(Path(path))) for path in paths]
-
-
-def _read(path: Path) -> bytes:
-    try:
-        return path.read_bytes()
-    except OSError as error:
-        raise ToolError(f"cannot read {error.filename}: {error.strerror}") from error
+    return [(path, read_source(Path(path))) for path in paths]
 
 
 def _render(command: str, reports: list[FileReport], as_json: bool) -> str:
