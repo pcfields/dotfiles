@@ -42,6 +42,7 @@ STEPS=(
   flatpak
   mise-runtimes
   opencode
+  code-health
   zsa-wally
 )
 
@@ -59,6 +60,7 @@ step_script() {
     flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
     mise-runtimes) echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
     opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
+    code-health) echo "$INSTALL_DIR/install-code-health.sh" ;;
     zsa-wally) echo "$INSTALL_DIR/install-zsa-wally.sh" ;;
     *)        return 1 ;;
   esac
