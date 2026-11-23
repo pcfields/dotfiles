@@ -108,7 +108,7 @@ def _run_files(args: argparse.Namespace) -> tuple[str, int]:
 
 
 def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:
-    if not sys.stdin.isatty():
+    if not _stdin_is_terminal():
         raise ToolError("accept needs an interactive terminal: run it yourself, not through an agent")
     root = gitio.repo_root(cwd)
     path = repo_relative(root, args.file)
@@ -125,6 +125,19 @@ def _accept(cwd: Path, args: argparse.Namespace) -> tuple[str, int]:
     entry = record(Target(path, finding, report.digest_for(finding.function)), args.reason, today)
     state.append_accepted(root, entry)
     return "Accepted.", 0
+
+
+def _stdin_is_terminal() -> bool:
+    if not sys.stdin.isatty():
+        return False
+    if sys.platform != "win32":
+        return True
+    # On Windows isatty() is also true for NUL, a character device that isn't a console.
+    import ctypes
+    import msvcrt
+
+    handle = msvcrt.get_osfhandle(sys.stdin.fileno())
+    return bool(ctypes.windll.kernel32.GetConsoleMode(handle, ctypes.byref(ctypes.c_ulong())))
 
 
 def _mark_turn(cwd: Path, session: str) -> str:

@@ -50,17 +50,18 @@ def safeguard_code(capsys) -> int:
 ACCEPT_DEEP = ["src/app.ts", "--smell", "Deep Nested Complexity", "--reason", "port it next sprint"]
 
 
-def test_accept_refuses_without_a_terminal(repo, state):
+@pytest.mark.parametrize("stdin", [{"stdin": subprocess.DEVNULL}, {"input": "yes\n"}], ids=["null device", "piped yes"])
+def test_accept_refuses_without_a_terminal(repo, state, stdin):
     commit(repo, {"src/app.ts": CLEAN})
     write(repo, "src/app.ts", nested(4))
 
     result = subprocess.run(
         [sys.executable, "-m", "code_health", "accept", *ACCEPT_DEEP],
         cwd=repo,
-        stdin=subprocess.DEVNULL,
         capture_output=True,
         text=True,
         check=False,
+        **stdin,
     )
 
     assert result.returncode == 1
