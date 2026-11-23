@@ -6,6 +6,7 @@ from gitrepo import CLEAN, commit, nested, write
 
 from code_health.cli import main
 from code_health.episodes import GLOBAL_KEYS
+from code_health.history import machine_name
 
 pytestmark = pytest.mark.usefixtures("state")
 
@@ -40,6 +41,12 @@ def episode(capsys, *args):
     return code, out, err
 
 
+def global_records(folder):
+    files = sorted(folder.glob("episodes*.jsonl"))
+    assert [f.name for f in files] in ([], [f"episodes-{machine_name()}.jsonl"])
+    return [json.loads(line) for f in files for line in f.read_text().splitlines()]
+
+
 def records(path):
     return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
@@ -61,7 +68,7 @@ def test_flush_writes_the_local_and_global_records(repo, global_dir, tmp_path, c
     code, _, _ = episode(capsys, "flush", "--session", "s1", "--transcript", path)
 
     (local,) = records(repo / ".code-health" / "episodes.jsonl")
-    (generic,) = records(global_dir / "episodes.jsonl")
+    (generic,) = global_records(global_dir)
     assert code == 0
     assert set(generic) == GLOBAL_KEYS
     assert (generic["score_before"], generic["score_after"], generic["tests_passed"]) == (7.9, 10.0, True)
@@ -79,7 +86,7 @@ def test_episode_from_another_session_is_partial(repo, global_dir, tmp_path, cap
 
     episode(capsys, "flush", "--session", "s2", "--transcript", path)
 
-    assert records(global_dir / "episodes.jsonl")[0]["token_method"] == "partial"
+    assert global_records(global_dir)[0]["token_method"] == "partial"
 
 
 def test_flush_without_a_transcript_records_no_tokens(repo, global_dir, capsys):
@@ -87,7 +94,7 @@ def test_flush_without_a_transcript_records_no_tokens(repo, global_dir, capsys):
 
     episode(capsys, "flush")
 
-    (generic,) = records(global_dir / "episodes.jsonl")
+    (generic,) = global_records(global_dir)
     assert (generic["token_method"], generic["harness"], generic["model"]) == ("none", "unknown", None)
 
 
@@ -111,7 +118,7 @@ def test_open_episodes_are_not_flushed(repo, global_dir, capsys):
 
     episode(capsys, "flush")
 
-    assert records(global_dir / "episodes.jsonl") == []
+    assert global_records(global_dir) == []
     assert len(json.loads((repo / ".code-health" / "pending.json").read_text())) == 1
 
 
@@ -145,7 +152,7 @@ def test_safeguard_fix_episode_runs_from_failure_to_pass(repo, global_dir, tmp_p
 
     assert safeguard_episode(capsys, "--transcript", path) == 0
 
-    (generic,) = records(global_dir / "episodes.jsonl")
+    (generic,) = global_records(global_dir)
     assert (generic["kind"], generic["iterations"], generic["score_before"], generic["score_after"]) == (
         "safeguard-fix", 2, 7.9, 10.0,
     )
@@ -157,7 +164,7 @@ def test_passing_safeguard_without_an_episode_records_nothing(repo, global_dir, 
     write(repo, "src/app.ts", CLEAN.replace("a;", "a + 1;"))
 
     assert safeguard_episode(capsys) == 0
-    assert records(global_dir / "episodes.jsonl") == []
+    assert global_records(global_dir) == []
 
 
 def test_further_failures_count_as_iterations(repo, global_dir, capsys):
@@ -168,7 +175,7 @@ def test_further_failures_count_as_iterations(repo, global_dir, capsys):
     write(repo, "src/app.ts", CLEAN)
     safeguard_episode(capsys)
 
-    assert records(global_dir / "episodes.jsonl")[0]["iterations"] == 3
+    assert global_records(global_dir)[0]["iterations"] == 3
 
 
 def test_episode_errors_never_change_the_safeguard_verdict(repo, tmp_path, capsys):

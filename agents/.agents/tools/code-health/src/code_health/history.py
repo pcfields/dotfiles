@@ -1,4 +1,6 @@
 import json
+import re
+import socket
 from dataclasses import asdict
 from pathlib import Path
 
@@ -115,7 +117,13 @@ def append_local_episode(root: Path, record: dict) -> None:
 
 
 def append_global_episode(folder: Path, record: dict) -> None:
-    _append(folder / "episodes.jsonl", record)
+    # One file per machine, so machines sharing the history repo never conflict.
+    _append(folder / f"episodes-{machine_name()}.jsonl", record)
+
+
+def machine_name(hostname: str | None = None) -> str:
+    name = socket.gethostname() if hostname is None else hostname
+    return re.sub(r"[^a-z0-9.-]+", "-", name.lower()).strip("-") or "unknown"
 
 
 def _append(path: Path, record: dict) -> None:
