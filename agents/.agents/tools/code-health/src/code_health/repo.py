@@ -272,6 +272,11 @@ DATA_SUFFIXES = frozenset(
         ".md", ".markdown", ".rst", ".txt", ".json", ".jsonc", ".jsonl", ".yaml", ".yml", ".toml",
         ".lock", ".csv", ".tsv", ".svg", ".snap", ".map", ".log", ".ini", ".cfg", ".conf", ".xml",
         ".dump", ".bak",
+        # .NET build, project and UI definition files
+        ".csproj", ".fsproj", ".vbproj", ".sln", ".slnx", ".slnf", ".props", ".targets",
+        ".nuspec", ".ruleset", ".config", ".resx", ".settings", ".pubxml", ".xaml", ".axaml",
+        # app manifests and other declarative files
+        ".plist", ".manifest", ".appxmanifest", ".winget", ".jwk", ".http", ".env.example",
     }
 )
 

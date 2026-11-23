@@ -1,3 +1,5 @@
+import pytest
+
 from code_health.repo import (
     Commit,
     Coupling,
@@ -8,6 +10,7 @@ from code_health.repo import (
     coupling,
     healthy_but_busy,
     hotspot_health,
+    is_prose_or_data,
     least_healthy,
     parse_log,
     refactor_first,
@@ -118,3 +121,17 @@ def test_worst_findings_rank_by_penalty():
     files = [repo_file("a.ts", 9.0, findings=(small,)), repo_file("b.ts", 5.0, findings=(big,))]
 
     assert [(path, f.function) for path, f in worst_findings(files, top=10)] == [("b.ts", "b"), ("a.ts", "a")]
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["App.csproj", "eShop.sln", "eShop.slnx", "Directory.Build.props", "Build.targets", "Main.xaml",
+     "Strings.resx", "Info.plist", "Package.appxmanifest", "app.config", "api.http"],
+)
+def test_build_and_config_files_are_data(path):
+    assert is_prose_or_data(path)
+
+
+@pytest.mark.parametrize("path", ["Index.razor", "Home.cshtml", "site.css", "index.html", "basket.proto"])
+def test_code_the_tool_cannot_score_is_still_listed(path):
+    assert not is_prose_or_data(path)
