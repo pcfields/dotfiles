@@ -117,6 +117,7 @@ def _worst_condition(function: FunctionMetrics) -> tuple[int, int]:
     worst = max(function.conditions, key=lambda c: c.operators, default=None)
     return (worst.operators, worst.line) if worst else (0, function.line)
 
+
 FIX_HINTS = {
     "Complex Method": "Extract Function; Decompose Conditional",
     "Deep Nested Complexity": "Replace Nested Conditional with Guard Clauses; Extract Function",
