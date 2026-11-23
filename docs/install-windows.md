@@ -111,23 +111,22 @@ where.exe <server-name>
 If the `.cmd` is absent, reinstall that package. `format.lua` already applies
 this workaround for prettier and documents the reasoning.
 
-### Python-based tooling
+### code-health
 
-`lizard` measures function length and complexity for the `repo-health` agent
-skill. It ships as a Python package, so on Windows it comes from pip (on Linux
-it comes from Nix). Install Python through mise (keep the version in step with
-`mise/.config/mise/config.toml`), then the packages in
-`packages/pip-packages.txt`, then refresh mise's shims so the new `lizard`
-command is on PATH:
+`code-health` scores code health for the agent hooks and the `repo-health`
+skill. It installs with `uv` (from scoop) as an editable tool, and downloads its
+tree-sitter grammars so a first run works offline:
 
 ```powershell
-mise use --global python@3.15
-pip install -r packages\pip-packages.txt
-mise reshim
+powershell -ExecutionPolicy Bypass -File install\windows\install-code-health.ps1
 ```
 
-Check it with `where.exe lizard`. Without it the skill still works, but reports
-indentation only.
+Open a new terminal afterwards, then check it with `code-health grammars`, which
+also prints where the grammars are cached. Re-run the script after the tool's
+dependencies change; code changes take effect without it.
+
+`packages/pip-packages.txt` is kept for Python-based tools without a scoop
+manifest, and is empty at the moment.
 
 **Next, you MUST set up symlinks for your PowerShell profile and other configs:**
 ```powershell

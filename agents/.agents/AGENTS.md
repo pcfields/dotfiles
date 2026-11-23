@@ -125,9 +125,8 @@ applied through it.
   note what was addressed vs. deliberately left. Also check the diff yourself
   for comments that restate the code and for per-row subqueries; reviewers
   flag both.
-- In a git repo, check each source file you changed with
-  `bash ~/.agents/skills/repo-health/scripts/repo-health.sh <file>`. If it
-  grades yellow or red, clean up what this change added, or say why it was
+- Check each source file you changed with `code-health review <file>`. If it
+  scores yellow or red, clean up what this change added, or say why it was
   left.
 - `code-health safeguard` flags changed files that gained or worsened a code
   smell; some harnesses run it for you when you finish. Fix every `x` line it

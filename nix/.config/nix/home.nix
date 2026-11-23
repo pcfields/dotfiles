@@ -64,7 +64,6 @@
     shfmt                               # shfmt (shell formatter)
     shellcheck                          # shell linter; bash-language-server uses it
     sqlfluff                            # SQL linter and formatter
-    python3Packages.lizard              # lizard (function complexity; used by the repo-health agent skill)
 
     # --- Python tooling ---
     uv                                  # pins its own Python; builds and installs the code-health tool
