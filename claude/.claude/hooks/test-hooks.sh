@@ -117,7 +117,8 @@ transcript="$health_state/transcript.jsonl"
 : >"$transcript"
 episode_event() { jq -cn --arg d "$health" --arg t "$transcript" --argjson active "$1" '{hook_event_name:"Stop",cwd:$d,session_id:"t2",transcript_path:$t,stop_hook_active:$active}'; }
 episodes_recorded() {
-  if [[ -f "$health/.code-health/episodes.jsonl" ]]; then wc -l <"$health/.code-health/episodes.jsonl"; else echo 0; fi
+  local file="$health/.code-health/episodes.jsonl"
+  if [[ -f "$file" ]]; then grep -c '"kind": "safeguard-fix"' "$file" || true; else echo 0; fi
 }
 # expect_episodes <count> <label>: checks how many episodes were written.
 expect_episodes() {
