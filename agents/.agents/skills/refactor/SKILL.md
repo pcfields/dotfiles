@@ -53,8 +53,7 @@ the `repo-health` skill and propose the worst hotspot.
 
 Record the starting numbers with `code-health review <file>`, and open an
 episode so the uplift's cost is recorded:
-`code-health episode start --kind uplift <file>`. Until `code-health` is on
-PATH, run both as `uv run --project ~/.agents/tools/code-health code-health …`.
+`code-health episode start --kind uplift <file>`.
 
 ### 2. Safety net
 

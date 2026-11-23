@@ -442,7 +442,15 @@ Windows doesn't rewrite their line endings.
     scope: episodes, global history and token capture, with episode start and
     end added to the `refactor` skill. Checked by pytest with a synthetic
     transcript and a key-allowlist test on global records.
-11. **Install wiring.** Also, in one change: remove the `repo-health.sh <file>`
+11. ✅ **Install wiring.** Done: `./install.sh code-health`
+    (`install/install-code-health.sh`, run on Linux) and
+    `install/windows/install-code-health.ps1` (run it in step 12) install
+    the tool editable with uv and run the new `code-health grammars`, which
+    downloads every grammar and prints the cache folder (on Linux,
+    `~/.cache/tree-sitter-language-pack/<version>/libs`; confirm the
+    Windows one in step 12). `repo-health.sh` and lizard are retired, and
+    the definition of done uses `code-health review`. Original scope:
+    also, in one change: remove the `repo-health.sh <file>`
     line from AGENTS.md "Definition of done" (deferred from step 6), delete
     `repo-health.sh`, and drop the lizard paragraph from
     `docs/install-windows.md` (both deferred from step 9).

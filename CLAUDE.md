@@ -33,7 +33,7 @@ The same `nvim/.config/nvim/` tree is consumed by both mechanisms — keep the s
 Steps run in this order (defined in `STEPS` in `install.sh`), each dispatching to `install/install-<step>.sh`:
 
 ```
-apt → stow → fish → fonts → ohmyposh → rustup → nix → flatpak → mise-runtimes → opencode → zsa-wally
+apt → stow → fish → fonts → ohmyposh → rustup → nix → flatpak → mise-runtimes → opencode → code-health → zsa-wally
 ```
 
 **Order-dependent restarts:** `fish` and Docker group membership need logout/login; `nix` needs a shell restart before the following step. See `docs/strategy.md` for the rationale behind the ordering.

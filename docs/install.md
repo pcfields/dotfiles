@@ -113,6 +113,23 @@ Git needs your identity to make commits.
 
 GitHub supports cloning repositories with SSH URLs once SSH access is configured for the account.
 
+## Code health tool
+
+`./install.sh` includes a `code-health` step. It installs the `code-health`
+command (`agents/.agents/tools/code-health`) with `uv tool install --editable`,
+so code changes take effect without reinstalling, and downloads its tree-sitter
+grammars so a first run works offline. It needs `uv` from the `nix` step.
+
+```bash
+./install.sh code-health            # first install
+./install.sh code-health --force    # after the tool's dependencies change
+code-health grammars                # re-download grammars; prints the cache folder
+```
+
+Refactoring episodes are also recorded in a private history repo when
+`CODE_HEALTH_HISTORY_DIR` points at it (set it in your shell config, not in this
+repo). Without it they stay in each project's `.code-health/` folder.
+
 ## Script candidate
 
 A good first automation target is a script that:
