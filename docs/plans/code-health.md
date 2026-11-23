@@ -507,8 +507,12 @@ Windows doesn't rewrite their line endings.
       minor-version junction made there doesn't resolve, and every `uv run`
       fails with "Missing expected target directory for Python minor version
       link" (astral-sh/uv#19622, open; `--reinstall` doesn't repair it).
-      Fixed: the install script sets `UV_PYTHON_INSTALL_DIR` and
-      `UV_TOOL_DIR` under `%USERPROFILE%\.local\share\uv`.
+      Root cause: scoop's uv already sets `UV_PYTHON_INSTALL_DIR` and
+      `UV_TOOL_DIR` under `scoop\persist\uv`, but Claude Desktop was still
+      running from before the install (closing its window leaves it in the
+      tray), so uv fell back to AppData. Fixed by documenting a full quit
+      after `scoop install uv`; the install script sets no uv variables of
+      its own, and takes uv's tool folder from `uv tool dir --bin`.
     - ✅ Grammar cache on Windows:
       `%LOCALAPPDATA%\tree-sitter-language-pack\<version>\libs`.
     - ✅ Python 3.15: the pin moved from 3.13 to 3.15, to match the tool,

@@ -125,15 +125,16 @@ Open a new terminal afterwards, then check it with `code-health grammars`, which
 also prints where the grammars are cached. Re-run the script after the tool's
 dependencies change; code changes take effect without it.
 
-The script also sets `UV_PYTHON_INSTALL_DIR` and `UV_TOOL_DIR` for your user, to
-`%USERPROFILE%\.local\share\uv\python` and `…\tools`, unless they're already
-set. uv's defaults are under `%APPDATA%`, and Claude Desktop is an MSIX app: a
-terminal inside it writes AppData into a private copy, where uv's Python
-junctions don't resolve
+**Quit Claude Desktop from its tray icon after `scoop install uv`.** Scoop's uv
+sets `UV_PYTHON_INSTALL_DIR`, `UV_TOOL_DIR` and friends for your user, pointing
+at `scoop\persist\uv`. Claude Desktop only sees them after a full restart;
+closing its window leaves it running in the tray. Until then, uv falls back to
+`%APPDATA%`, and Claude Desktop is an MSIX app: a terminal inside it writes
+AppData into a private copy, where uv's Python junctions don't resolve
 ([astral-sh/uv#19622](https://github.com/astral-sh/uv/issues/19622)). The
 symptom is `Missing expected target directory for Python minor version link`.
 
-For the same reason, code-health keeps its state (acceptances from
+Because of that private copy, code-health keeps its state (acceptances from
 `code-health accept`, and turn marks) in `%USERPROFILE%\.local\state\code-health`,
 not AppData, so the Claude hooks and a normal terminal see the same folder.
 Older versions used `%LOCALAPPDATA%\code-health`; that folder can be deleted.
