@@ -58,18 +58,26 @@ repo="$(new_repo subdir)"
 mkdir -p "$repo/.agents" "$repo/src/deep" && echo 'exit 1' >"$repo/.agents/check"
 expect 2 "$repo/src/deep" "run from a subdirectory finds the repo root"
 
-repo="$(new_repo make)"
-printf 'check:\n\t@echo "types: error"; exit 1\n' >"$repo/Makefile"
-expect 2 "$repo" "Makefile check target fails" "types: error"
+makefile_cases() {
+  if ! command -v make >/dev/null; then
+    printf 'skip  Makefile cases (make missing)\n'
+    return
+  fi
+  local repo
+  repo="$(new_repo make)"
+  printf 'check:\n\t@echo "types: error"; exit 1\n' >"$repo/Makefile"
+  expect 2 "$repo" "Makefile check target fails" "types: error"
 
-repo="$(new_repo makeother)"
-printf 'build:\n\t@exit 1\n' >"$repo/Makefile"
-expect 0 "$repo" "Makefile without a check target"
+  repo="$(new_repo makeother)"
+  printf 'build:\n\t@exit 1\n' >"$repo/Makefile"
+  expect 0 "$repo" "Makefile without a check target"
 
-repo="$(new_repo precedence)"
-mkdir "$repo/.agents" && echo 'exit 0' >"$repo/.agents/check"
-printf 'check:\n\t@exit 1\n' >"$repo/Makefile"
-expect 0 "$repo" ".agents/check wins over the Makefile"
+  repo="$(new_repo precedence)"
+  mkdir "$repo/.agents" && echo 'exit 0' >"$repo/.agents/check"
+  printf 'check:\n\t@exit 1\n' >"$repo/Makefile"
+  expect 0 "$repo" ".agents/check wins over the Makefile"
+}
+makefile_cases
 
 if command -v npm >/dev/null && command -v jq >/dev/null; then
   repo="$(new_repo npm)"
