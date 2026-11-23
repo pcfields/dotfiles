@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Regression fixtures for the PreToolUse and Stop hooks. Run: bash test-hooks.sh
 set -euo pipefail
+# The Stop hook appends to the shared history there; tests must not.
+unset CODE_HEALTH_HISTORY_DIR
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 failures=0
