@@ -58,3 +58,19 @@ def test_assertions_in_other_languages():
     assert [s[0] for s in smells("test_a.py", python)] == ["Large Assertion Block"]
     assert [s[0] for s in smells("T.cs", csharp)] == ["Large Assertion Block"]
     assert [s[0] for s in smells("a.rs", rust)] == ["Large Assertion Block"]
+
+
+def branchy(name: str, branches: int) -> str:
+    body = "".join(f"  if (a === {i}) return {i};\n" for i in range(branches))
+    return f"function {name}(a) {{\n{body}  return 0;\n}}\n"
+
+
+def test_a_file_of_many_middling_functions_is_flagged():
+    source = "".join(branchy(f"f{i}", 6) for i in range(5))
+
+    assert smells("a.ts", source) == [("Overall Code Complexity", "<file>", 1, 7.0, 6)]
+
+
+def test_few_or_ordinary_functions_are_fine():
+    assert smells("a.ts", "".join(branchy(f"f{i}", 6) for i in range(4))) == []
+    assert smells("a.ts", "".join(branchy(f"f{i}", 4) for i in range(6))) == []

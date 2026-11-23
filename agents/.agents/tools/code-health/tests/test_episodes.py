@@ -94,7 +94,7 @@ def test_generic_record_has_only_the_allowlisted_keys_and_no_names():
     assert "payment" not in text and "src/" not in text and ".ts" not in text and "s1" not in text
     assert record == {
         "date": "2026-11-20",
-        "scorer_version": "6",
+        "scorer_version": "7",
         "kind": "safeguard-fix",
         "language": "typescript",
         "loc_band": "100-500",

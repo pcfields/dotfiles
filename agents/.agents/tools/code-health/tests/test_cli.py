@@ -68,7 +68,7 @@ def test_score_json(capsys, tmp_path):
 
     assert code == 0
     assert json.loads(out) == {
-        "scorer_version": "6",
+        "scorer_version": "7",
         "files": [
             {"path": V3, "score": 10.0, "band": "green"},
             {"path": str(sql), "score": None, "band": "not scored", "reason": "unsupported language"},

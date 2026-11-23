@@ -9,6 +9,7 @@ INVALID_IGNORE = "Invalid Ignore Comment"
 NEW_IGNORE = "Ignore Comment"
 MOCKED_OWN_MODULE = "Mocked Own Module"
 LARGE_ASSERTION_BLOCK = "Large Assertion Block"
+OVERALL_COMPLEXITY = "Overall Code Complexity"
 
 
 @dataclass(frozen=True)
@@ -31,11 +32,14 @@ DEFAULT_LIMITS = {
     "Large File": 1000,
     "Mocked Own Module": 1,
     "Large Assertion Block": 8,
+    "Overall Code Complexity": 6,
 }
+OVERALL_MIN_FUNCTIONS = 5
 
 
 def find_smells(metrics: FileMetrics, limits: Mapping[str, float] = DEFAULT_LIMITS) -> tuple[Finding, ...]:
     findings = [finding for function in metrics.functions for finding in _function_findings(function, limits)]
+    findings += _overall_complexity(metrics, limits)
     if metrics.own_module_mocks:
         first = metrics.own_module_mocks[0]
         findings.append(Finding(MOCKED_OWN_MODULE, FILE, first, len(metrics.own_module_mocks), limits[MOCKED_OWN_MODULE]))
@@ -71,6 +75,15 @@ def _is_container(function: FunctionMetrics) -> bool:
     return function.wraps_module or function.name == SCRIPT or _TEST_GROUP.search(function.name) is not None
 
 
+def _overall_complexity(metrics: FileMetrics, limits: Mapping[str, float]) -> list[Finding]:
+    functions = [f for f in metrics.functions if f.name != SCRIPT]
+    if len(functions) < OVERALL_MIN_FUNCTIONS:
+        return []
+    average = round(sum(f.cyclomatic for f in functions) / len(functions), 1)
+    limit = limits[OVERALL_COMPLEXITY]
+    return [Finding(OVERALL_COMPLEXITY, FILE, 1, average, limit)] if average >= limit else []
+
+
 def _worst_condition(function: FunctionMetrics) -> tuple[int, int]:
     worst = max(function.conditions, key=lambda c: c.operators, default=None)
     return (worst.operators, worst.line) if worst else (0, function.line)
@@ -84,6 +97,7 @@ FIX_HINTS = {
     "Large Method": "Extract Function; Split Phase",
     "Excess Function Arguments": "Introduce Parameter Object",
     "Large File": "Split the module by responsibility",
+    OVERALL_COMPLEXITY: "Extract Function from the branchiest functions; split the module by responsibility",
     LARGE_ASSERTION_BLOCK: "Assert on one expected object; split the test by behavior",
     MOCKED_OWN_MODULE: "Test through the public interface; use an in-memory fake instead of mocking your own module",
     INVALID_IGNORE: "Write `code-health: ignore <Smell> -- <reason>`, or remove it",

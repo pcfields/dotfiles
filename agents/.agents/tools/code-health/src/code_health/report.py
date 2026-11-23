@@ -129,8 +129,9 @@ _UNITS = {
     "Large File": "lines",
     "Mocked Own Module": "mocks",
     "Large Assertion Block": "assertions",
+    "Overall Code Complexity": "average complexity",
 }
-_UNIT_FIRST = {"complexity", "depth"}
+_UNIT_FIRST = {"complexity", "depth", "average complexity"}
 _NOTES = {
     INVALID_IGNORE: "needs `code-health: ignore <Smell> -- <reason>`",
     NEW_IGNORE: "new ignore comment",

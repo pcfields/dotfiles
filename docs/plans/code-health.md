@@ -559,7 +559,8 @@ Windows doesn't rewrite their line endings.
       typed as primitives (string, number, int, bool, ...). Fix: Introduce
       Parameter Object or a value type.
     - **Overall Code Complexity:** a file with at least 5 functions whose
-      average complexity is at least 4. Fix: Extract Function; split the
+      average complexity is at least 6 (4 flagged ordinary, readable files
+      in this repo and eShop; the real cases averaged 7.6 and 8). Fix: Extract Function; split the
       module.
 15. **[Windows] Windows check for 13 and 14,** folded into step 12.
 
