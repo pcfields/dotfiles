@@ -46,24 +46,15 @@ STEPS=(
   zsa-wally
 )
 
+# step_script <step>: the step's script, install/install-<step>.sh, except stow.
 step_script() {
   local step="$1"
-  case "$step" in
-    apt)      echo "$INSTALL_DIR/install-apt.sh" ;;
-    stow)     echo "$INSTALL_DIR/stow-dotfiles.sh" ;;
-    agent-links) echo "$INSTALL_DIR/install-agent-links.sh" ;;
-    fish)     echo "$INSTALL_DIR/install-fish.sh" ;;
-    fonts)    echo "$INSTALL_DIR/install-fonts.sh" ;;
-    ohmyposh) echo "$INSTALL_DIR/install-ohmyposh.sh" ;;
-    rustup)   echo "$INSTALL_DIR/install-rustup.sh" ;;
-    nix)      echo "$INSTALL_DIR/install-nix.sh" ;;
-    flatpak)  echo "$INSTALL_DIR/install-flatpak.sh" ;;
-    mise-runtimes) echo "$INSTALL_DIR/install-mise-runtimes.sh" ;;
-    opencode) echo "$INSTALL_DIR/install-opencode.sh" ;;
-    code-health) echo "$INSTALL_DIR/install-code-health.sh" ;;
-    zsa-wally) echo "$INSTALL_DIR/install-zsa-wally.sh" ;;
-    *)        return 1 ;;
-  esac
+  [[ " ${STEPS[*]} " == *" $step "* ]] || return 1
+  if [[ "$step" == stow ]]; then
+    echo "$INSTALL_DIR/stow-dotfiles.sh"
+  else
+    echo "$INSTALL_DIR/install-$step.sh"
+  fi
 }
 
 print_header() {
