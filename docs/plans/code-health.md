@@ -382,7 +382,7 @@ Windows doesn't rewrite their line endings.
    overrides both. Still open: whether `!` commands in Claude Code get a
    terminal (the user will check). Checked by `test-hooks.sh` and a live
    run in a scratch repo.
-7. **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
+7. ✅ **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
    PowerShell, Lua, Rust. C# comes first so step 7a can happen early, then
    Python so the tool checks its own code. Each language
    needs fixtures for every smell, plus `<script>` handling where it
@@ -422,7 +422,26 @@ Windows doesn't rewrite their line endings.
      repeats of one smell per file (scorer version 2). EF migrations without
      a marker are left to per-repo config. Still to do on Windows: the same
      look at the user's own work code.
-   - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
+   - ✅ **7a, Windows pass (2026-11-24).** Reviewed 11 files from a work
+     repo of about 125,000 lines of C#: a 4,900-line service, mid-size services, two
+     controllers (one with switch expressions), constructors with 4 to 6
+     injected services, unit and integration tests, a `record`, and a test
+     class with a primary constructor. No parse errors; the large services
+     and the large controller score 1.0 to 2.2 and clean files 10.0, as a
+     reader would expect. Across the repo's 900 C# files no smell is
+     widespread: Code Duplication is on 11%, Excess Function Arguments on
+     7%, and no constructor reaches its limit of 8. Found two gaps; neither
+     is fixed yet:
+     - Code Duplication fires on model classes whose property declarations
+       were copied from one class to another: attributes plus `{ get; set; }`
+       pass the 4-line-shape rule. 4 files, all reported against `<file>`.
+       Possible fix: skip runs made only of declarations and attributes.
+     - PowerShell: a variable, a binary operator, then an uppercase size
+       suffix (`$a / 1MB`, `$a + 1KB`) is an ERROR node, so the whole file
+       goes unscored. Lowercase `1mb`, and `1MB` alone, parse. Pin it in
+       `test_known_parse_gaps`, or lowercase the suffix before parsing (a
+       rewrite that keeps the same length, like the C# `#if` blanking).
+   - **7a. [Windows] C# on real code (original scope)**, once C# lands, about 30 minutes.
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
      a mix: a large service class, a controller, a DI-heavy constructor,
@@ -540,8 +559,9 @@ Windows doesn't rewrite their line endings.
       `--show-toplevel`, so the repo key doesn't split. Also covers step 15:
       `change` and `safeguard-fix` records, `history`, the per-host history
       file, and the newer smells firing on TS and C#.
-    - Run `code-health repo` on the largest C# work repo (about 100k lines)
-      and time it.
+    - ✅ `code-health repo` on the largest C# work repo: 13.3 s for 969
+      files (about 125,000 lines of C#) and 636 commits over 12 months. One
+      `.ps1` went unscored because of the size-suffix parse gap in 7a.
     - Fix anything Linux-only, or report it.
 13. ✅ **History across machines.** Done (13a-13d); change records are
     written by the Stop hook's `safeguard --episode` run. One history in a private git repo of
