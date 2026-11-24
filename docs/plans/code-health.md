@@ -529,8 +529,17 @@ Windows doesn't rewrite their line endings.
       `code-health accept <a clean file> --smell "Large Method" --reason
       test` reaches the finding lookup ("no Large Method finding"), not
       "needs an interactive terminal".
-    - Run `safeguard` and the Claude Stop hook in a scratch repo under Git
-      Bash; check Windows paths and CRLF files.
+    - ✅ `safeguard` and the Claude Stop hook in scratch repos under Git Bash
+      (2026-11-24), fed events with backslash `cwd` and this machine's real
+      transcript. All pass: CRLF working files with `autocrlf=true`, CRLF
+      stored in git with `autocrlf=false`, a commit made during the turn, a
+      new untracked file, and the second stop closing the episode with
+      tokens and model. A change to line endings alone isn't flagged, but it
+      still writes a `change` record (10.0 to 10.0). Short (8.3), long,
+      `/c/` and backslash spellings of the repo path give the same
+      `--show-toplevel`, so the repo key doesn't split. Also covers step 15:
+      `change` and `safeguard-fix` records, `history`, the per-host history
+      file, and the newer smells firing on TS and C#.
     - Run `code-health repo` on the largest C# work repo (about 100k lines)
       and time it.
     - Fix anything Linux-only, or report it.
