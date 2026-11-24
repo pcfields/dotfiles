@@ -382,7 +382,7 @@ Windows doesn't rewrite their line endings.
    overrides both. Still open: whether `!` commands in Claude Code get a
    terminal (the user will check). Checked by `test-hooks.sh` and a live
    run in a scratch repo.
-7. **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
+7. ✅ **Languages, one commit each:** C#, Python, JS/JSX/TSX, bash,
    PowerShell, Lua, Rust. C# comes first so step 7a can happen early, then
    Python so the tool checks its own code. Each language
    needs fixtures for every smell, plus `<script>` handling where it
@@ -412,7 +412,7 @@ Windows doesn't rewrite their line endings.
      are no longer counted as code in any language.
    - ✅ **Rust.** Methods are qualified by their `impl` or `trait` type;
      `self` isn't a parameter; `_` arms don't count; `?` isn't a decision.
-   - **7a, first pass (Linux, open-source code).** Run on dotnet/eShop (about
+   - ✅ **7a, first pass (Linux, open-source code).** Run on dotnet/eShop (about
      26,000 lines, 538 C# files) in a temporary clone; nothing from it is in
      this repo. Results: 536 files parsed; only 28 had findings; Excess
      Function Arguments fired on one DI constructor, at its limit. Changes
@@ -420,9 +420,10 @@ Windows doesn't rewrite their line endings.
      `DO NOT EDIT`; blank C# `#if` lines before parsing; stop excluding
      `build/` and `bin/`; treat .NET project and config files as data; cap
      repeats of one smell per file (scorer version 2). EF migrations without
-     a marker are left to per-repo config. Still to do on Windows: the same
-     look at the user's own work code.
-   - **7a. [Windows] C# on real code**, once C# lands, about 30 minutes.
+     a marker are left to per-repo config.
+   - ✅ **7a. [Windows] C# on real code.** Done on the work machine
+     (2026-11-24): it works as expected, with no changes needed.
+     The original brief:
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
      a mix: a large service class, a controller, a DI-heavy constructor,
