@@ -14,7 +14,7 @@ A seam is the public boundary you test at: the interface where you observe
 behavior without reaching inside. Tests live at seams, never against
 internals.
 
-Agree the seam with the user (or take it from the plan the `spec` skill
+Agree the seam with the user (or take it from the plan the `plan-it` skill
 produced) before writing any test. You can't test everything; agreeing seams up front puts testing
 effort on the behaviors that matter instead of every internal detail.
 

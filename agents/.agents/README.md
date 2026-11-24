@@ -8,7 +8,7 @@ dotfiles repo, so copy the parts you want and make them yours.
 
 | Part | What it does | Needs |
 |---|---|---|
-| `skills/spec` | Turns a request into an agreed plan: examples, design, small steps | — |
+| `skills/plan-it` | Turns a request into an agreed plan: examples, design, small steps | — |
 | `skills/challenge` | Pokes holes in a plan, design or diff | — |
 | `skills/tdd` | Test-first loop (Kent Beck's Canon TDD), test-double rules | `skills/refactor/refactorings.md` |
 | `skills/debug-it` | Finds the root cause from evidence before fixing | `tdd` |
@@ -21,7 +21,7 @@ dotfiles repo, so copy the parts you want and make them yours.
 | `tools/code-health` | Scores files 1-10 and names the code smells in each | uv |
 | `../../claude/.claude/hooks/` | Claude Code hooks: block secret files and destructive commands, run checks on stop | bash, jq |
 
-Skills mention each other by name (`spec` hands off to `tdd`). Any one
+Skills mention each other by name (`plan-it` hands off to `tdd`). Any one
 works alone, but they work best together.
 
 ## 1. Skills
@@ -57,7 +57,7 @@ Get-ChildItem $HOME\.agents\skills -Directory | ForEach-Object {
 The bash scripts need Git Bash on Windows.
 
 Start a new Claude Code session and type `/` to see the skills. Try
-`/spec` on a small change, let it hand off to `/tdd`, then `/commit`.
+`/plan-it` on a small change, let it hand off to `/tdd`, then `/commit`.
 Codex and OpenCode find `~/.agents/skills` without the links.
 
 ## 2. Instructions (optional)

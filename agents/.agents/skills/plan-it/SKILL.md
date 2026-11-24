@@ -1,5 +1,5 @@
 ---
-name: spec
+name: plan-it
 description: Plan this feature, spec this out, I want to build X, how should we approach this, write a plan before we start, break this down. Turns a request into a short agreed plan before any code — the goal, concrete examples of the behavior, where it fits in the existing code, and small steps. Use before starting non-trivial new work, and whenever a request could reasonably be built more than one way.
 ---
 

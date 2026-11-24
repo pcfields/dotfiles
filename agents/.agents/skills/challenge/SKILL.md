@@ -1,6 +1,6 @@
 ---
 name: challenge
-description: Challenge this, poke holes in this plan, what am I missing, play devil's advocate, give me counter-arguments, is this a good idea, second opinion, stress-test this design. Critiques a plan, design, decision or diff that already exists and reports its risks, blind spots, shaky assumptions, the strongest case against it and the simplest alternative. Use when the user asks for criticism of something, or accepts the offer at the end of the spec skill.
+description: Challenge this, poke holes in this plan, what am I missing, play devil's advocate, give me counter-arguments, is this a good idea, second opinion, stress-test this design. Critiques a plan, design, decision or diff that already exists and reports its risks, blind spots, shaky assumptions, the strongest case against it and the simplest alternative. Use when the user asks for criticism of something, or accepts the offer at the end of the plan-it skill.
 ---
 
 The job is to find what is wrong, not to be agreeable. It is also not to
