@@ -82,7 +82,7 @@ Neovim startup.
 ├── mise/.config/mise/         # Runtime versions
 ├── nvim/.config/nvim/         # Neovim config
 ├── ohmyposh/.config/ohmyposh/ # Prompt config
-├── agents/.agents/            # Shared agent instructions and skills (stow-managed)
+├── agents/.agents/            # Shared agent instructions and skills (stow-managed); README.md explains copying them
 ├── opencode/.config/opencode/ # OpenCode config (stow-managed)
 ├── wezterm/                   # WezTerm config
 └── windows/                   # Windows-specific setup scripts
