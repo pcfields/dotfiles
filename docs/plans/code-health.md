@@ -723,6 +723,37 @@ Windows doesn't rewrite their line endings.
         `packages/scoop-packages.txt`. This keeps Rust and a C compiler off
         Windows, which is the point of the port. The alternative, a clone
         and `cargo install --path`, needs rustup and MSVC on Windows.
+      - **Switching this repo over.** Everything here calls `code-health`
+        by name on PATH (the hooks through `code_health_command`, the
+        skills, `AGENTS.md`, the deny rules), so with the same CLI nothing
+        that calls it changes. What does:
+        - Pin the release tag in one place, read by both install scripts,
+          so both machines run the same scorer. Upgrading is a one-line
+          commit and a re-run of the install step.
+        - `install/install-code-health.sh`: `uv tool uninstall
+          code-health` (its shim is also `~/.local/bin/code-health`), then
+          download the pinned release into `~/.local/bin`. Drop the
+          `code-health grammars` call.
+        - `install/windows/install-code-health.ps1`: download the pinned
+          release into a folder on the user PATH; drop the uv steps.
+        - `claude/.claude/settings.json`: remove the
+          `Bash(uv run *code-health accept*)` deny rule; keep
+          `Bash(code-health accept:*)`.
+        - Update `docs/install.md` and `docs/install-windows.md`.
+        - Before switching, try the binary in real sessions: point
+          `CODE_HEALTH_CMD` at it and the hooks use it while the Python
+          tool stays installed.
+      - **The repo report needs a new home.** The `repo-health` skill runs
+        `scripts/build-report.py` with `uv run --project
+        ~/.agents/tools/code-health python`, so deleting the Python tool
+        breaks the HTML report. The script uses only the standard library
+        (105 lines). Proposed: fold it into the binary as a `code-health
+        repo` subcommand that writes `report.html` from `data.json` and
+        `findings.json`, with `report.html`'s template embedded, and
+        delete the script. That removes the last need for Python and uv
+        here. The fallback is to run the script with `uv run --no-project
+        python`, which keeps uv as a dependency. Either way, update the
+        skill's step that builds the report.
     - **17d. MCP server,** in the new repo, as a subcommand of the binary
       (`code-health mcp`), with tools `score`, `review` and `safeguard`
       returning the `--json` data. Wire it into Claude Code here; other
