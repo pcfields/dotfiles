@@ -130,6 +130,21 @@ def test_uppercase_number_subtracted_without_spaces_parses(left):
     assert measure_ps(f"$x = {left}-1MB\n").parse_errors == 0
 
 
+@pytest.mark.parametrize(
+    "source",
+    ["# only a comment\n", "<#\n  block\n#>\n", "\n\n", ""],
+    ids=["line comment", "block comment", "blank lines", "empty"],
+)
+def test_a_file_with_no_code_parses_cleanly(source):
+    metrics = measure_ps(source)
+
+    assert (metrics.parse_errors, metrics.loc) == (0, 0)
+
+
+def test_a_file_of_garbage_still_reports_parse_errors():
+    assert measure_ps("# comment\n} ) ]\n").parse_errors > 0
+
+
 def test_uppercase_numbers_keep_line_numbers_and_conditions():
     function = function_named("$x = $a / 1MB\nfunction F {\n  if ($a -gt 1MB) { }\n}\n")
 

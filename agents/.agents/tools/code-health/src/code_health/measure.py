@@ -63,9 +63,11 @@ def measure_file(source: bytes, language: Language) -> FileMetrics:
     functions = [_measure(node, name, language, code_rows) for node, name in zip(nodes, names, strict=True)]
     if language.has_script_body:
         functions.insert(0, _measure_script(root, nodes, language, code_rows))
+    # The PowerShell grammar rejects a file with no statements, so a file of
+    # only comments would otherwise go unscored.
     return FileMetrics(
         loc=len(code_rows),
-        parse_errors=sum(1 for node in _descendants(root) if node.is_error or node.is_missing),
+        parse_errors=_count_parse_errors(root) if code_rows else 0,
         functions=tuple(functions),
         digest=digest(source),
         own_module_mocks=_own_module_mocks(root, language),
@@ -122,13 +124,17 @@ def _parse(source: bytes, language: Language):
     return pack.get_parser(language.grammar).parse(source).root_node
 
 
+def _count_parse_errors(root) -> int:
+    return sum(1 for node in _descendants(root) if node.is_error or node.is_missing)
+
+
 def _code_rows(root, language: Language) -> frozenset[int]:
     return frozenset(
         row
         for node in _descendants(root, enter=lambda child: child.type not in language.comments)
         if node.child_count == 0
         and node.type not in language.comments
-        and node.end_byte > node.start_byte
+        and node.text.strip()
         for row in range(node.start_point.row, node.end_point.row + 1)
     )
 
