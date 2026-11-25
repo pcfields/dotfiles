@@ -450,9 +450,10 @@ Windows doesn't rewrite their line endings.
        letter in a number (`$a / 1MB`, `-1L`, `1E3`, `0XFF`) was an ERROR
        node, so the whole file went unscored. Fixed (2026-11-25): numbers
        are lowercased before parsing, keeping their length so line numbers
-       stay the same; names like `Get-1MB` are left alone. Still unparsed:
-       `$a-1MB` with no spaces. Separately, a file holding only a comment
-       reports one parse error.
+       stay the same; names like `Get-1MB` are left alone. Later the same day,
+       `$a-1MB` with no spaces (also `$env:X-1MB`, `$a.Count-1MB`) was
+       fixed, and a file with no code (only comments, blank, empty) no
+       longer reports a parse error.
 
      The original brief:
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
