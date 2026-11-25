@@ -104,9 +104,10 @@ Language notes:
 - A file with tree-sitter ERROR nodes is "not scored" (with a reason), never
   10.
 
-Later, not in v1: Code Duplication (DRY), Brain Method/Brain Class, Low
-Cohesion, Primitive Obsession, and test assertion-block smells. Also, from
-Fowler's *Refactoring* (2nd ed.) smells that a syntax tree can detect:
+Code Duplication, Low Cohesion, Primitive Obsession and the test
+assertion-block smell were planned for later and added in step 14. Still
+later, not in v1: Brain Method/Brain Class. Also, from Fowler's
+*Refactoring* (2nd ed.) smells that a syntax tree can detect:
 - **Large Class:** methods and lines per class, not per file.
 - **Data Clumps:** the same group of parameters repeated across functions.
   The fix is Introduce Parameter Object, as for Primitive Obsession.
