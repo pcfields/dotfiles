@@ -412,7 +412,7 @@ Windows doesn't rewrite their line endings.
      are no longer counted as code in any language.
    - ✅ **Rust.** Methods are qualified by their `impl` or `trait` type;
      `self` isn't a parameter; `_` arms don't count; `?` isn't a decision.
-   - **7a, first pass (Linux, open-source code).** Run on dotnet/eShop (about
+   - ✅ **7a, first pass (Linux, open-source code).** Run on dotnet/eShop (about
      26,000 lines, 538 C# files) in a temporary clone; nothing from it is in
      this repo. Results: 536 files parsed; only 28 had findings; Excess
      Function Arguments fired on one DI constructor, at its limit. Changes
@@ -420,9 +420,9 @@ Windows doesn't rewrite their line endings.
      `DO NOT EDIT`; blank C# `#if` lines before parsing; stop excluding
      `build/` and `bin/`; treat .NET project and config files as data; cap
      repeats of one smell per file (scorer version 2). EF migrations without
-     a marker are left to per-repo config. Still to do on Windows: the same
-     look at the user's own work code.
-   - ✅ **7a, Windows pass (2026-11-24).** Reviewed 11 files from a work
+     a marker are left to per-repo config.
+   - ✅ **7a. [Windows] C# on real code.** Done on the work machine
+     (2026-11-24): it works as expected. Reviewed 11 files from a work
      repo of about 125,000 lines of C#: a 4,900-line service, mid-size services, two
      controllers (one with switch expressions), constructors with 4 to 6
      injected services, unit and integration tests, a `record`, and a test
@@ -430,8 +430,8 @@ Windows doesn't rewrite their line endings.
      and the large controller score 1.0 to 2.2 and clean files 10.0, as a
      reader would expect. Across the repo's 900 C# files no smell is
      widespread: Code Duplication is on 11%, Excess Function Arguments on
-     7%, and no constructor reaches its limit of 8. Found two gaps; neither
-     is fixed yet:
+     7%, and no constructor reaches its limit of 8. Found two small gaps;
+     neither is fixed yet:
      - Code Duplication fires on model classes whose property declarations
        were copied from one class to another: attributes plus `{ get; set; }`
        pass the 4-line-shape rule. 4 files, all reported against `<file>`.
@@ -441,7 +441,8 @@ Windows doesn't rewrite their line endings.
        goes unscored. Lowercase `1mb`, and `1MB` alone, parse. Pin it in
        `test_known_parse_gaps`, or lowercase the suffix before parsing (a
        rewrite that keeps the same length, like the C# `#if` blanking).
-   - **7a. [Windows] C# on real code (original scope)**, once C# lands, about 30 minutes.
+
+     The original brief:
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
      run `code-health review` on about 10 C# files from real work repos. Pick
      a mix: a large service class, a controller, a DI-heavy constructor,
