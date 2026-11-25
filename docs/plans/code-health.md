@@ -705,7 +705,21 @@ Windows doesn't rewrite their line endings.
         `windows-latest` and both tests pass (about 9 minutes uncached; Linux
         about 3.5). Still to do: run the CI binary (`code-health-Windows`
         artifact) on the Windows machine, `code-health tree` on a few files.
-    - **17c. Port.** Same CLI, same text and `--json` output, same state
+    - **17c. Port.** In six slices, agreed 2026-11-25. Each ports its
+      Python tests first, then must match the Python tool's `--json`
+      exactly on every fixture, every scored file in this repo and a
+      temporary eShop clone. Each slice is committed and pushed to the new
+      repo's `main`; the user reviews at the end.
+      1. Measuring: languages, naming, metrics, duplication, cohesion and
+         the source rewrites.
+      2. `score` and `review`: smells, score, config, ignore comments.
+      3. `safeguard`, `accept`, `mark-turn`: git, state folder, turn
+         marks. Digests must match so existing acceptances stay valid.
+      4. `episode` and `history`.
+      5. `repo`, with the HTML report folded in.
+      6. Tagged releases from CI, then the switch-over in this repo.
+
+      Same CLI, same text and `--json` output, same state
       and history files, same scorer version. Port the source rewrites as
       well: C# `#if` blanking, PowerShell number lowercasing, and the rule
       that a file with no code has no parse errors. Keep the Python tool
@@ -715,7 +729,7 @@ Windows doesn't rewrite their line endings.
       `agents/.agents/tools/code-health`, the pytest step in
       `.agents/check` and the `uv run` fallback in
       `claude/.claude/hooks/code-health-command.sh`.
-      - **Install (proposed; confirm with the user before 17c).** The new
+      - **Install (agreed 2026-11-25).** The new
         repo's CI builds Linux and Windows binaries on a tag and attaches
         them to a GitHub release. The install scripts here fetch them with
         `gh release download`, which works for a private repo once `gh` is
@@ -747,7 +761,7 @@ Windows doesn't rewrite their line endings.
         `scripts/build-report.py` with `uv run --project
         ~/.agents/tools/code-health python`, so deleting the Python tool
         breaks the HTML report. The script uses only the standard library
-        (105 lines). Proposed: fold it into the binary as a `code-health
+        (105 lines). Agreed (2026-11-25): fold it into the binary as a `code-health
         repo` subcommand that writes `report.html` from `data.json` and
         `findings.json`, with `report.html`'s template embedded, and
         delete the script. That removes the last need for Python and uv
