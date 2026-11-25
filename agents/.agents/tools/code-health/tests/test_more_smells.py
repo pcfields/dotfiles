@@ -1,3 +1,5 @@
+import pytest
+
 from code_health.languages import language_for_path
 from code_health.measure import measure_file
 from code_health.smells import find_smells
@@ -102,6 +104,102 @@ def test_short_repeats_and_braces_are_fine():
 
     assert smells("a.ts", short) == []
     assert smells("a.ts", braces) == []
+
+
+CS_PROPERTIES = """    [Required]
+    public Guid Id { get; set; }
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+    [MaxLength(100)]
+    public string Description { get; set; } = string.Empty;
+    [Required]
+    public bool Deleted { get; set; }
+    [Range(0, int.MaxValue)]
+    public int Order { get; set; } = 0;
+    [Range(0, 20)]
+    public byte Level { get; set; } = 0;
+    public DateTime? Archived { get; set; }
+"""
+
+
+def test_copied_property_declarations_are_fine():
+    source = f"public class A\n{{\n{CS_PROPERTIES}}}\n\npublic class B\n{{\n{CS_PROPERTIES}}}\n"
+
+    assert smells("a.cs", source) == []
+
+
+def test_a_class_attribute_before_copied_properties_is_fine():
+    attribute = '[DataContract(Name = "x")]\n'
+    source = f"{attribute}public class A\n{{\n{CS_PROPERTIES}}}\n{attribute}public class B\n{{\n{CS_PROPERTIES}}}\n"
+
+    assert smells("a.cs", source) == []
+
+
+def logic_property(name: str) -> str:
+    return (
+        f"    public int {name}\n    {{\n        get\n        {{\n"
+        "            var sum = first + second;\n            Log(sum);\n"
+        "            if (sum > limit) return sum * 2;\n            return sum - offset;\n"
+        "        }\n    }\n"
+    )
+
+
+def test_copied_property_logic_is_still_flagged():
+    body = "".join(logic_property(name) for name in ("Total", "Net", "Gross"))
+    source = f"public class A\n{{\n{body}}}\n\npublic class B\n{{\n{body}}}\n"
+
+    assert "Code Duplication" in [smell for smell, *_ in smells("a.cs", source)]
+
+
+CS_FIELDS_AND_METHOD = """    private readonly IRepository repository;
+    private readonly IMailer mailer;
+    private readonly IClock clock;
+    public void Remind(Account account)
+    {
+        var due = clock.Now() - account.LastSeen;
+        if (due > limit) mailer.Send(account.Email);
+        repository.Save(account);
+        Log(account.Id);
+        mailer.Flush(account.Email);
+        repository.Commit(account.Id);
+        clock.Reset(account.LastSeen);
+    }
+"""
+
+
+def test_copied_fields_with_method_code_are_still_flagged():
+    source = f"public class A\n{{\n{CS_FIELDS_AND_METHOD}}}\n\npublic class B\n{{\n{CS_FIELDS_AND_METHOD}}}\n"
+
+    assert "Code Duplication" in [smell for smell, *_ in smells("a.cs", source)]
+
+
+def test_copied_expression_bodied_properties_are_still_flagged():
+    body = "".join(f"    public int P{i} => first {'+-*/'[i % 4]} second;\n" for i in range(12))
+    source = f"public class A\n{{\n{body}}}\n\npublic class B\n{{\n{body}}}\n"
+
+    assert "Code Duplication" in [smell for smell, *_ in smells("a.cs", source)]
+
+
+TS_PROPERTIES = """  id: string;
+  name: string;
+  description: string | null;
+  deleted: boolean;
+  order: number;
+  level: number;
+  parentId?: string;
+  createdAt: Date;
+  tags: string[];
+  owner: User;
+  readonly version: number;
+"""
+
+
+@pytest.mark.parametrize("kind", ["interface", "class"])
+def test_copied_typescript_properties_are_fine(kind):
+    source = f"export {kind} A {{\n{TS_PROPERTIES}}}\n\nexport {kind} B {{\n  categoryId: string;\n{TS_PROPERTIES}}}\n"
+
+    assert smells("a.ts", source) == []
 
 
 SPLIT_TS = """class Account {

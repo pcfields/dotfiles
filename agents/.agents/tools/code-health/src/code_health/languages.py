@@ -34,6 +34,7 @@ class Language:
     body_wrappers: frozenset[str] = frozenset()
     blank_conditional_directives: bool = False
     lowercase_numbers: bool = False
+    declarations: frozenset[str] = frozenset()
     mock_calls: frozenset[str] = frozenset()
     bare_member_access: bool = False
     comments: frozenset[str] = frozenset({"comment"})
@@ -66,6 +67,7 @@ _JS_NESTING = _JS_LOOPS | {"if_statement", "switch_statement", "try_statement"}
 _JS_CLASSES = frozenset({"class_declaration", "class"})
 _JS_MOCK_CALLS = frozenset({"vi.mock", "vi.doMock", "jest.mock", "jest.doMock", "mock.module"})
 _TS_CLASSES = _JS_CLASSES | {"abstract_class_declaration"}
+_TS_DECLARATIONS = frozenset({"property_signature", "public_field_definition"})
 _JS_CONDITIONALS = frozenset(
     {"if_statement", "while_statement", "do_statement", "for_statement", "ternary_expression"}
 )
@@ -123,6 +125,7 @@ LANGUAGES = (
         primary_constructor_owners=frozenset({"class_declaration", "struct_declaration"}),
         overloads_by_type=True,
         blank_conditional_directives=True,
+        declarations=frozenset({"property_declaration", "field_declaration", "attribute_list"}),
         bare_member_access=True,
         branch_exclusions={"switch_section": frozenset({"default"}), "switch_expression_arm": frozenset({"discard"})},
     ),
@@ -140,6 +143,7 @@ LANGUAGES = (
         nesting=_JS_NESTING,
         else_clauses=frozenset({"else_clause"}),
         function_bodies=frozenset({"statement_block"}),
+        declarations=_TS_DECLARATIONS,
         classes=_TS_CLASSES,
         constructor_names=frozenset({"constructor"}),
         mock_calls=_JS_MOCK_CALLS,
@@ -158,6 +162,7 @@ LANGUAGES = (
         nesting=_JS_NESTING,
         else_clauses=frozenset({"else_clause"}),
         function_bodies=frozenset({"statement_block"}),
+        declarations=_TS_DECLARATIONS,
         classes=_TS_CLASSES,
         constructor_names=frozenset({"constructor"}),
         mock_calls=_JS_MOCK_CALLS,

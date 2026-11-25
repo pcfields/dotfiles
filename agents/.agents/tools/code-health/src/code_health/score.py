@@ -3,7 +3,7 @@ from collections.abc import Iterable, Mapping
 
 from code_health.smells import Finding
 
-SCORER_VERSION = "10"
+SCORER_VERSION = "11"
 
 DECAY = 0.12
 OVERAGE_FACTOR = 2.0
