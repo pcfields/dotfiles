@@ -430,17 +430,18 @@ Windows doesn't rewrite their line endings.
      and the large controller score 1.0 to 2.2 and clean files 10.0, as a
      reader would expect. Across the repo's 900 C# files no smell is
      widespread: Code Duplication is on 11%, Excess Function Arguments on
-     7%, and no constructor reaches its limit of 8. Found two small gaps;
-     neither is fixed yet:
+     7%, and no constructor reaches its limit of 8. Found two small gaps:
      - Code Duplication fires on model classes whose property declarations
        were copied from one class to another: attributes plus `{ get; set; }`
        pass the 4-line-shape rule. 4 files, all reported against `<file>`.
        Possible fix: skip runs made only of declarations and attributes.
-     - PowerShell: a variable, a binary operator, then an uppercase size
-       suffix (`$a / 1MB`, `$a + 1KB`) is an ERROR node, so the whole file
-       goes unscored. Lowercase `1mb`, and `1MB` alone, parse. Pin it in
-       `test_known_parse_gaps`, or lowercase the suffix before parsing (a
-       rewrite that keeps the same length, like the C# `#if` blanking).
+     - ✅ PowerShell: after an operator or a unary minus, any uppercase
+       letter in a number (`$a / 1MB`, `-1L`, `1E3`, `0XFF`) was an ERROR
+       node, so the whole file went unscored. Fixed (2026-11-25): numbers
+       are lowercased before parsing, keeping their length so line numbers
+       stay the same; names like `Get-1MB` are left alone. Still unparsed:
+       `$a-1MB` with no spaces. Separately, a file holding only a comment
+       reports one parse error.
 
      The original brief:
      Pull, run `uv tool install --editable ~/.agents/tools/code-health`, and
