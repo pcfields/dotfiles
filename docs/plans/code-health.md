@@ -710,8 +710,13 @@ Windows doesn't rewrite their line endings.
       exactly on every fixture, every scored file in this repo and a
       temporary eShop clone. Each slice is committed and pushed to the new
       repo's `main`; the user reviews at the end.
-      1. Measuring: languages, naming, metrics, duplication, cohesion and
-         the source rewrites.
+      1. ✅ Measuring: languages, naming, metrics, duplication, cohesion and
+         the source rewrites. Done 2026-11-25: `code-health metrics <file>`
+         prints the metrics as JSON and matched the Python tool on 766
+         files (fixtures, this repo, 547 eShop C# files). The measure tests
+         are ported (90 tests); their smell checks move to slice 2. The
+         code was written before its tests here; mutation checks showed the
+         ported tests catch broken rules.
       2. `score` and `review`: smells, score, config, ignore comments.
       3. `safeguard`, `accept`, `mark-turn`: git, state folder, turn
          marks. Digests must match so existing acceptances stay valid.
