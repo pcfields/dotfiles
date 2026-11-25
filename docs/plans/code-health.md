@@ -692,10 +692,7 @@ Windows doesn't rewrite their line endings.
 
 Later: adapters for other harnesses (OpenCode, Codex), Brain Class,
 duplication across files, and calibrating against the CodeScene trial on
-about 20 files. Also the Rust port (see Decisions): step 12 found that the
-Windows install is the fragile part (uv-managed Python, an environment, a
-grammar download), and one binary with the grammars compiled in would remove
-all three. Do it after 7a and 12, once the rules stop changing, as its own PR.
+about 20 files.
 
 ## Revisit: SQL
 
