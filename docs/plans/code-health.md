@@ -688,6 +688,21 @@ Windows doesn't rewrite their line endings.
       version that parses the same as the Python pack. PowerShell first. If
       a grammar is missing or parses differently, **stop and report to the
       user**.
+      - ✅ **Linux (2026-11-25).** No separate grammar crates needed:
+        `tree-sitter-language-pack` is itself a Rust crate, the core under
+        the Python package. Version `=1.25.2` with default features off,
+        built with `TSLP_LANGUAGES` (the nine grammars) and
+        `TSLP_LINK_MODE=static` in `.cargo/config.toml`, compiles the same
+        pinned grammar revisions into the binary. Its build script fetches
+        the grammar sources once and checks their SHA-256. Result: a 14 MB
+        binary linking only libc and libgcc; release build 43 s. A dump of
+        every node (type, field, byte range, named/error/missing/extra)
+        matched the Python pack exactly on 197 files (all fixtures and every
+        scored file in this repo, 167,805 nodes), with no error nodes.
+        `cargo test` checks one sample per language against a reference
+        tree dumped by the Python pack.
+      - **Windows.** Not yet run. CI builds and tests on `windows-latest`
+        (MSVC) once pushed; then run the CI binary on the Windows machine.
     - **17c. Port.** Same CLI, same text and `--json` output, same state
       and history files, same scorer version. Port the source rewrites as
       well: C# `#if` blanking, PowerShell number lowercasing, and the rule
