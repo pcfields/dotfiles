@@ -125,6 +125,11 @@ def test_uppercase_number_after_a_unary_minus_parses():
     assert measure_ps("$x = -1MB\n").parse_errors == 0
 
 
+@pytest.mark.parametrize("left", ["$a", "${a b}", "$env:X", "$a.Count"])
+def test_uppercase_number_subtracted_without_spaces_parses(left):
+    assert measure_ps(f"$x = {left}-1MB\n").parse_errors == 0
+
+
 def test_uppercase_numbers_keep_line_numbers_and_conditions():
     function = function_named("$x = $a / 1MB\nfunction F {\n  if ($a -gt 1MB) { }\n}\n")
 

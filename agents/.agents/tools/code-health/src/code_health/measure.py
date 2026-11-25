@@ -16,7 +16,8 @@ SCRIPT = "<script>"
 _CONDITIONAL_DIRECTIVE = re.compile(rb"(?m)^[ \t]*#[ \t]*(?:if|elif|else|endif)\b[^\r\n]*")
 # The PowerShell grammar rejects uppercase letters in a number after an
 # operator ($a / 1MB); lowercased in place so line numbers stay the same.
-_NUMBER = re.compile(rb"(?<![\w$])(?<!\w-)\d[\w.]*")
+# After a bare word (Get-1MB) the number is part of a name and keeps its case.
+_NUMBER = re.compile(rb"(\$[\w:]+(?:\.\w+)*-|(?<![\w$])(?<!\w-))(\d[\w.]*)")
 
 
 @dataclass(frozen=True)
@@ -117,7 +118,7 @@ def _parse(source: bytes, language: Language):
     if language.blank_conditional_directives:
         source = _CONDITIONAL_DIRECTIVE.sub(b"", source)
     if language.lowercase_numbers:
-        source = _NUMBER.sub(lambda number: number.group().lower(), source)
+        source = _NUMBER.sub(lambda match: match[1] + match[2].lower(), source)
     return pack.get_parser(language.grammar).parse(source).root_node
 
 
