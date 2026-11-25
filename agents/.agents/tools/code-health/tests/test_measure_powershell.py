@@ -113,6 +113,29 @@ def test_known_parse_gaps(source):
     assert measure_ps(source).parse_errors > 0
 
 
+@pytest.mark.parametrize(
+    "number",
+    ["1MB", "1KB", "1Gb", "1.5MB", "0x10MB", "1L", "1D", "1E3", "0XFF"],
+)
+def test_uppercase_letters_in_a_number_after_an_operator_parse(number):
+    assert measure_ps(f"$x = $a / {number}\n").parse_errors == 0
+
+
+def test_uppercase_number_after_a_unary_minus_parses():
+    assert measure_ps("$x = -1MB\n").parse_errors == 0
+
+
+def test_uppercase_numbers_keep_line_numbers_and_conditions():
+    function = function_named("$x = $a / 1MB\nfunction F {\n  if ($a -gt 1MB) { }\n}\n")
+
+    assert function.line == 2
+    assert [condition.line for condition in function.conditions] == [3]
+
+
+def test_a_number_inside_a_function_name_keeps_its_case():
+    assert function_named("function Get-1MB { }\n", "Get-1MB").line == 1
+
+
 def test_smell_fixture_reports_each_smell_and_matches_its_crlf_twin():
     fixtures = Path(__file__).parent / "fixtures" / "powershell"
     lf = measure_file((fixtures / "smells.ps1").read_bytes(), POWERSHELL)

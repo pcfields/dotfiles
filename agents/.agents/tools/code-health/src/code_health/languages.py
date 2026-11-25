@@ -33,6 +33,7 @@ class Language:
     nested_parameter_lists: bool = False
     body_wrappers: frozenset[str] = frozenset()
     blank_conditional_directives: bool = False
+    lowercase_numbers: bool = False
     mock_calls: frozenset[str] = frozenset()
     bare_member_access: bool = False
     comments: frozenset[str] = frozenset({"comment"})
@@ -201,6 +202,7 @@ LANGUAGES = (
         name="powershell",
         grammar="powershell",
         extensions=(".ps1", ".psm1"),
+        lowercase_numbers=True,
         functions=frozenset({"function_statement", "class_method_definition"}),
         branches=frozenset(
             {"if_statement", "elseif_clause", "switch_clause", "catch_clause", "trap_statement"}
