@@ -660,36 +660,59 @@ Windows doesn't rewrite their line endings.
       `accept` in Windows Terminal, and the Stop hook in Claude Desktop sees
       it.
 
-17. **Port to Rust, then add the MCP server.** Not started. Its own PR.
+17. **Port to Rust in a new private repo, then add the MCP server.** 17a
+    done; 17b next.
     - **Why now.** Steps 7a and 12 are done. Step 12 found that the Windows
       install is the fragile part (uv-managed Python, the uv junction bug
       inside Claude Desktop, a grammar download); one binary with the
       grammars compiled in removes all three. The MCP server wraps `--json`,
       so building it after the port puts it in the same binary instead of
       porting it too.
-    - **17a. Freeze the rules.** Land the two PowerShell parse gaps from 7a
-      (`$a-1MB` with no spaces; a file holding only a comment). After that,
-      no rule or limit changes until 17c is done, so nothing is done twice.
-    - **17b. Spike the grammars.** A Rust binary that parses one fixture per
-      language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua, Rust, Python)
-      with no ERROR nodes, from grammars compiled in, built and run on Linux
-      and Windows. Check that each grammar has a Rust crate, or can be built
-      from a vendored copy, at a version that parses the same as the Python
-      pack. PowerShell first. If a grammar is missing or parses differently,
-      **stop and report to the user**.
+    - **Where.** A new private GitHub repo, `code-health`, holds the Rust
+      tool from 17b on. code-health is a program with its own build, tests
+      and releases, not machine config, and a private repo keeps the choice
+      to share or sell it open. Keep its URL out of this public repo. The
+      client-data rule at the top of this plan applies there too: a private
+      repo may not stay private. The Python tool stays here until 17c shows
+      the two agree, then is deleted; its history stays in this repo, so
+      nothing is moved or rewritten. Track 17b to 17d in this plan, and move
+      the plan to the new repo once the Python tool is gone.
+    - ✅ **17a. Freeze the rules.** Done (2026-11-25): both PowerShell parse
+      gaps from 7a are fixed (`$a-1MB` with no spaces; a file with no code).
+      No rule or limit changes until 17c is done, so nothing is done twice.
+    - **17b. Spike the grammars,** in the new repo. A Rust binary that
+      parses one fixture per language (C#, TS, TSX, JS, JSX, bash,
+      PowerShell, Lua, Rust, Python) with no ERROR nodes, from grammars
+      compiled in, built and run on Linux and Windows. Check that each
+      grammar has a Rust crate, or can be built from a vendored copy, at a
+      version that parses the same as the Python pack. PowerShell first. If
+      a grammar is missing or parses differently, **stop and report to the
+      user**.
     - **17c. Port.** Same CLI, same text and `--json` output, same state
       and history files, same scorer version. Port the source rewrites as
-      well: C# `#if` blanking, PowerShell number lowercasing, and any
-      comment-only fix from 17a. Keep the Python tool until they agree:
-      run both over every fixture and over this repo and one C# repo, and
-      diff the `--json` output. Then switch the hooks, `.agents/check` and
-      both install scripts to the binary, and retire the Python tool.
-    - **17d. MCP server** as a subcommand of the binary (`code-health
-      mcp`), with tools `score`, `review` and `safeguard` returning the
-      `--json` data. Wire it into Claude Code; other harnesses come later.
-    - Checked by the fixture tests ported to `cargo test`, the output diff
-      in 17c, `bash .agents/check`, and a Windows run of the install script,
-      the Stop hook and `accept`, as in step 12.
+      well: C# `#if` blanking, PowerShell number lowercasing, and the rule
+      that a file with no code has no parse errors. Keep the Python tool
+      until they agree: run both over every fixture and over this repo and
+      one C# repo, and diff the `--json` output. Then, in this repo, switch
+      the hooks and both install scripts to the binary, and delete
+      `agents/.agents/tools/code-health`, the pytest step in
+      `.agents/check` and the `uv run` fallback in
+      `claude/.claude/hooks/code-health-command.sh`.
+      - **Install (proposed; confirm with the user before 17c).** The new
+        repo's CI builds Linux and Windows binaries on a tag and attaches
+        them to a GitHub release. The install scripts here fetch them with
+        `gh release download`, which works for a private repo once `gh` is
+        signed in. Linux has `gh` from Nix; add `gh` to
+        `packages/scoop-packages.txt`. This keeps Rust and a C compiler off
+        Windows, which is the point of the port. The alternative, a clone
+        and `cargo install --path`, needs rustup and MSVC on Windows.
+    - **17d. MCP server,** in the new repo, as a subcommand of the binary
+      (`code-health mcp`), with tools `score`, `review` and `safeguard`
+      returning the `--json` data. Wire it into Claude Code here; other
+      harnesses come later.
+    - Checked by the fixture tests ported to `cargo test` in the new repo,
+      the output diff in 17c, `bash .agents/check` here, and a Windows run
+      of the install script, the Stop hook and `accept`, as in step 12.
 
 Later: adapters for other harnesses (OpenCode, Codex), Brain Class,
 duplication across files, and calibrating against the CodeScene trial on
