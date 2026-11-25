@@ -519,7 +519,7 @@ Windows doesn't rewrite their line endings.
     - Document it in `docs/install.md` and `docs/install-windows.md`.
 
     Checked by running the Linux step.
-12. **[Windows] Windows check.** Partly done (first pass on 2026-11-23).
+12. ✅ **[Windows] Windows check.** Done (2026-11-23 to 2026-11-25).
     - ✅ Install through the Windows install script. Found: Claude Desktop
       is an MSIX app, so a terminal inside it (its Terminal tab, or Claude's
       own Bash tool) writes AppData into a private copy under
@@ -545,10 +545,14 @@ Windows doesn't rewrite their line endings.
     - ✅ `accept` terminal check: `isatty()` is true for `NUL` on Windows,
       so input from `NUL` got past the check and crashed at the prompt
       (nothing was recorded). It now asks Windows for a real console
-      (`GetConsoleMode`). Still to confirm by hand: in Windows Terminal,
-      `code-health accept <a clean file> --smell "Large Method" --reason
-      test` reaches the finding lookup ("no Large Method finding"), not
-      "needs an interactive terminal".
+      (`GetConsoleMode`). Confirmed by hand on 2026-11-25: in Windows
+      Terminal, an accept on a clean file reaches the finding lookup ("no
+      Large Method finding"), not "needs an interactive terminal".
+    - ✅ `accept` and the Stop hook share the state folder (step 16), checked
+      on 2026-11-25. An `accept` typed in Windows Terminal on a scratch
+      repo's one finding, then the Stop hook run inside Claude Desktop:
+      exit 0, `safeguard` shows `ok accepted`. An unaccepted copy of the
+      function in another file still fails, so it isn't a skip.
     - ✅ `safeguard` and the Claude Stop hook in scratch repos under Git Bash
       (2026-11-24), fed events with backslash `cwd` and this machine's real
       transcript. All pass: CRLF working files with `autocrlf=true`, CRLF
@@ -563,7 +567,8 @@ Windows doesn't rewrite their line endings.
     - ✅ `code-health repo` on the largest C# work repo: 13.3 s for 969
       files (about 125,000 lines of C#) and 636 commits over 12 months. One
       `.ps1` went unscored because of the size-suffix parse gap in 7a.
-    - Fix anything Linux-only, or report it.
+    - ✅ Fix anything Linux-only, or report it. Nothing Linux-only was left;
+      the two gaps found are in 7a and aren't specific to Windows.
 13. ✅ **History across machines.** Done (13a-13d); change records are
     written by the Stop hook's `safeguard --episode` run. One history in a private git repo of
     JSONL files (decided over a database: no network or credentials in the
@@ -612,11 +617,12 @@ Windows doesn't rewrite their line endings.
       average complexity is at least 6 (4 flagged ordinary, readable files
       in this repo and eShop; the real cases averaged 7.6 and 8). Fix: Extract Function; split the
       module.
-15. **[Windows] Windows check for 13 and 14,** folded into step 12.
+15. ✅ **[Windows] Windows check for 13 and 14,** folded into step 12 and
+    done there.
 
 16. ✅ **Move the Windows state folder out of AppData.** Done; agreed with
-    the user. Still to check on Windows (with step 12): `accept` in Windows
-    Terminal, and the Stop hook in Claude Desktop sees it.
+    the user. Checked on Windows (with step 12, 2026-11-25): an `accept` made
+    in Windows Terminal is seen by the Stop hook in Claude Desktop.
     - **Problem.** The state folder (`accepted.jsonl`, turn marks) is
       `%LOCALAPPDATA%\code-health` on Windows. The hooks run inside Claude
       Desktop, so they read and write the app's private copy; `accept` run
