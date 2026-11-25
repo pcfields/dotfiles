@@ -431,10 +431,14 @@ Windows doesn't rewrite their line endings.
      reader would expect. Across the repo's 900 C# files no smell is
      widespread: Code Duplication is on 11%, Excess Function Arguments on
      7%, and no constructor reaches its limit of 8. Found two small gaps:
-     - Code Duplication fires on model classes whose property declarations
+     - ✅ Code Duplication fired on model classes whose property declarations
        were copied from one class to another: attributes plus `{ get; set; }`
        pass the 4-line-shape rule. 4 files, all reported against `<file>`.
-       Possible fix: skip runs made only of declarations and attributes.
+       Fixed (2026-11-25, scorer version 11): a window is skipped when every
+       row is a declaration (C# properties, fields and attributes; TS
+       interface properties and class fields), unless the code sits in an
+       accessor body, an expression body or a lambda. All 4 files are clear;
+       no other finding in the repo changed.
      - ✅ PowerShell: after an operator or a unary minus, any uppercase
        letter in a number (`$a / 1MB`, `-1L`, `1E3`, `0XFF`) was an ERROR
        node, so the whole file went unscored. Fixed (2026-11-25): numbers
