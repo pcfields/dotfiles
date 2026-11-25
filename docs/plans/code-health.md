@@ -659,8 +659,38 @@ Windows doesn't rewrite their line endings.
       `accept` in Windows Terminal, and the Stop hook in Claude Desktop sees
       it.
 
-Later: an MCP server wrapping `--json` (tools like `score`, `review`,
-`safeguard`), adapters for other harnesses (OpenCode, Codex), Brain Class,
+17. **Port to Rust, then add the MCP server.** Not started. Its own PR.
+    - **Why now.** Steps 7a and 12 are done. Step 12 found that the Windows
+      install is the fragile part (uv-managed Python, the uv junction bug
+      inside Claude Desktop, a grammar download); one binary with the
+      grammars compiled in removes all three. The MCP server wraps `--json`,
+      so building it after the port puts it in the same binary instead of
+      porting it too.
+    - **17a. Freeze the rules.** Land the two PowerShell parse gaps from 7a
+      (`$a-1MB` with no spaces; a file holding only a comment). After that,
+      no rule or limit changes until 17c is done, so nothing is done twice.
+    - **17b. Spike the grammars.** A Rust binary that parses one fixture per
+      language (C#, TS, TSX, JS, JSX, bash, PowerShell, Lua, Rust, Python)
+      with no ERROR nodes, from grammars compiled in, built and run on Linux
+      and Windows. Check that each grammar has a Rust crate, or can be built
+      from a vendored copy, at a version that parses the same as the Python
+      pack. PowerShell first. If a grammar is missing or parses differently,
+      **stop and report to the user**.
+    - **17c. Port.** Same CLI, same text and `--json` output, same state
+      and history files, same scorer version. Port the source rewrites as
+      well: C# `#if` blanking, PowerShell number lowercasing, and any
+      comment-only fix from 17a. Keep the Python tool until they agree:
+      run both over every fixture and over this repo and one C# repo, and
+      diff the `--json` output. Then switch the hooks, `.agents/check` and
+      both install scripts to the binary, and retire the Python tool.
+    - **17d. MCP server** as a subcommand of the binary (`code-health
+      mcp`), with tools `score`, `review` and `safeguard` returning the
+      `--json` data. Wire it into Claude Code; other harnesses come later.
+    - Checked by the fixture tests ported to `cargo test`, the output diff
+      in 17c, `bash .agents/check`, and a Windows run of the install script,
+      the Stop hook and `accept`, as in step 12.
+
+Later: adapters for other harnesses (OpenCode, Codex), Brain Class,
 duplication across files, and calibrating against the CodeScene trial on
 about 20 files. Also the Rust port (see Decisions): step 12 found that the
 Windows install is the fragile part (uv-managed Python, an environment, a
