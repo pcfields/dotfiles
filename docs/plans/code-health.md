@@ -701,8 +701,10 @@ Windows doesn't rewrite their line endings.
         scored file in this repo, 167,805 nodes), with no error nodes.
         `cargo test` checks one sample per language against a reference
         tree dumped by the Python pack.
-      - **Windows.** Not yet run. CI builds and tests on `windows-latest`
-        (MSVC) once pushed; then run the CI binary on the Windows machine.
+      - **Windows.** ✅ CI (2026-11-25): builds with MSVC on
+        `windows-latest` and both tests pass (about 9 minutes uncached; Linux
+        about 3.5). Still to do: run the CI binary (`code-health-Windows`
+        artifact) on the Windows machine, `code-health tree` on a few files.
     - **17c. Port.** Same CLI, same text and `--json` output, same state
       and history files, same scorer version. Port the source rewrites as
       well: C# `#if` blanking, PowerShell number lowercasing, and the rule
