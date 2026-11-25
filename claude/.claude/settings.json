@@ -26,8 +26,7 @@
     "ask": [
       "Bash(git push:*)",
       "Bash(gh pr create:*)",
-      "Edit(**/.code-health.toml)",
-      "Write(**/.code-health.toml)"
+      "Edit(**/.code-health.toml)"
     ],
     "deny": [
       "Read(**/.env)",
@@ -38,8 +37,7 @@
       "Read(~/.config/gh/hosts.yml)",
       "Bash(code-health accept:*)",
       "Bash(uv run *code-health accept*)",
-      "Edit(**/.code-health/accepted.jsonl)",
-      "Write(**/.code-health/accepted.jsonl)"
+      "Edit(~/.local/state/code-health/**)"
     ]
   },
   "hooks": {
