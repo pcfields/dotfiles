@@ -725,8 +725,14 @@ Windows doesn't rewrite their line endings.
          `splitlines` are kept in `numbers.rs`, `json.rs` and `text.rs`. One
          difference: a bad command line prints clap's usage message, not
          argparse's; the exit code is still 1.
-      3. `safeguard`, `accept`, `mark-turn`: git, state folder, turn
+      3. ✅ `safeguard`, `accept`, `mark-turn`: git, state folder, turn
          marks. Digests must match so existing acceptances stay valid.
+         Done 2026-11-26: `safeguard` output byte-identical to the Python
+         tool in 27 scenario repos and on 200 commits of this repo's
+         history; turn marks cross between the tools; accept records are
+         byte-identical. 227 tests. The four tests that drive `accept`
+         through a terminal are `#[ignore]`, since only a person may run
+         `accept`: `cargo test --test accept -- --ignored`, by the user.
       4. `episode` and `history`.
       5. `repo`, with the HTML report folded in.
       6. Tagged releases from CI, then the switch-over in this repo.
