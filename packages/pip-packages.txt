@@ -11,4 +11,4 @@
 #   pip install -r packages\pip-packages.txt
 #   mise reshim
 
-# (none at the moment: code-health, which replaced lizard, installs with uv)
+# (none at the moment)

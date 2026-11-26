@@ -15,10 +15,9 @@ dotfiles repo, so copy the parts you want and make them yours.
 | `skills/commit` | Plans and makes conventional commits, split by concern | `lib/`, bash |
 | `skills/pr-draft` | Drafts a PR title and description for the branch | `lib/`, bash |
 | `skills/refactor` | Tidies or uplifts code in small tested steps | `tdd`; `code-health` for an uplift |
-| `skills/repo-health` | Ranks hotspots by change frequency and code health | `code-health`, uv |
+| `skills/repo-health` | Ranks hotspots by change frequency and code health | `code-health` |
 | `AGENTS.md` | Global instructions loaded into every session | — |
 | `checks/run-project-check.sh` | Runs a repo's `check` command when the agent stops | bash |
-| `tools/code-health` | Scores files 1-10 and names the code smells in each | uv |
 | `../../claude/.claude/hooks/` | Claude Code hooks: block secret files and destructive commands, run checks on stop | bash, jq |
 
 Skills mention each other by name (`plan-it` hands off to `tdd`). Any one
@@ -102,11 +101,11 @@ They are a backstop. Keep Claude Code's sandbox and permission prompts on.
 
 ## 4. code-health
 
-Install [uv](https://docs.astral.sh/uv/), then:
-
-```bash
-uv tool install --editable ~/.agents/tools/code-health && code-health grammars
-```
+`code-health` scores files 1-10 and names the code smells in each. It is a
+single binary from a private repo's releases: install it with
+`install/install-code-health.sh` (Linux) or
+`install\windows\install-code-health.ps1` (Windows), as `docs/install.md` and
+`docs/install-windows.md` describe.
 
 Try it in any repo: `code-health review <file>`, or `/repo-health` for a full
 report. To have it check every change the agent makes, copy the hooks as in
@@ -124,7 +123,7 @@ from step 3):
 
 Only you should accept a finding, never the agent. Add
 `"Bash(code-health accept:*)"` to `permissions.deny` in `settings.json`.
-`tools/code-health/README.md` explains the scores.
+The code-health repo's README explains the scores.
 
 Each run writes to a `.code-health/` folder in the repo and adds it to
 `.git/info/exclude`, so it never shows up in `git status`.

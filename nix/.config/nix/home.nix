@@ -65,9 +65,6 @@
     shellcheck                          # shell linter; bash-language-server uses it
     sqlfluff                            # SQL linter and formatter
 
-    # --- Python tooling ---
-    uv                                  # pins its own Python; builds and installs the code-health tool
-
     # --- Database clients ---
     sqlite                              # sqlite3
     postgresql                          # psql (client; the server is unused here)
