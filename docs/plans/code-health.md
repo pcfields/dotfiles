@@ -732,7 +732,8 @@ Windows doesn't rewrite their line endings.
          history; turn marks cross between the tools; accept records are
          byte-identical. 227 tests. The four tests that drive `accept`
          through a terminal are `#[ignore]`, since only a person may run
-         `accept`: `cargo test --test accept -- --ignored`, by the user.
+         `accept`: `cargo test --test accept -- --ignored`, by the user. The
+         user ran them on 2026-11-26: 4 passed.
       4. `episode` and `history`.
       5. `repo`, with the HTML report folded in.
       6. Tagged releases from CI, then the switch-over in this repo.
