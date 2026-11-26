@@ -1,0 +1,4 @@
+# The code-health release that install/install-code-health.sh and
+# install/windows/install-code-health.ps1 download. To upgrade, change it and
+# re-run the code-health install step on each machine.
+v0.1.0

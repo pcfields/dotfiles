@@ -1,30 +1,38 @@
 #!/usr/bin/env bash
-# Installs the code-health CLI (agents/.agents/tools/code-health) with uv, as
-# an editable tool, and downloads its tree-sitter grammars so a first run
-# works offline. Re-run with --force after the tool's dependencies change.
+# Installs the code-health binary into ~/.local/bin from a release of the
+# private code-health repo, at the version in packages/code-health-version.txt.
+# Needs gh signed in and CODE_HEALTH_REPO set to <owner>/<name>.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/lib/common.sh"
 
-TOOL_DIR="$ROOT_DIR/agents/.agents/tools/code-health"
+version="$(read_package_file "$ROOT_DIR/packages/code-health-version.txt")"
+bin="$HOME/.local/bin/code-health"
 
-if ! command -v uv >/dev/null 2>&1; then
-  error "uv not found: run ./install.sh nix (or home-manager switch), then open a new shell"
-  exit 1
-fi
-require_file "$TOOL_DIR/pyproject.toml"
-
-log "Installing code-health from $TOOL_DIR"
-uv tool install --editable --force "$TOOL_DIR"
-
-export PATH="$HOME/.local/bin:$PATH"
-if ! command -v code-health >/dev/null 2>&1; then
-  error "code-health not found after install. Check that ~/.local/bin is on PATH"
+require_command gh
+if [[ -z "${CODE_HEALTH_REPO:-}" ]]; then
+  error "CODE_HEALTH_REPO is not set: see docs/secrets.md"
   exit 1
 fi
 
-log "Downloading tree-sitter grammars"
-code-health grammars
+# The Python tool was a uv tool with its shim at the same path.
+if command -v uv >/dev/null 2>&1 && uv tool list 2>/dev/null | grep -q '^code-health '; then
+  log "Removing the uv-installed Python code-health"
+  uv tool uninstall code-health
+fi
 
-log "Installed code-health at $(command -v code-health)"
+if [[ "$("$bin" --version 2>/dev/null)" == "code-health ${version#v}" ]]; then
+  log "code-health $version is already installed at $bin"
+  exit 0
+fi
+
+log "Downloading code-health $version"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+gh release download "$version" --repo "$CODE_HEALTH_REPO" --pattern code-health --dir "$tmp"
+mkdir -p "$(dirname "$bin")"
+rm -f "$bin"
+install -m 755 "$tmp/code-health" "$bin"
+
+log "Installed $("$bin" --version) at $bin"

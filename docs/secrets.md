@@ -48,6 +48,20 @@ After a fresh install, you need to:
 Log in through the GUI apps after installation. Credentials are not stored
 in dotfiles.
 
+### code-health
+
+The `code-health` install step downloads the binary from a release of a
+private GitHub repo, which this public repo doesn't name. Sign in with
+`gh auth login`, then set `CODE_HEALTH_REPO` to that repo's `<owner>/<name>`:
+
+```fish
+set -Ux CODE_HEALTH_REPO <owner>/<name>
+```
+
+```powershell
+[Environment]::SetEnvironmentVariable("CODE_HEALTH_REPO", "<owner>/<name>", "User")
+```
+
 ## Environment Variables
 
 These should be set in your shell config (Fish):

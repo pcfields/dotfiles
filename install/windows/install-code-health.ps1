@@ -1,33 +1,52 @@
-# Install the code-health CLI (agents\.agents\tools\code-health) with uv, as an
-# editable tool, and download its tree-sitter grammars so a first run works
-# offline. This is the Windows counterpart of install/install-code-health.sh.
-# Re-run after the tool's dependencies change.
+# Install the code-health binary into ~\.local\bin from a release of the
+# private code-health repo, at the version in packages\code-health-version.txt.
+# Needs gh signed in and CODE_HEALTH_REPO set to <owner>/<name>. This is the
+# Windows counterpart of install/install-code-health.sh.
 
 Write-Host "=== code-health setup ==="
 
-# uv comes from scoop (packages/scoop-packages.txt)
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-  Write-Host "Error: uv not found on PATH."
-  Write-Host "Install it first:  scoop install uv"
+# gh comes from scoop (packages/scoop-packages.txt)
+if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+  Write-Host "Error: gh not found on PATH."
+  Write-Host "Install it first:  scoop install gh, then gh auth login"
+  exit 1
+}
+if (-not $env:CODE_HEALTH_REPO) {
+  Write-Host "Error: CODE_HEALTH_REPO is not set: see docs\secrets.md"
   exit 1
 }
 
-$toolDir = Resolve-Path (Join-Path $PSScriptRoot "..\..\agents\.agents\tools\code-health")
-Write-Host "Installing code-health from $toolDir"
-uv tool install --editable --force "$toolDir"
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$versionFile = Join-Path $PSScriptRoot "..\..\packages\code-health-version.txt"
+$version = Get-Content $versionFile |
+  ForEach-Object { ($_ -replace '#.*$', '').Trim() } |
+  Where-Object { $_ } |
+  Select-Object -First 1
+$binDir = Join-Path $HOME ".local\bin"
+$bin = Join-Path $binDir "code-health.exe"
 
-# Puts uv's tool folder on the user PATH. Scoop's uv moves it to scoop\persist.
-uv tool update-shell
-$env:Path = "$(uv tool dir --bin);$env:Path"
-
-if (-not (Get-Command code-health -ErrorAction SilentlyContinue)) {
-  Write-Host "Error: code-health not found after install. Open a new terminal and try again."
-  exit 1
+# The Python tool was a uv tool; its shim would shadow the binary on PATH.
+if ((Get-Command uv -ErrorAction SilentlyContinue) -and (uv tool list 2>$null | Select-String '^code-health ')) {
+  Write-Host "Removing the uv-installed Python code-health"
+  uv tool uninstall code-health
 }
 
-Write-Host "Downloading tree-sitter grammars"
-code-health grammars
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$installed = if (Test-Path $bin) { & $bin --version } else { "" }
+if ($installed -eq "code-health $($version.TrimStart('v'))") {
+  Write-Host "code-health $version is already installed at $bin"
+} else {
+  Write-Host "Downloading code-health $version"
+  $tmp = Join-Path ([IO.Path]::GetTempPath()) "code-health-$version"
+  gh release download $version --repo $env:CODE_HEALTH_REPO --pattern code-health.exe --dir $tmp --clobber
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+  Copy-Item (Join-Path $tmp "code-health.exe") $bin -Force
+  Remove-Item $tmp -Recurse -Force
+}
 
-Write-Host "=== code-health installed at $((Get-Command code-health).Source) ==="
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if (($userPath -split ';') -notcontains $binDir) {
+  [Environment]::SetEnvironmentVariable("Path", "$userPath;$binDir", "User")
+  Write-Host "Added $binDir to your user PATH. Open a new terminal, and quit Claude Desktop from its tray icon, to pick it up."
+}
+
+Write-Host "=== $(& $bin --version) installed at $bin ==="

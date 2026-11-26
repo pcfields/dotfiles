@@ -114,27 +114,21 @@ this workaround for prettier and documents the reasoning.
 ### code-health
 
 `code-health` scores code health for the agent hooks and the `repo-health`
-skill. It installs with `uv` (from scoop) as an editable tool, and downloads its
-tree-sitter grammars so a first run works offline:
+skill. The script downloads the binary into `%USERPROFILE%\.local\bin`, at the
+release pinned in `packages\code-health-version.txt`, and adds that folder to
+your user PATH. It needs `gh` (from scoop), signed in with `gh auth login`, and
+`CODE_HEALTH_REPO` set (see `docs/secrets.md`):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File install\windows\install-code-health.ps1
 ```
 
-Open a new terminal afterwards, then check it with `code-health grammars`, which
-also prints where the grammars are cached. Re-run the script after the tool's
-dependencies change; code changes take effect without it.
+Open a new terminal afterwards and check it with `code-health --version`. Quit
+Claude Desktop from its tray icon, not just its window, so the hooks see the new
+PATH. Re-run the script after changing the pinned version.
 
-**Quit Claude Desktop from its tray icon after `scoop install uv`.** Scoop's uv
-sets `UV_PYTHON_INSTALL_DIR`, `UV_TOOL_DIR` and friends for your user, pointing
-at `scoop\persist\uv`. Claude Desktop only sees them after a full restart;
-closing its window leaves it running in the tray. Until then, uv falls back to
-`%APPDATA%`, and Claude Desktop is an MSIX app: a terminal inside it writes
-AppData into a private copy, where uv's Python junctions don't resolve
-([astral-sh/uv#19622](https://github.com/astral-sh/uv/issues/19622)). The
-symptom is `Missing expected target directory for Python minor version link`.
-
-Because of that private copy, code-health keeps its state (acceptances from
+Claude Desktop is an MSIX app: a terminal inside it writes AppData into a
+private copy. So code-health keeps its state (acceptances from
 `code-health accept`, and turn marks) in `%USERPROFILE%\.local\state\code-health`,
 not AppData, so the Claude hooks and a normal terminal see the same folder.
 Older versions used `%LOCALAPPDATA%\code-health`; that folder can be deleted.

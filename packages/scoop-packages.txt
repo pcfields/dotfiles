@@ -5,6 +5,7 @@
 
 # ── Core CLI (needed for config/aliases to work) ────────
 git
+gh                      # GitHub CLI; downloads the code-health release
 mise                    # runtime manager; provides Node (mise use -g node@26)
 uv                      # pins its own Python; installs the code-health tool
 nvim

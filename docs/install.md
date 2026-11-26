@@ -115,15 +115,14 @@ GitHub supports cloning repositories with SSH URLs once SSH access is configured
 
 ## Code health tool
 
-`./install.sh` includes a `code-health` step. It installs the `code-health`
-command (`agents/.agents/tools/code-health`) with `uv tool install --editable`,
-so code changes take effect without reinstalling, and downloads its tree-sitter
-grammars so a first run works offline. It needs `uv` from the `nix` step.
+`./install.sh` includes a `code-health` step. It downloads the `code-health`
+binary into `~/.local/bin`, at the release pinned in
+`packages/code-health-version.txt`. It needs `gh` from the `nix` step, signed
+in, and `CODE_HEALTH_REPO` set (see `docs/secrets.md`).
 
 ```bash
 ./install.sh code-health            # first install
-./install.sh code-health --force    # after the tool's dependencies change
-code-health grammars                # re-download grammars; prints the cache folder
+./install.sh code-health --force    # after changing the pinned version
 ```
 
 Refactoring episodes are also recorded in a private history repo when
