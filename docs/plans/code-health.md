@@ -739,8 +739,52 @@ Windows doesn't rewrite their line endings.
          episode can be started by one tool and ended by the other, and
          `history` output matches; 261 tests. `main.rs` scores 8.7 only for
          its flat command dispatch (one match arm per command), left as is.
-      5. `repo`, with the HTML report folded in.
+      5. ✅ `repo`, with the HTML report folded in. Done 2026-11-26: on
+         this repo and eShop, `repo` text and `--json` output, `data.json`,
+         `snapshots.jsonl` and `report.html` are byte-identical to the
+         Python tool and `build-report.py`; 284 tests. The page builder is
+         `code-health repo-report [<data dir>] [--findings] [--out]`, not
+         `repo report`, because `repo` already takes an optional path.
       6. Tagged releases from CI, then the switch-over in this repo.
+
+      **Handoff for slice 6** (written 2026-11-26, end of slice 5; a fresh
+      session can start here):
+      - The Rust tool is feature-complete: every Python command except
+        `grammars` (nothing to download: grammars are compiled in). It
+        also has hidden `tree` and `metrics` commands for parity checks.
+        Known output differences: clap's usage text on a bad command line
+        (exit code still 1), and `repo-report` errors carry the
+        `code-health: ` prefix. Everything else was compared byte for byte.
+      - The comparison scripts lived in a session scratchpad and are gone.
+        Before deleting the Python tool, a last spot check is cheap: run
+        both on this repo (`score`, `review`, `safeguard --base HEAD~50`,
+        `repo --json` in two clones with the same folder name) and diff.
+      - Releases: `ci.yml` in the new repo builds and tests on Linux and
+        Windows and uploads artifacts on every push. Add a release job on
+        `v*` tags that attaches `code-health` (Linux) and
+        `code-health.exe` (Windows) to a GitHub release. `Cargo.toml` is
+        at 0.1.0; tag `v0.1.0` for the first release.
+      - Files here to change (found by grep): `install/install-code-health.sh`
+        and `install/windows/install-code-health.ps1` (both call
+        `code-health grammars`, which must go), a new pinned-version line
+        they read, `packages/scoop-packages.txt` (add `gh`),
+        `claude/.claude/hooks/code-health-command.sh` (drop the `uv run`
+        fallback), `claude/.claude/settings.json` (drop the
+        `uv run *code-health accept*` deny rule), `.agents/check` (drop the
+        pytest step), `agents/.agents/skills/repo-health/SKILL.md` (step 2
+        becomes `code-health repo-report`; delete `scripts/build-report.py`
+        and `assets/report.html`, now embedded), `agents/.agents/README.md`,
+        `docs/install.md`, `docs/install-windows.md`, and this repo's
+        `.code-health.toml` (its exclude of the tool's fixtures goes with
+        the tool). Then delete `agents/.agents/tools/code-health`.
+      - Before switching, try the binary in real sessions by pointing
+        `CODE_HEALTH_CMD` at it.
+      - Still open from 17b: the Windows check of the CI binary on the
+        work machine. `cargo test --test accept -- --ignored` (the
+        terminal tests for `accept`) is for the user to run on any change
+        to `accept`.
+      - Cargo needs network and writes `~/.cargo`, so in a sandboxed
+        session it runs outside the sandbox.
 
       Same CLI, same text and `--json` output, same state
       and history files, same scorer version. Port the source rewrites as
