@@ -717,7 +717,14 @@ Windows doesn't rewrite their line endings.
          are ported (90 tests); their smell checks move to slice 2. The
          code was written before its tests here; mutation checks showed the
          ported tests catch broken rules.
-      2. `score` and `review`: smells, score, config, ignore comments.
+      2. ✅ `score` and `review`: smells, score, config, ignore comments.
+         Done 2026-11-26: text and `--json` output byte-identical to the
+         Python tool on 1,384 files and on edge cases (non-ASCII paths,
+         ignore comments, config errors, missing files); 178 tests. Python's
+         rounding, float repr, compensated `sum`, `json.dumps` format and
+         `splitlines` are kept in `numbers.rs`, `json.rs` and `text.rs`. One
+         difference: a bad command line prints clap's usage message, not
+         argparse's; the exit code is still 1.
       3. `safeguard`, `accept`, `mark-turn`: git, state folder, turn
          marks. Digests must match so existing acceptances stay valid.
       4. `episode` and `history`.
