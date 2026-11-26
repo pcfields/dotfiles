@@ -734,7 +734,11 @@ Windows doesn't rewrite their line endings.
          through a terminal are `#[ignore]`, since only a person may run
          `accept`: `cargo test --test accept -- --ignored`, by the user. The
          user ran them on 2026-11-26: 4 passed.
-      4. `episode` and `history`.
+      4. ✅ `episode` and `history`. Done 2026-11-26: every file both tools
+         write is identical apart from timestamps in 10 scenarios, an
+         episode can be started by one tool and ended by the other, and
+         `history` output matches; 261 tests. `main.rs` scores 8.7 only for
+         its flat command dispatch (one match arm per command), left as is.
       5. `repo`, with the HTML report folded in.
       6. Tagged releases from CI, then the switch-over in this repo.
 
