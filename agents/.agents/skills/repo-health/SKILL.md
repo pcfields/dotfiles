@@ -102,10 +102,8 @@ targets, the branchiest functions and the hotspot ranking.
    ```
 
    Targets go worst first. Each `path` must be exactly as the tool printed
-   it, or that target is left off the page (the script says how many).
-2. From the repo root, run
-   `uv run --project ~/.agents/tools/code-health python ~/.agents/skills/repo-health/scripts/build-report.py`
-   (any Python 3 works; uv's avoids broken shims). It writes
+   it, or that target is left off the page (`repo-report` says how many).
+2. From the repo root, run `code-health repo-report`. It writes
    `.code-health/repo/report.html`, with the data inlined.
 3. Give the user the path. Where the Artifact tool is available, also publish
    that file as a private artifact (icon `chart`). On a later run in the same
