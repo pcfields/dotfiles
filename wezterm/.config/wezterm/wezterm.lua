@@ -1,20 +1,13 @@
 local wezterm = require("wezterm")
 
+-- Modules load from beside this file, so a --config-file run or a worktree
+-- uses its own copy rather than the installed one.
+package.path = wezterm.config_dir .. "/?.lua;" .. package.path
+
 local config = wezterm.config_builder()
 
--- ============================================================================
--- PLATFORM MODULE
--- ============================================================================
-
-local platform = {
-	is_windows = wezterm.target_triple:find("windows") ~= nil,
-}
-
-platform.shell = platform.is_windows and "pwsh.exe" or (os.getenv("SHELL") or "/usr/bin/fish")
-
-platform.home_dir = wezterm.home_dir
-
-platform.font_size = 12
+local palette = require("pcf.palette")
+local platform = require("pcf.platform")
 
 -- ============================================================================
 -- KEYMAP BUILDERS MODULE
@@ -90,27 +83,6 @@ command_spawners.spawn_tool = function(label, command)
 		args = args,
 	})
 end
-
--- ============================================================================
--- UI CONFIGURATION MODULE
--- ============================================================================
-
--- Rosé Pine Moon palette (https://rosepinetheme.com/palette), named so the
--- tab bar and status bar can match the terminal's color scheme.
-local palette = {
-	base = "#232136",
-	surface = "#2a273f",
-	overlay = "#393552",
-	muted = "#6e6a86",
-	subtle = "#908caa",
-	text = "#e0def4",
-	gold = "#f6c177",
-	iris = "#c4a7e7",
-	love = "#eb6f92",
-	foam = "#9ccfd8",
-	-- Darker than the tab bar so the right status reads as recessed
-	void = "#15131f",
-}
 
 -- ============================================================================
 -- PROJECT PICKER
