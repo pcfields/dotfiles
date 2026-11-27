@@ -4,6 +4,8 @@ local palette = require("pcf.palette")
 
 local tab_title = {}
 
+local is_bare_path, names_first, is_name
+
 tab_title.shells = {
 	pwsh = true,
 	powershell = true,
@@ -46,24 +48,26 @@ tab_title.looks_like_default_title = function(title, process, cwd_basename)
 	end
 
 	local lowered = title:lower()
+	return is_bare_path(lowered)
+		or names_first(lowered, process)
+		or is_name(lowered, cwd_basename)
+		or tab_title.shells[lowered]
+		or false
+end
 
-	-- A bare path: fish's idle title on Linux (`~/dotfiles`), or the
-	-- executable path Windows consoles fall back to (`C:\...\cmd.exe`).
-	if lowered:match("^[~/]") or lowered:match("^%a:\\") then
-		return true
-	end
+-- A bare path: fish's idle title on Linux (`~/dotfiles`), or the
+-- executable path Windows consoles fall back to (`C:\...\cmd.exe`).
+function is_bare_path(title)
+	return title:match("^[~/]") ~= nil or title:match("^%a:\\") ~= nil
+end
 
-	-- fish titles a running command as `<command> <cwd>`.
-	local first_word = lowered:match("^(%S+)")
-	if process and first_word == process:lower() then
-		return true
-	end
+-- fish titles a running command as `<command> <cwd>`.
+function names_first(title, name)
+	return name ~= nil and title:match("^(%S+)") == name:lower()
+end
 
-	if cwd_basename and lowered == cwd_basename:lower() then
-		return true
-	end
-
-	return tab_title.shells[lowered] or false
+function is_name(title, name)
+	return name ~= nil and title == name:lower()
 end
 
 -- Tools like lazygit title themselves "<repo> - <tool>". The location is
