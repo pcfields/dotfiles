@@ -11,6 +11,7 @@ checks=(
   agents/.agents/skills/pr-draft/scripts/test-branch-state.sh
   agents/.agents/skills/commit/scripts/test-commit-state.sh
   install/check-agent-config.sh
+  wezterm/.config/wezterm/tests/test-wezterm.sh
 )
 
 for check in "${checks[@]}"; do
