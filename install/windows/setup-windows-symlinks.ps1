@@ -15,6 +15,25 @@
 
 $ErrorActionPreference = "Stop"
 
+# WezTerm reads ~/.wezterm.lua before ~/.config/wezterm, so the link from
+# before the config moved must go, and a real file there is backed up.
+function Remove-OldWeztermConfig {
+    param([string]$UserProfile)
+
+    $old = Get-Item (Join-Path $UserProfile ".wezterm.lua") -Force -ErrorAction SilentlyContinue
+    if (-not $old) {
+        return
+    }
+
+    if ($old.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        Remove-Item $old.FullName -Force
+        Write-Host "Removed old link: $($old.FullName)" -ForegroundColor Cyan
+    } else {
+        Move-Item $old.FullName "$($old.FullName).backup" -Force
+        Write-Host "Backing up old config: $($old.FullName) -> .backup" -ForegroundColor Cyan
+    }
+}
+
 $DotfilesRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 
 # Detect the real (non-elevated) user by finding the owner of explorer.exe.
@@ -84,18 +103,7 @@ $Links = @(
     }
 )
 
-# WezTerm reads ~/.wezterm.lua before ~/.config/wezterm, so the link from
-# before the config moved must go, and a real file there is backed up.
-$oldWezterm = Get-Item (Join-Path $realUserProfile ".wezterm.lua") -Force -ErrorAction SilentlyContinue
-if ($oldWezterm) {
-    if ($oldWezterm.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
-        Remove-Item $oldWezterm.FullName -Force
-        Write-Host "Removed old link: $($oldWezterm.FullName)" -ForegroundColor Cyan
-    } else {
-        Move-Item $oldWezterm.FullName "$($oldWezterm.FullName).backup" -Force
-        Write-Host "Backing up old config: $($oldWezterm.FullName) -> .backup" -ForegroundColor Cyan
-    }
-}
+Remove-OldWeztermConfig -UserProfile $realUserProfile
 
 foreach ($Link in $Links) {
     $source = $Link.Source
