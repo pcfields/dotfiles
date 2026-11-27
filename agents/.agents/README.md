@@ -14,6 +14,7 @@ dotfiles repo, so copy the parts you want and make them yours.
 | `skills/debug-it` | Finds the root cause from evidence before fixing | `tdd` |
 | `skills/commit` | Plans and makes conventional commits, split by concern | `lib/`, bash |
 | `skills/pr-draft` | Drafts a PR title and description for the branch | `lib/`, bash |
+| `skills/pr-review` | Drafts friendly, labelled review comments for a PR, light or detailed | `lib/`, bash; `code-health` when the repo is cloned |
 | `skills/refactor` | Tidies or uplifts code in small tested steps | `tdd`; `code-health` for an uplift |
 | `skills/repo-health` | Ranks hotspots by change frequency and code health | `code-health` |
 | `AGENTS.md` | Global instructions loaded into every session | — |
@@ -140,8 +141,8 @@ Each run writes to a `.code-health/` folder in the repo and adds it to
   git.example.com/team work base=origin/develop
   ```
 
-  Then write `~/.agents-local/overlays/commit/work.md` (or `pr-draft/`)
-  with the extra rules. `base=` sets the branch `pr-draft` compares with.
+  Then write `~/.agents-local/overlays/commit/work.md` (or `pr-draft/`,
+  `pr-review/`) with the extra rules. `base=` sets the branch `pr-draft` compares with.
 - **Opinions to check before using:** `commit` forbids `Co-Authored-By`
   trailers, `pr-draft` keeps descriptions under about 15 lines, and `tdd`
   includes React Testing Library rules. Change them if your team works
