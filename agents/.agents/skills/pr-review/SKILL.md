@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a pull request and draft friendly, labelled review comments (Needs a change, Worth a look, Small thoughts) that don't overwhelm the author. Light by default, with more detail or example code on request, and nothing posted until the user says which comments to post. Use whenever the user asks to review a PR or pastes a pull request link (Azure DevOps or GitHub) to review.
+description: Review a pull request and draft friendly, labelled review comments (Needs a change, Worth a look, Small thoughts) that don't overwhelm the author. Light by default, with more detail or example code on request, and nothing posted until the user says which comments to post. Use whenever the user asks to review a pull request or merge request, or pastes a link to one from any host (GitHub, GitLab, Azure DevOps and so on).
 ---
 
 # PR review
