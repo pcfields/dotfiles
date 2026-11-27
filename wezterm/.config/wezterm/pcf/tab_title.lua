@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local bar = require("pcf.bar")
 local palette = require("pcf.palette")
 
 local tab_title = {}
@@ -124,7 +125,7 @@ tab_title.indicators = function(state)
 	local pieces = {}
 
 	if state.zoomed then
-		table.insert(pieces, { text = "ZOOM", color = palette.love, bold = true })
+		table.insert(pieces, bar.zoom_segment)
 	end
 
 	if state.pane_count > 1 then
@@ -134,23 +135,13 @@ tab_title.indicators = function(state)
 	return pieces
 end
 
-tab_title.read_state = function(panes)
-	local state = { pane_count = #panes, zoomed = false }
-
-	for _, pane in ipairs(panes) do
-		state.zoomed = state.zoomed or pane.is_zoomed
-	end
-
-	return state
-end
-
 tab_title.register = function()
 	wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
 		-- The handler's own `panes` argument covers only the active tab, so
 		-- ask the mux for this tab's panes.
 		local mux_tab = wezterm.mux.get_tab(tab.tab_id)
 		local panes = mux_tab and mux_tab:panes_with_info() or {}
-		local indicators = tab_title.indicators(tab_title.read_state(panes))
+		local indicators = tab_title.indicators(bar.pane_state(panes))
 
 		-- Reserve room for the number and the indicators; only the title is
 		-- truncated, so neither is ever cut off.
@@ -173,9 +164,10 @@ tab_title.register = function()
 		}
 
 		for _, piece in ipairs(indicators) do
-			table.insert(items, { Foreground = { Color = piece.color } })
-			table.insert(items, { Attribute = { Intensity = piece.bold and "Bold" or "Normal" } })
-			table.insert(items, { Text = piece.text .. " " })
+			local spaced = { text = piece.text .. " ", color = piece.color, bold = piece.bold }
+			for _, item in ipairs(bar.segment_items(spaced)) do
+				table.insert(items, item)
+			end
 		end
 
 		return items

@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local bar = require("pcf.bar")
 local palette = require("pcf.palette")
 
 local status_bar = {}
@@ -57,7 +58,7 @@ status_bar.mode_label = function(state)
 	return nil
 end
 
--- A section is a list of segments: { text = "...", color = "#rrggbb", bold = true }.
+-- A section is a list of segments (see pcf.bar).
 
 -- Pure: the input mode as a section. Nil when idle.
 status_bar.mode_section = function(state)
@@ -74,7 +75,7 @@ status_bar.pane_section = function(state)
 	local segments = {}
 
 	if state.zoomed then
-		table.insert(segments, { text = "ZOOM", color = palette.love, bold = true })
+		table.insert(segments, bar.zoom_segment)
 	end
 
 	if state.pane_count > 1 then
@@ -161,9 +162,9 @@ status_bar.format_strip = function(sections)
 			if segment_index > 1 then
 				table.insert(items, { Text = " " })
 			end
-			table.insert(items, { Foreground = { Color = segment.color } })
-			table.insert(items, { Attribute = { Intensity = segment.bold and "Bold" or "Normal" } })
-			table.insert(items, { Text = segment.text })
+			for _, item in ipairs(bar.segment_items(segment)) do
+				table.insert(items, item)
+			end
 		end
 
 		table.insert(items, { Text = " " })
@@ -175,17 +176,13 @@ status_bar.format_strip = function(sections)
 end
 
 status_bar.read_state = function(window)
-	local panes = window:active_tab():panes_with_info()
-	local zoomed = false
-	for _, pane in ipairs(panes) do
-		zoomed = zoomed or pane.is_zoomed
-	end
+	local panes = bar.pane_state(window:active_tab():panes_with_info())
 
 	return {
 		leader_active = window:leader_is_active(),
 		key_table = window:active_key_table(),
-		zoomed = zoomed,
-		pane_count = #panes,
+		zoomed = panes.zoomed,
+		pane_count = panes.pane_count,
 		workspace = window:active_workspace(),
 		workspace_names = wezterm.mux.get_workspace_names(),
 	}
