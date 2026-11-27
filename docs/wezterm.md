@@ -1,7 +1,32 @@
 # WezTerm keybindings and UI
 
-The config is `wezterm/.config/wezterm/wezterm.lua`. This page is the quick reference; the
-file is the source of truth.
+The config is `wezterm/.config/wezterm/`, linked to `~/.config/wezterm`. This
+page is the quick reference; the files are the source of truth.
+
+## Where things live
+
+| File | What |
+|---|---|
+| `wezterm.lua` | Entry: plain settings, then applies and registers the modules |
+| `pcf/keys.lua` | Leader, key bindings, key tables, mouse |
+| `pcf/appearance.lua` | Color scheme, fonts, window look |
+| `pcf/tab_title.lua` | Tab titles (`format-tab-title`) |
+| `pcf/status_bar.lua` | Left and right status (`update-status`) |
+| `pcf/bar.lua` | Pane state and segment drawing shared by both bars |
+| `pcf/workspace_history.lua` | `LEADER w`, back to the last workspace |
+| `pcf/projects.lua` | The `LEADER SHIFT+F` project picker |
+| `pcf/palette.lua`, `pcf/platform.lua` | Colors, and OS facts (shell, home, font size) |
+
+Tests are in `tests/`. They run inside WezTerm's own Lua, call the event
+handlers and key callbacks with fake tabs and windows, and are part of
+`bash .agents/check`:
+
+```bash
+bash wezterm/.config/wezterm/tests/test-wezterm.sh
+```
+
+`wezterm show-keys` exiting 0 does not mean the config loaded: a config that
+errors makes WezTerm fall back to its defaults and still exit 0.
 
 ## Leader
 
@@ -15,7 +40,7 @@ and the right status shows `LEADER`.
 |---|---|
 | `LEADER SHIFT+F` | Find a project and open it in its own workspace |
 | `LEADER g` | LazyGit in a new tab |
-| `LEADER ;` | Claude in a new tab |
+| `LEADER a` | Claude in a new tab |
 | `LEADER f` | Fuzzy workspace launcher |
 | `LEADER .` / `LEADER ,` | Next / previous workspace (alphabetical) |
 | `LEADER w` | Back to the workspace you were in last; press again to toggle |
@@ -43,7 +68,7 @@ and the right status shows `LEADER`.
 | `LEADER i` | Previous tab |
 | `LEADER SHIFT+o` | Move the tab right |
 | `LEADER SHIFT+i` | Move the tab left |
-| `LEADER a` | Alternate (last) tab |
+| `LEADER e` | Last tab (pairs with `LEADER w` for workspaces) |
 | `LEADER 1` to `6` | Jump to tab by number |
 
 ## Copy and scrolling
@@ -77,7 +102,7 @@ Selected text is a solid iris block with dark text.
 | `y` | Copy, clear the selection and leave copy mode |
 | `Escape`, `q`, `Ctrl-c` | Leave without copying |
 
-`y` is overridden (`keymap_builders.copy_mode_keys`): the built-in one copies
+`y` is overridden (`copy_mode_keys` in `pcf/keys.lua`): the built-in one copies
 but leaves the text highlighted. Every other key is the default. There is no
 `/` search inside copy mode; use `LEADER ?` instead.
 
@@ -110,14 +135,35 @@ bindings, since this list goes stale.
 
 | Kind | Free |
 |---|---|
-| Letters | `b` `e` `n` `p` `q` `v` |
+| Letters | `b` `n` `p` `q` `v` |
 | Digits | `0` `7` `8` `9` (`1` to `6` jump to tabs) |
-| Punctuation | `-` `=` `[` `]` `\` `` ` `` `/` |
+| Punctuation | `-` `=` `[` `]` `\` `` ` `` `/` `;` |
 | `LEADER SHIFT` + letter | everything except `F`, `X`, `O`, `I` and `M` |
 
 Also unbound: `Space`, `Tab`, `Enter`, the arrow keys, and the function keys.
-Taken punctuation is `'` `,` `.` `;` `?`.
+Taken punctuation is `'` `,` `.` `?`.
 
 Ideas that fit the existing mnemonics: `n` / `p` (next / previous) for
 workspaces or tabs, `7` to `9` to extend the tab jumps, and `/` for a second
 search entry point.
+
+## Not done yet
+
+Ideas that need their own discussion first:
+
+- A local unix domain (`unix_domains` plus `default_gui_startup_args`) so
+  shells survive the GUI restarting.
+- `resurrect.wezterm` to save and restore workspace layouts.
+- `smart-splits.nvim` for one set of `CTRL+h/j/k/l` keys across Neovim splits
+  and WezTerm panes.
+- Project layouts: `LEADER SHIFT+F` opening an editor, a shell and lazygit.
+- An untracked `local-private.lua` for employer-specific config, such as
+  `hyperlink_rules` for ticket links. `~/.config/wezterm` links into the repo,
+  so gitignore it.
+- Choosing the project profile by hostname or an env var instead of the OS.
+
+## Verified, no action needed
+
+Nerd Font glyphs render even though Monaspace Neon and JetBrains Mono are not
+patched: WezTerm appends its built-in `Symbols Nerd Font Mono` to every
+fallback chain (`wezterm ls-fonts --text ...`).
