@@ -116,11 +116,12 @@ this workaround for prettier and documents the reasoning.
 `code-health` scores code health for the agent hooks and the `repo-health`
 skill. The script downloads the binary into `%USERPROFILE%\.local\bin`, at the
 release pinned in `packages\code-health-version.txt`, and adds that folder to
-your user PATH. It needs `gh` (from scoop), signed in with `gh auth login`, and
-`CODE_HEALTH_REPO` set (see `docs/secrets.md`):
+your user PATH. It needs `gh` (from scoop), a fine-grained GitHub token, and
+`CODE_HEALTH_REPO` set. `docs/secrets.md` covers both; don't run
+`gh auth login`. Paste the token at the prompt:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File install\windows\install-code-health.ps1
+$env:GH_TOKEN = Read-Host -MaskInput "token"; powershell -ExecutionPolicy Bypass -File install\windows\install-code-health.ps1; Remove-Item Env:GH_TOKEN
 ```
 
 Open a new terminal afterwards and check it with `code-health --version`. Quit

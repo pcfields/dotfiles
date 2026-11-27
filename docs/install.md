@@ -117,12 +117,13 @@ GitHub supports cloning repositories with SSH URLs once SSH access is configured
 
 `./install.sh` includes a `code-health` step. It downloads the `code-health`
 binary into `~/.local/bin`, at the release pinned in
-`packages/code-health-version.txt`. It needs `gh` from the `nix` step, signed
-in, and `CODE_HEALTH_REPO` set (see `docs/secrets.md`).
+`packages/code-health-version.txt`. It needs `gh` from the `nix` step, a
+fine-grained GitHub token, and `CODE_HEALTH_REPO` set. `docs/secrets.md` covers
+both; don't run `gh auth login`. Paste the token at the prompt:
 
-```bash
-./install.sh code-health            # first install
-./install.sh code-health --force    # after changing the pinned version
+```fish
+env GH_TOKEN=(read -s -P 'token: ') ./install.sh code-health            # first install
+env GH_TOKEN=(read -s -P 'token: ') ./install.sh code-health --force    # after changing the pinned version
 ```
 
 Refactoring episodes are also recorded in a private history repo when

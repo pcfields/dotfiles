@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Installs the code-health binary into ~/.local/bin from a release of the
 # private code-health repo, at the version in packages/code-health-version.txt.
-# Needs gh signed in and CODE_HEALTH_REPO set to <owner>/<name>.
+# Needs GH_TOKEN set to a fine-grained token for gh, and CODE_HEALTH_REPO set
+# to <owner>/<name>: see docs/secrets.md.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

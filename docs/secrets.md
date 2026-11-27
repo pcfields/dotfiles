@@ -51,8 +51,8 @@ in dotfiles.
 ### code-health
 
 The `code-health` install step downloads the binary from a release of a
-private GitHub repo, which this public repo doesn't name. Sign in with
-`gh auth login`, then set `CODE_HEALTH_REPO` to that repo's `<owner>/<name>`:
+private GitHub repo, which this public repo doesn't name. Set
+`CODE_HEALTH_REPO` to that repo's `<owner>/<name>`:
 
 ```fish
 set -Ux CODE_HEALTH_REPO <owner>/<name>
@@ -61,6 +61,46 @@ set -Ux CODE_HEALTH_REPO <owner>/<name>
 ```powershell
 [Environment]::SetEnvironmentVariable("CODE_HEALTH_REPO", "<owner>/<name>", "User")
 ```
+
+`gh` needs a token to download the release. Don't use `gh auth login`: it
+leaves a login to the whole GitHub account on the machine. Create a
+fine-grained personal access token instead:
+
+- **Repository access:** only the code-health repo, plus the history repo if
+  this machine syncs history, and this repo if you push from the machine.
+- **Permissions:** Contents, read and write. Read-only is enough if the token
+  only downloads the release.
+- **Expiration** set, and a name that says which machine holds it.
+
+Give it to `gh` for the install command only:
+
+```fish
+env GH_TOKEN=(read -s -P 'token: ') ./install.sh code-health
+```
+
+```powershell
+$env:GH_TOKEN = Read-Host -MaskInput "token"; powershell -ExecutionPolicy Bypass -File install\windows\install-code-health.ps1; Remove-Item Env:GH_TOKEN
+```
+
+`Read-Host -MaskInput` needs PowerShell 7. Afterwards, `gh auth status` should
+say you're not logged in.
+
+### Personal repos on a work machine (Windows)
+
+Git Credential Manager saves one login for all of github.com, and its browser
+and device sign-ins grant access to every repo. Close those windows if they
+appear. To use the fine-grained token for one repo only, run this in each
+personal repo that needs to fetch or push:
+
+```powershell
+git config credential.useHttpPath true
+git config credential.username <github-user>
+git config credential.gitHubAuthModes pat
+```
+
+The next `git fetch` asks for a token: paste the fine-grained one. Then
+`cmdkey /list | Select-String github` should show that repo's URL, not plain
+`git:https://github.com`.
 
 ## Environment Variables
 

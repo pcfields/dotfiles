@@ -1,14 +1,15 @@
 # Install the code-health binary into ~\.local\bin from a release of the
 # private code-health repo, at the version in packages\code-health-version.txt.
-# Needs gh signed in and CODE_HEALTH_REPO set to <owner>/<name>. This is the
-# Windows counterpart of install/install-code-health.sh.
+# Needs GH_TOKEN set to a fine-grained token for gh, and CODE_HEALTH_REPO set
+# to <owner>/<name>: see docs\secrets.md. This is the Windows counterpart of
+# install/install-code-health.sh.
 
 Write-Host "=== code-health setup ==="
 
 # gh comes from scoop (packages/scoop-packages.txt)
 if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
   Write-Host "Error: gh not found on PATH."
-  Write-Host "Install it first:  scoop install gh, then gh auth login"
+  Write-Host "Install it first:  scoop install gh  (then see docs\secrets.md for the token)"
   exit 1
 }
 if (-not $env:CODE_HEALTH_REPO) {
