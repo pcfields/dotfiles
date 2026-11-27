@@ -1,6 +1,6 @@
 # WezTerm keybindings and UI
 
-The config is `wezterm/.wezterm.lua`. This page is the quick reference; the
+The config is `wezterm/.config/wezterm/wezterm.lua`. This page is the quick reference; the
 file is the source of truth.
 
 ## Leader

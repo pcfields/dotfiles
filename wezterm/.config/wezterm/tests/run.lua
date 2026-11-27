@@ -5,7 +5,7 @@
 local wezterm = require("wezterm")
 
 local tests_dir = wezterm.config_dir
-local config_path = tests_dir .. "/../../../.wezterm.lua"
+local config_path = tests_dir .. "/../wezterm.lua"
 local test_files = {
 	"tests.config_test",
 	"tests.tab_title_test",

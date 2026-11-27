@@ -47,8 +47,8 @@ $realPSProfile = Join-Path $realUserProfile `
 # Define symlink mappings: [target in dotfiles] -> [link location on Windows]
 $Links = @(
     @{
-        Source = Join-Path $DotfilesRoot "wezterm\.wezterm.lua"
-        Target = Join-Path $realUserProfile ".wezterm.lua"
+        Source = Join-Path $DotfilesRoot "wezterm\.config\wezterm"
+        Target = Join-Path $realUserProfile ".config\wezterm"
     },
     @{
         Source = Join-Path $DotfilesRoot "nvim\.config\nvim"
@@ -83,6 +83,19 @@ $Links = @(
         Target = Join-Path $realUserProfile ".claude\hooks"
     }
 )
+
+# WezTerm reads ~/.wezterm.lua before ~/.config/wezterm, so the link from
+# before the config moved must go, and a real file there is backed up.
+$oldWezterm = Get-Item (Join-Path $realUserProfile ".wezterm.lua") -Force -ErrorAction SilentlyContinue
+if ($oldWezterm) {
+    if ($oldWezterm.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        Remove-Item $oldWezterm.FullName -Force
+        Write-Host "Removed old link: $($oldWezterm.FullName)" -ForegroundColor Cyan
+    } else {
+        Move-Item $oldWezterm.FullName "$($oldWezterm.FullName).backup" -Force
+        Write-Host "Backing up old config: $($oldWezterm.FullName) -> .backup" -ForegroundColor Cyan
+    }
+}
 
 foreach ($Link in $Links) {
     $source = $Link.Source
